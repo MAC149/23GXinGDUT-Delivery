@@ -1,7 +1,7 @@
 #ifndef _MOTOR_H_
 #define _MOTOR_H_
 #include "GeneralDef.h"
-
+#include "Delay.h"
 
 //MOTOR IO CONNECTION
 //MOTORFL
@@ -45,11 +45,22 @@ void Motortot_SetDir_RotLeft();
 void Motortot_SetDir_RotRight();
 void Motortot_SetDir_ForLeft();
 void Motortot_SetDir_ForRight();
-void Motortot_StepRun_ForLeft(uint8_t time);
-void Motortot_StepRun_ForRight(uint8_t time);
+void Motortot_StpRun_ForLeft(uint16_t time,uint16_t delay_us);
+void Motortot_StpRun_ForRight(uint16_t time,uint16_t delay_us);
 void Motortot_Init();
-void Motortot_StpRun(uint8_t time);
-void Motortot_StpRunWR(uint8_t time);
+void Motortot_StpRun(uint16_t time,uint16_t delay_us);
+void Motortot_StpRunWR(uint16_t time,uint16_t delay_us);
+
+//-----packed
+void Motortot_Forward(uint16_t time,uint16_t delay_us);
+void Motortot_Backward(uint16_t time,uint16_t delay_us);
+void Motortot_Left(uint16_t time,uint16_t delay_us);
+void Motortot_Right(uint16_t time,uint16_t delay_us);
+void Motortot_RotLeft(uint16_t time,uint16_t delay_us);
+void Motortot_RotRight(uint16_t time,uint16_t delay_us);
+void Motortot_ForLeft(uint16_t time,uint16_t delay_us);
+void Motortot_ForRight(uint16_t time,uint16_t delay_us);
+
 
 #endif // !_MOTOR_H_
 #define _MOTOR_H_

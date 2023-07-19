@@ -23,6 +23,7 @@
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
+#include "MainInteract.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -101,8 +102,9 @@ int main(void)
   MX_USART3_UART_Init();
   MX_USART6_UART_Init();
   MX_TIM12_Init();
+  MX_TIM6_Init();
   /* USER CODE BEGIN 2 */
-
+    Motortot_Init();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -110,7 +112,7 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-
+    Motortot_Test();
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
