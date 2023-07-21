@@ -23,11 +23,11 @@
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
-#include "MainInteract.h"
+
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "MainInteract.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -104,7 +104,7 @@ int main(void)
   MX_TIM12_Init();
   MX_TIM6_Init();
   /* USER CODE BEGIN 2 */
-    Motortot_Init();
+  Test_Mod();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -112,7 +112,7 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-    Motortot_Test();
+
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
