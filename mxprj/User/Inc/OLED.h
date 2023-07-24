@@ -1,6 +1,14 @@
 #ifndef __OLED_H
 #define __OLED_H
 
+#define _OLED_INCH_13
+//#define _OLED_INCH_096
+
+/*引脚配置*/
+#define OLED_W_SCL(x)		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_8, (GPIO_PinState)(x))
+#define OLED_W_SDA(x)		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_9, (GPIO_PinState)(x))
+
+
 void OLED_Init(void);
 void OLED_Clear(void);
 void OLED_ShowChar(uint8_t Line, uint8_t Column, char Char,uint8_t fonts);

@@ -1,9 +1,6 @@
 #include "OLED_Font.h"
-#include "main.h"
+#include "OLED.h"
 
-/*引脚配置*/
-#define OLED_W_SCL(x)		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_8, (GPIO_PinState)(x))
-#define OLED_W_SDA(x)		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_9, (GPIO_PinState)(x))
 
 /*引脚初始化*/
 void OLED_I2C_Init(void)
@@ -100,9 +97,16 @@ void OLED_WriteData(uint8_t Data)
   */
 void OLED_SetCursor(uint8_t Y, uint8_t X)
 {
+	#ifdef _OLED_INCH_096
 	OLED_WriteCommand(0xB0 | Y);					//设置Y位置
 	OLED_WriteCommand(0x10 | ((X & 0xF0) >> 4));	//设置X位置低4位
 	OLED_WriteCommand(0x00 | (X & 0x0F));			//设置X位置高4位
+	#endif //_OLED_INCH_096
+	#ifdef _OLED_INCH_13
+	OLED_WriteCommand(0xb0+Y);
+	OLED_WriteCommand((((X+2)&0xf0)>>4)|0x10);
+	OLED_WriteCommand(((X+2)&0x0f)); 
+	#endif _OLED_INCH_13
 }
 
 /**
@@ -304,7 +308,7 @@ void OLED_Init(void)
 	OLED_I2C_Init();			//端口初始化
 	
 	OLED_WriteCommand(0xAE);	//关闭显示
-	
+
 	OLED_WriteCommand(0xD5);	//设置显示时钟分频比/振荡器频率
 	OLED_WriteCommand(0x80);
 	
@@ -340,7 +344,39 @@ void OLED_Init(void)
 	OLED_WriteCommand(0x14);
 
 	OLED_WriteCommand(0xAF);	//开启显示
-		
+	// OLED_WriteCommand(0xAE);//--display off
+	// OLED_WriteCommand(0x02);//---set low column address
+	// OLED_WriteCommand(0x10);//---set high column address
+	// OLED_WriteCommand(0x40);//--set start line address  
+	// OLED_WriteCommand(0xB0);//--set page address
+	// OLED_WriteCommand(0x81); // contract control
+	// OLED_WriteCommand(0xFF);//--128   
+	// OLED_WriteCommand(0xA1);//set segment remap 
+	// OLED_WriteCommand(0xA6);//--normal / reverse
+	// OLED_WriteCommand(0xA8);//--set multiplex ratio(1 to 64)
+	// OLED_WriteCommand(0x3F);//--1/32 duty
+	// OLED_WriteCommand(0xC8);//Com scan direction
+	// OLED_WriteCommand(0xD3);//-set display offset
+	// OLED_WriteCommand(0x00);//
+	
+	// OLED_WriteCommand(0xD5);//set osc division
+	// OLED_WriteCommand(0x80);//
+	
+	// OLED_WriteCommand(0xD8);//set area color mode off
+	// OLED_WriteCommand(0x05);//
+	
+	// OLED_WriteCommand(0xD9);//Set Pre-Charge Period
+	// OLED_WriteCommand(0xF1);//
+	
+	// OLED_WriteCommand(0xDA);//set com pin configuartion
+	// OLED_WriteCommand(0x12);//
+	
+	// OLED_WriteCommand(0xDB);//set Vcomh
+	// OLED_WriteCommand(0x30);//
+	
+	// OLED_WriteCommand(0x8D);//set charge pump enable
+	// OLED_WriteCommand(0x14);//
+	// OLED_WriteCommand(0xAF);//--turn on oled panel
 	OLED_Clear();				//OLED清屏
 }
 

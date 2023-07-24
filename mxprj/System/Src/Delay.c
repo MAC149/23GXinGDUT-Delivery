@@ -34,6 +34,47 @@ void HAL_Delay_usST(uint16_t us)
  HAL_TIM_Base_Stop(&htim6);
 }
 
+void Sys_Delay_us(uint32_t us)
+{
+    uint32_t ticks;
+    uint32_t told;
+    uint32_t tnow;
+    uint32_t tcnt = 0;
+    uint32_t reload;
+       
+	reload = SysTick->LOAD;                
+    ticks = us * (SystemCoreClock / 1000000);	 /* 需要的节拍数 */  
+    
+    tcnt = 0;
+    told = SysTick->VAL;             /* 刚进入时的计数器值 */
+ 
+    while (1)
+    {
+        tnow = SysTick->VAL;    
+        if (tnow != told)
+        {    
+            /* SYSTICK是一个递减的计数器 */    
+            if (tnow < told)
+            {
+                tcnt += told - tnow;    
+            }
+            /* 重新装载递减 */
+            else
+            {
+                tcnt += reload - tnow + told;    
+            }        
+            told = tnow;
+ 
+            /* 时间超过/等于要延迟的时间,则退出 */
+            if (tcnt >= ticks)
+            {
+            	break;
+            }
+        }  
+    }
+}
+
+
 
 //Counter Mode设为Down
 //Counter Period设为0,其他保持不变

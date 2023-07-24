@@ -96,8 +96,9 @@ void Test_Mod()
     float_t F_a=1.3431;
     //OLED_Test();
     OLED_Init();
-    OLED_ShowString(1,1,"PRESS SW1",32);
+    OLED_ShowString(1,1,"PRESS SW1",16);
     while(!Key_Scan(&KEY1));
+    OLED_Clear();
     OLED_ShowString(1,1,"OPSx:",16);
     OLED_ShowString(2,1,"OPSy:",16);
     OLED_ShowString(3,1,"OPSyaw:",16);
