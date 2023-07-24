@@ -1,5 +1,5 @@
 #include "Motor.h"
-
+#define PUL_DIS_1MM 25
 
 void Motortot_SetEn_On()
 {
@@ -199,4 +199,156 @@ void Motortot_ForRight(uint16_t time,uint16_t delay_us)
 {
     Motortot_SetDir_ForRight();
     Motortot_StpRun_ForRight(time,delay_us);
+}
+
+//---------OPS
+
+
+void Motortot_GoXdis(float disx,uint16_t delay_us)
+{
+    long desx=OPS.pos_x+disx;
+    if(disx<0)
+    {
+        Motortot_SetDir_Left();
+        while(!(OPS.pos_x<desx+5 && OPS.pos_x>desx-5))
+        {
+            Motortot_StpRun(2*PUL_DIS_1MM,delay_us);
+        }
+    }
+    else
+    {
+        Motortot_SetDir_Right();
+        while(!(OPS.pos_x<desx+5 && OPS.pos_x>desx-5))
+        {
+            Motortot_StpRun(2*PUL_DIS_1MM,delay_us);
+        }
+    }
+}
+
+void Motortot_GoYdis(float disy,uint16_t delay_us)
+{
+    long desy=OPS.pos_y+disy;
+    if(disy<0.0)
+    {
+        Motortot_SetDir_Backward();
+        while(!(OPS.pos_y<desy+5.0 && OPS.pos_y>desy-5.0))
+        {
+            Motortot_StpRun(2*PUL_DIS_1MM,delay_us);
+        }
+    }
+    else
+    {
+        Motortot_SetDir_Forward();
+        while(!(OPS.pos_y<desy+5.0 && OPS.pos_y>desy-5.0))
+        {
+            Motortot_StpRun(2*PUL_DIS_1MM,delay_us);
+        }
+    }
+}
+
+void Motortot_GoX(float targetx,uint16_t delay_us)
+{
+    if(targetx<OPS.pos_x)
+    {
+        Motortot_SetDir_Left();
+        while(!(OPS.pos_x<targetx+5 && OPS.pos_x>targetx-5))
+        {
+            Motortot_StpRun(2*PUL_DIS_1MM,delay_us);
+        }
+    }
+    else
+    {
+        Motortot_SetDir_Right();
+        while(!(OPS.pos_x<targetx+5 && OPS.pos_x>targetx-5))
+        {
+            Motortot_StpRun(2*PUL_DIS_1MM,delay_us);
+        }
+    }
+}
+
+void Motortot_GoY(float targety,uint16_t delay_us)
+{
+    if(targety<OPS.pos_y)
+    {
+        Motortot_SetDir_Backward();
+        while(!(OPS.pos_y<targety+5.0 && OPS.pos_y>targety-5.0))
+        {
+            Motortot_StpRun(2*PUL_DIS_1MM,delay_us);
+        }
+    }
+    else
+    {
+        Motortot_SetDir_Forward();
+        while(!(OPS.pos_y<targety+5.0 && OPS.pos_y>targety-5.0))
+        {
+            Motortot_StpRun(2*PUL_DIS_1MM,delay_us);
+        }
+    }
+}
+
+void Motortot_RotTo(float target_yaw,uint16_t delay_us)
+{
+    float temp[2];
+    if(target_yaw==180.0)
+    {
+        temp[0]=-target_yaw;
+    }
+    else
+    {
+         temp[0]=target_yaw;
+    }
+    if(target_yaw==-180.0)
+    {
+        temp[1]=target_yaw;
+    }
+    else
+    {
+        temp[1]=-target_yaw;
+    }
+    if(target_yaw == 180.0 || target_yaw == -180.0)
+    {
+        while(1)
+        {
+            if((OPS.zangle > temp[0] + 0.5)&& (OPS.zangle < 0))
+            {
+                Motortot_SetDir_RotLeft();
+                Motortot_StpRun(50,delay_us);
+            }
+            else if((OPS.zangle < temp[1] - 0.5)&&(OPS.zangle >= 0))
+            {
+                Motortot_SetDir_RotRight();
+                Motortot_StpRun(50,delay_us);
+            }
+            else
+            {
+                break;
+            }
+        }
+    }
+    else
+    {
+        while(1)
+        {
+            if(OPS.zangle > temp[0] + 0.5)
+            {
+                Motortot_SetDir_RotLeft();
+                Motortot_StpRun(50,delay_us);
+            }
+            else if(OPS.zangle< temp[1] - 0.5)
+            {
+                Motortot_SetDir_RotRight();
+                Motortot_StpRun(50,delay_us);
+            }
+            else
+            {
+                break;
+            }
+         }
+    } 
+}
+
+
+
+void Motortot_GoDis(float disx,float disy,float pointyaw)
+{
 }

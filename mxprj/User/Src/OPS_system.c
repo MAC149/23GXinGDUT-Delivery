@@ -4,7 +4,7 @@
   * @author  LJL
   * @version V1.0
   * @date    2022-xx-xx
-  * @brief   ±àÂëÆ÷Ïà¹Øº¯ÊıÎÄ¼ş
+  * @brief   ç¼–ç å™¨ç›¸å…³å‡½æ•°æ–‡ä»¶
   ******************************************************************************
   * @note:
   *
@@ -15,8 +15,8 @@
   ******************************************************************************
   * @attention
   *
-  * ÊµÑéÆ½Ì¨:LJL STM32F103xxxºËĞÄ°å
-  * ÂÛÌ³    	:xxx
+  * å®éªŒå¹³å°:LJL STM32F103xxxæ ¸å¿ƒæ¿
+  * è®ºå›    	:xxx
   * github	:xxx
   *
   ******************************************************************************
@@ -24,14 +24,13 @@
 #include "OPS_system.h"
 
 
-static uint8_t ops_ucRxbuff[opsRxbuff_LENGTH] = {0x00};	//½ÓÊÜµÄÊı¾İ»º´æ
+static uint8_t ops_ucRxbuff[opsRxbuff_LENGTH] = {0x00};	//æ¥å—çš„æ•°æ®ç¼“å­˜
 
 static void Stract(uint8_t strDestination[],uint8_t strSource[],int num);
 static void Update_all(void);
 static void Update_X(float New_X);
 static void Update_Y(float New_Y);
 static void Update_A(float New_A);
-
 static void OPS_init(void);
 static void Protocol_Analysis(void);
 
@@ -51,10 +50,10 @@ OPS_t OPS =
 
 
 /**
-	*@brief		×Ö·û´®Æ´½Ó
+	*@brief		å­—ç¬¦ä¸²æ‹¼æ¥
 	*@param		
-	*@note		ÎŞ
-	*@retval	ÎŞ
+	*@note		æ— 
+	*@retval	æ— 
 */
 void Stract(uint8_t strDestination[],uint8_t strSource[],int num)
 {
@@ -65,7 +64,7 @@ void Stract(uint8_t strDestination[],uint8_t strSource[],int num)
 }
 
 /**
-	*@brief		opsÇåÁã
+	*@brief		opsæ¸…é›¶
 	*@param
 	*@note
 	*@retval
@@ -78,7 +77,7 @@ void Update_all(void)
 
 
 /**
-	*@brief		¸üĞÂxÖá×ø±ê
+	*@brief		æ›´æ–°xè½´åæ ‡
 	*@param
 	*@note
 	*@retval
@@ -97,7 +96,7 @@ void Update_X(float New_X)
 }
 
 /**
-	*@brief		¸üĞÂyÖá×ø±ê
+	*@brief		æ›´æ–°yè½´åæ ‡
 	*@param
 	*@note
 	*@retval
@@ -117,7 +116,7 @@ void Update_Y(float New_Y)
 }
 
 /**
-	*@brief		¸üĞÂº½Ïò½Ç
+	*@brief		æ›´æ–°èˆªå‘è§’
 	*@param
 	*@note
 	*@retval
@@ -137,25 +136,23 @@ void Update_A(float New_A)
 }
 
 /**
-	*@brief		´®¿Ú½ÓÊÜÊı¾İº¯Êı
+	*@brief		ä¸²å£æ¥å—æ•°æ®å‡½æ•°
 	*@param
 	*@note
 	*@retval
 */
 void OPS_init(void)
 {
-	__HAL_UART_ENABLE_IT(&huart1,UART_IT_IDLE);                         //Ê¹ÄÜ´®¿Ú3µÄ¿ÕÏĞÖĞ¶Ï
-	HAL_UART_Receive_DMA(&huart1,OPS.pucRxbuff,opsRxbuff_LENGTH); //´®¿Ú3¿ªÆôDMA½ÓÊÕ
-//	GUI_ShowCHinese(0,0,16,"³µ×ÓÕıÔÚ³õÊ¼»¯ÖĞ",1);
+	__HAL_UART_ENABLE_IT(&OPS_auart_handle,UART_IT_IDLE);                         //ä½¿èƒ½ç©ºé—²ä¸­æ–­
+	HAL_UART_Receive_DMA(&OPS_auart_handle,OPS.pucRxbuff,opsRxbuff_LENGTH); //å¼€å¯DMAæ¥æ”¶
 	HAL_Delay(7000);
-	HAL_Delay(6000);
+	HAL_Delay(7500);
 //	Update_all();
-//	OLED_Clear(0);
 }
 
 /**
 	* @name   Protocol_Analysis
-	* @brief  Ğ­Òé·ÖÎö
+	* @brief  åè®®åˆ†æ
 	* @param  
 	* @retval None      
 */
@@ -168,13 +165,13 @@ static void Protocol_Analysis(void)
 	}posture;
 	uint8_t i = 0,Index = 0;
 	
-  //´®¿Ú3Í£Ö¹DMA½ÓÊÕ
-	HAL_UART_DMAStop(&huart1);
+  //ä¸²å£3åœæ­¢DMAæ¥æ”¶
+	HAL_UART_DMAStop(&OPS_auart_handle);
 	
-	//¹ıÂË¸ÉÈÅÊı¾İ
+	//è¿‡æ»¤å¹²æ‰°æ•°æ®
 	for(i=0;i<opsRxbuff_LENGTH;i++)
 	{
-		//¼ì²â¼üÖµÆğÊ¼Êı¾İ0x0d,0x0a
+		//æ£€æµ‹é”®å€¼èµ·å§‹æ•°æ®0x0d,0x0a
 		if(Index == 0)
 		{
 			if(OPS.pucRxbuff[i] != 0x0d)
@@ -184,13 +181,13 @@ static void Protocol_Analysis(void)
 		
 		OPS.pucRxbuff[Index] = OPS.pucRxbuff[i];
 
-		//ÒÑ¶ÁÈ¡28¸ö×Ö½Ú
+		//å·²è¯»å–28ä¸ªå­—èŠ‚
 		if(Index == opsOrder_LENGTH)
 			break;
 		
 		Index++;
 	}
-	/*¸³Öµ*/
+	/*èµ‹å€¼*/
 	for(i=0;i<opsRxbuff_LENGTH-4;i++)
 		posture.data[i] = OPS.pucRxbuff[i+2];
 	OPS.zangle=posture.ActVal[0];
@@ -200,12 +197,17 @@ static void Protocol_Analysis(void)
 	OPS.pos_y =posture.ActVal[4];
 	OPS.w_z   =posture.ActVal[5];
 	
-	//Çå»º´æ
+	//æ¸…ç¼“å­˜
 	for(i=0;i<opsRxbuff_LENGTH;i++)
 	{
 		OPS.pucRxbuff[i] = 0x00;
 	}
 }
 
-
+void OPS_OLED_Status_Update()
+{
+	OLED_ShowFNum(1,6,OPS.pos_x,7,16);
+    OLED_ShowFNum(2,6,OPS.pos_y,7,16);
+    OLED_ShowFNum(3,8,OPS.zangle,7,16);
+}
 

@@ -343,3 +343,61 @@ void OLED_Init(void)
 		
 	OLED_Clear();				//OLED清屏
 }
+
+
+//显示负数、浮点数字
+//x,y :起点坐标
+//num :要显示的数字
+//len :数字的位数
+//size:字体大小
+//mode:0,反色显示;1,正常显示
+//@n，小数点后位数，默认为2
+ 
+void OLED_ShowFNum(u8 x,u8 y,float num,u8 len,u8 size)
+{         	
+	u8 t,temp,i=0,m=0,n=2;
+	u8 enshow=0,pointshow=0;
+	u16 k;
+	len--;
+	if(size==8)m=2;
+	if(num<0)
+	{
+	num=-num;
+	i=1;     //负数标志	
+	}	
+	k=num*OLED_Pow(10,n); //此处为显示一位小数*10转化为整数，若要显示几位就@我（自己想办法）
+	for(t=0;t<len;t++)
+	{
+		temp=(k/OLED_Pow(10,len-t-1 ))%10;
+		if(enshow==0&&t<(len-2))
+		{
+			if(temp==0)
+			{
+				if(((k/OLED_Pow(10,len-t-2)%10)!=0)&&(i==1))//判断是否为负数且在最高位前一位
+				{
+					OLED_ShowChar(x,y+t,'-',size);
+									
+ 
+					i=0;	                              //清除判断后一位的标志
+				}else
+		    		OLED_ShowChar(x,y+t,'0',size);//如果没到数字就显示0
+									
+ 
+				continue;
+			}else enshow=1;		//此处是判断是否要显示数字	
+		}
+		if(t==len-n)//判断是否为最后一位的前一位（显示一位小数）
+		{
+			OLED_ShowChar(x,y+t,'.',size);
+       		OLED_ShowChar(x,y+(t+1),temp+'0',size);
+			pointshow=1;
+			continue;
+		}
+		if(pointshow==1){	
+			OLED_ShowChar(x,y+(t+1),temp+'0',size);
+			
+		}else	
+	 		OLED_ShowChar(x,y+t,temp+'0',size);
+		//一位一位显示下去
+	 }
+}

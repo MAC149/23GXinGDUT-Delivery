@@ -3,6 +3,8 @@
 #include "GeneralDef.h"
 #define OPS_auart_handle			huart1	
 
+#include "OLED.h"
+
 #define opsRxbuff_LENGTH 		50	
 #define opsOrder_LENGTH 		28	
 
@@ -26,7 +28,8 @@ typedef struct
 	void (*Protocol_Analysis)(void);
 }OPS_t;
 
-extern OPS_t OPS;
 
+extern OPS_t OPS;
+void OPS_OLED_Status_Update();
 
 #endif

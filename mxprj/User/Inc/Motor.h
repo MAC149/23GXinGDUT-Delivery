@@ -2,6 +2,16 @@
 #define _MOTOR_H_
 #include "GeneralDef.h"
 #include "Delay.h"
+#include "OPS_system.h"
+
+
+/*
+OPS:
+x   <-  -   + ->
+y    ↑+  -↓
+zangle(yaw) CW- +CCW
+*/
+
 
 //MOTOR IO CONNECTION
 //MOTORFL
@@ -60,7 +70,12 @@ void Motortot_RotLeft(uint16_t time,uint16_t delay_us);
 void Motortot_RotRight(uint16_t time,uint16_t delay_us);
 void Motortot_ForLeft(uint16_t time,uint16_t delay_us);
 void Motortot_ForRight(uint16_t time,uint16_t delay_us);
-
+//-----ops
+void Motortot_GoX(float targetx,uint16_t delay_us);
+void Motortot_GoY(float targety,uint16_t delay_us);
+void Motortot_GoXdis(float disx,uint16_t delay_us);
+void Motortot_GoYids(float disy,uint16_t delay_us);
+void Motortot_RotTo(float target_yaw,uint16_t delay_us);
 
 #endif // !_MOTOR_H_
 #define _MOTOR_H_

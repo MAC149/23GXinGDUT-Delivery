@@ -4,6 +4,9 @@
 #include "Delay.h"
 #include "OLED.h"
 #include "Scan.h"
+#include "OPS_system.h"
+#include "misc.h"
+#include <math.h>
 
 void Motortot_Test();
 void Test_Mod();

@@ -2,7 +2,7 @@
 
 void for_delay_us(uint32_t us)
 {
-    uint32_t Delay = us * 84/4;
+    uint32_t Delay = us * 168/4;
     do
     {
         __NOP();
@@ -10,7 +10,19 @@ void for_delay_us(uint32_t us)
     while (Delay --);
 }
 
-void HAL_Delay_us(uint16_t us)
+void Delay_Init()
+{
+    HAL_TIM_Base_Start(&htim6);
+}
+
+void HAL_Delay_us(uint16_t us) 
+{
+    uint16_t startCnt = __HAL_TIM_GET_COUNTER(&htim6);
+    while ((__HAL_TIM_GET_COUNTER(&htim6) - startCnt) <= us);
+}
+
+
+void HAL_Delay_usST(uint16_t us)
 {
     uint16_t differ=0xffff-us-5;                    //设定定时器计数器起始值​
     __HAL_TIM_SET_COUNTER(&htim6,differ);
@@ -44,12 +56,4 @@ void usDelay(uint32_t time)
      HAL_TIM_Base_Start_IT(&htim6);     //开启定时器
      while(!getState());                //判断计数值是否耗尽
      HAL_TIM_Base_Stop_IT(&htim6);      //关闭定时器
-}
-
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
-{
-    if (htim->Instance == TIM6) {
-        setState(true);
-    }
-    
 }

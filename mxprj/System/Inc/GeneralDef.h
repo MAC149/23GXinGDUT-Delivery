@@ -1,7 +1,7 @@
 #ifndef _GENERALDEF_H_
 #define _GENERALDEF_H_
 #include "main.h"
-#include "i2c.h"
+// #include "i2c.h"
 #include "spi.h"
 #include "tim.h"
 #include "usart.h"
@@ -16,7 +16,6 @@
 #define s32 int32_t
 #define s16 int16_t
 #define s8  int8_t
-
 #define DEBUG_UART huart3
 
 #define HIGH GPIO_PIN_SET       //高电平
