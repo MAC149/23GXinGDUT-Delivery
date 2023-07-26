@@ -1,5 +1,5 @@
 #include "testbench.h"
-#define MOTOR_DELAYUS 300
+#define MOTOR_DELAYUS 200
 
 
 void Motortot_Test()
@@ -96,15 +96,18 @@ void Test_Mod()
     float_t F_a=1.3431;
     //OLED_Test();
     OLED_Init();
+    Motortot_Init();
+    Motortot_SetEn_Off();
+    OLED_ShowString(1,1,"INIT...",16);
+    OPS.OPS_Init();
+    OLED_Clear();
     OLED_ShowString(1,1,"PRESS SW1",16);
     while(!Key_Scan(&KEY1));
     OLED_Clear();
     OLED_ShowString(1,1,"OPSx:",16);
     OLED_ShowString(2,1,"OPSy:",16);
     OLED_ShowString(3,1,"OPSyaw:",16);
-    Motortot_Init();
-    Motortot_SetEn_Off();
-    OPS.OPS_Init();
+    HAL_TIM_Base_Start_IT(&htim13);
     Motortot_SetEn_On();
     // for(;;F_a++)
     // {
@@ -115,13 +118,36 @@ void Test_Mod()
     //OPS_Rec_Test();
     while(1)
     {
-    Motortot_GoY(500,MOTOR_DELAYUS);
+    // Motortot_GoYdis(500,MOTOR_DELAYUS);
+    // HAL_Delay(1500);
+    // Motortot_GoYdis(-500,MOTOR_DELAYUS);
+    // HAL_Delay(2500);
+    // Motortot_GoYdis(-500,MOTOR_DELAYUS);
+    // HAL_Delay(1500);
+    // Motortot_GoYdis(500,MOTOR_DELAYUS);
+    // HAL_Delay(1500);
+    Motortot_RotTo(90.0,MOTOR_DELAYUS);
+    HAL_Delay(500);
+    Motortot_RotTo(90.0,MOTOR_DELAYUS);
+    //yaw_move(3200,35);
     HAL_Delay(1500);
-    Motortot_GoY(-500,MOTOR_DELAYUS);
-    HAL_Delay(2500);
-    Motortot_GoY(-500,MOTOR_DELAYUS);
+    Motortot_RotTo(0.0,MOTOR_DELAYUS);
     HAL_Delay(1500);
-    Motortot_GoY(500,MOTOR_DELAYUS);
+    Motortot_RotTo(-90.0,MOTOR_DELAYUS);
+    HAL_Delay(500);
+    Motortot_RotTo(-90.0,MOTOR_DELAYUS);
+    HAL_Delay(1500);
+    //yaw_move(-6400,35);
+
+    Motortot_RotTo(0.0,MOTOR_DELAYUS);
+    // HAL_Delay(1500);
+    // Motortot_RotTo(180.0,MOTOR_DELAYUS);
+    // HAL_Delay(1500);
+    // Motortot_RotTo(0.0,MOTOR_DELAYUS);
+    //yaw_move(3200,35);
+    // car_go(1,0,500,0);
+    // HAL_Delay(3000);
+    // car_go(1,0,-500,0);
     HAL_Delay(3000);
     // Motortot_Test();
     }

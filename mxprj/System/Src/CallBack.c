@@ -27,7 +27,7 @@ void  HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 	{
 		OPS_OLED_Status_Update();
 	}
-	if (htim->Instance == TIM6) {
-        setState(true);
-    }
+	// if (htim->Instance == TIM6) {
+    //     setState(true);
+    // }
 }

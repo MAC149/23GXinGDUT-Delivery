@@ -42,7 +42,6 @@ zangle(yaw) CW- +CCW
 #define MOTORBR_STP_GPIO_PIN GPIO_PIN_14
 #define MOTORBR_DIR_GPIOX GPIOE
 #define MOTORBR_DIR_GPIO_PIN GPIO_PIN_15
-#include "Motor.h"
 
 void Motortot_SetEn_On();
 void Motortot_SetEn_Off();
@@ -74,8 +73,12 @@ void Motortot_ForRight(uint16_t time,uint16_t delay_us);
 void Motortot_GoX(float targetx,uint16_t delay_us);
 void Motortot_GoY(float targety,uint16_t delay_us);
 void Motortot_GoXdis(float disx,uint16_t delay_us);
-void Motortot_GoYids(float disy,uint16_t delay_us);
+void Motortot_GoYdis(float disy,uint16_t delay_us);
 void Motortot_RotTo(float target_yaw,uint16_t delay_us);
+
+//--cy
+void car_go(uint8_t mode,float fDistance_x,float fDistance_y,float fDistance_z);
+void yaw_move(int x,int speed);
 
 #endif // !_MOTOR_H_
 #define _MOTOR_H_
