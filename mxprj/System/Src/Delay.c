@@ -12,10 +12,11 @@ void for_delay_us(uint32_t us)
 
 void Delay_Init()
 {
-    HAL_TIM_Base_Start(&htim6);
+    HAL_TIM_Base_Start_IT(&htim6);
+    HAL_TIM_Base_Start_IT(&htim7);
 }
 
-void HAL_Delay_us(uint16_t us) 
+void TIM6_Delay_us(uint32_t us) 
 {
     uint16_t startCnt = __HAL_TIM_GET_COUNTER(&htim6);
     while ((__HAL_TIM_GET_COUNTER(&htim6) - startCnt) <= us);
@@ -34,7 +35,7 @@ void HAL_Delay_usST(uint16_t us)
  HAL_TIM_Base_Stop(&htim6);
 }
 
-void Sys_Delay_us(uint32_t us)
+void HAL_Delay_us(uint32_t us)
 {
     uint32_t ticks;
     uint32_t told;

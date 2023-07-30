@@ -5,6 +5,7 @@
 #include "Scan.h"
 #include "OPS_system.h"
 #include "Delay.h"
+#include "Motor.h"
 
 void HAL_UART_IdleCallback(UART_HandleTypeDef *huart);
 

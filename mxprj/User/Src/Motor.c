@@ -287,9 +287,11 @@ void Motortot_GoY(float targety,uint16_t delay_us)
     }
 }
 
+
+
 void Motortot_RotTo(float target_yaw,uint16_t delay_us)
 {
-    float temp[3];
+    float temp[4];
     if(target_yaw==180.0)
     {
         temp[0]=-target_yaw;
@@ -310,7 +312,15 @@ void Motortot_RotTo(float target_yaw,uint16_t delay_us)
     {
         while(1)
         {
-			temp[2]=(OPS.zangle+OPS.zangle+OPS.zangle)/3.0;
+			temp[2]=OPS.zangle;
+			if(temp[3]==temp[2])
+			{
+				continue;
+			}
+			else
+			{
+				temp[3]=temp[2];
+			}
             if((temp[2] > temp[0] + 0.5)&& (temp[2] < 0))
             {
                 Motortot_SetDir_RotRight();
@@ -331,13 +341,21 @@ void Motortot_RotTo(float target_yaw,uint16_t delay_us)
     {
         while(1)
         {
-			temp[2]=(OPS.zangle+OPS.zangle+OPS.zangle)/3.0;
-            if(temp[2] > temp[0] + 0.5)
+			temp[2]=OPS.zangle;
+			if(temp[3]==temp[2])
+			{
+				continue;
+			}
+			else
+			{
+				temp[3]=temp[2];
+			}
+            if(temp[2] > temp[0]+0.2)
             {
                 Motortot_SetDir_RotRight();
                 Motortot_StpRun(8,delay_us);
             }
-            else if(temp[2]<temp[0]-0.5	)
+            else if(temp[2]<temp[0]	- 0.2)
             {
                 Motortot_SetDir_RotLeft();
                 Motortot_StpRun(8,delay_us);
