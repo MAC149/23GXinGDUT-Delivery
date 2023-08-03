@@ -313,7 +313,7 @@ void Motortot_RotTo(float target_yaw,uint16_t delay_us)
         while(1)
         {
 			temp[2]=OPS.zangle;
-			if(temp[3]==temp[2])
+			if(temp[3]==temp[2] || temp[2]==0.00)
 			{
 				continue;
 			}
@@ -766,5 +766,7 @@ void car_go(uint8_t mode,float fDistance_x,float fDistance_y,float fDistance_z)
 		}
 	}
 }
+
+//--------selfDesign PID
 
 

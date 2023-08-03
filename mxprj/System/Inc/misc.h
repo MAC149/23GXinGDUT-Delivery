@@ -6,12 +6,15 @@
 #define KEY_ON	1
 #define KEY_OFF	0
 
-#define KEY2_Pin GPIO_PIN_14
-#define KEY2_GPIO_Port GPIOB
-#define KEY1_Pin GPIO_PIN_4
+
+#define KEY1_Pin GPIO_PIN_1
 #define KEY1_GPIO_Port GPIOC
-#define KEY3_Pin GPIO_PIN_7
+#define KEY2_Pin GPIO_PIN_0
+#define KEY2_GPIO_Port GPIOC
+#define KEY3_Pin GPIO_PIN_5
 #define KEY3_GPIO_Port GPIOC
+#define KEY4_Pin GPIO_PIN_4
+#define KEY4_GPIO_Port GPIOC
 
 
 typedef struct

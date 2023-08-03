@@ -97,6 +97,7 @@ void Test_Mod()
     //OLED_Test();
     OLED_Init();
     Motortot_Init();
+    Delay_Init();
     Motortot_SetEn_Off();
     OLED_ShowString(1,1,"INIT...",16);
     OPS.OPS_Init();

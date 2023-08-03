@@ -106,7 +106,7 @@ void OLED_SetCursor(uint8_t Y, uint8_t X)
 	OLED_WriteCommand(0xb0+Y);
 	OLED_WriteCommand((((X+2)&0xf0)>>4)|0x10);
 	OLED_WriteCommand(((X+2)&0x0f)); 
-	#endif _OLED_INCH_13
+	#endif //_OLED_INCH_13
 }
 
 /**

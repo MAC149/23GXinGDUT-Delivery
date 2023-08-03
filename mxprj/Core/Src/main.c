@@ -104,7 +104,6 @@ int main(void)
   MX_TIM13_Init();
   MX_TIM7_Init();
   /* USER CODE BEGIN 2 */
-  Delay_Init();
   //HAL_TIM_Base_Start_IT(&htim13);
   Test_Mod();
   Full_Step();
