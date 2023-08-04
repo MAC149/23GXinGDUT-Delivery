@@ -389,11 +389,11 @@ void OLED_Init(void)
 //mode:0,反色显示;1,正常显示
 //@n，小数点后位数，默认为2
  
-void OLED_ShowFNum(u8 x,u8 y,float num,u8 len,u8 size)
+void OLED_ShowFNum(uint8_t x,uint8_t y,float num,uint8_t len,uint8_t size)
 {         	
-	u8 t,temp,i=0,m=0,n=2;
-	u8 enshow=0,pointshow=0;
-	u16 k;
+	uint8_t t,temp,i=0,m=0,n=2;
+	uint8_t enshow=0,pointshow=0;
+	uint16_t k;
 	len--;
 	if(size==8)m=2;
 	if(num<0)

@@ -1,7 +1,6 @@
 #include "testbench.h"
 #define MOTOR_DELAYUS 200
 
-
 void Motortot_Test()
 {
     HAL_Delay(2500);
@@ -26,7 +25,7 @@ void Scan_Test()
     {
         temp=Scan_GetCode();
         HAL_UART_Transmit(&DEBUG_UART,temp,(uint16_t)Scan_Data_Length,1000);
-        HAL_Delay(5000); 
+        HAL_Delay(5000);
     }
 }
 
@@ -42,7 +41,6 @@ void OLED_Test()
     HAL_Delay(1000);
     //     OLED_Clear();
     }
-
 }
 
 void Servo_Test()
@@ -65,13 +63,6 @@ void FloatToUint8(uint8_t * char_array,float_t* data,uint16_t size)
     }
 }
 
-void Usart_Reply()
-    {
-        uint8_t FFT_SampI[512];
-        //FloatToUint8(FFT_SampI,sd.FFT_Samples,512);Usart1_DmaStart((uint8_t*)FFT_SampI,sd.spec_len);
-}
-
-
 void OPS_Rec_Test()
 {
     HAL_Delay(3500);
@@ -88,13 +79,26 @@ void OPS_Rec_Test()
     }
 }
 
-
+void PC_Uart_Test()
+{
+    // for(;;)
+    // {
+    //     HAL_Delay(1500);
+    //     HAL_UART_Transmit(&DEBUG_UART,(uint8_t*)"aaa\n",4,1000);
+    //     //OLED_ShowFNum(1,1,F_a,10,16);
+    // }
+    while(1)
+    {
+        printf("HelloWorld!\r\n");
+        HAL_Delay(1000);
+    }
+}
 
 void Test_Mod()
 {
     //Motortot_Test();
-    float_t F_a=1.3431;
     //OLED_Test();
+    PC_Uart_Test();
     OLED_Init();
     Motortot_Init();
     Delay_Init();
@@ -110,15 +114,14 @@ void Test_Mod()
     OLED_ShowString(3,1,"OPSyaw:",16);
     HAL_TIM_Base_Start_IT(&htim13);
     Motortot_SetEn_On();
-    // for(;;F_a++)
-    // {
-    //     HAL_Delay(1500);
-    //     HAL_UART_Transmit(&DEBUG_UART,(uint8_t*)"aaa\n",4,1000);
-    //     OLED_ShowFNum(1,1,F_a,10,16);
-    // }
     //OPS_Rec_Test();
     while(1)
     {
+        //Motortot_Test();
+        // PID_Interatct(0,1000,0);
+        // HAL_Delay(1500);
+        // PID_Interatct(0,0,0);
+        // HAL_Delay(2500);
     // Motortot_GoYdis(500,MOTOR_DELAYUS);
     // HAL_Delay(1500);
     // Motortot_GoYdis(-500,MOTOR_DELAYUS);
@@ -127,34 +130,25 @@ void Test_Mod()
     // HAL_Delay(1500);
     // Motortot_GoYdis(500,MOTOR_DELAYUS);
     // HAL_Delay(1500);
-    // Motortot_RotTo(180.0,MOTOR_DELAYUS);
-    // HAL_Delay(500);
-    // Motortot_RotTo(180.0,MOTOR_DELAYUS);
-    // //yaw_move(3200,35);
-    // HAL_Delay(1500);
-    // Motortot_RotTo(0.21,MOTOR_DELAYUS);
-    // HAL_Delay(500);
-    // Motortot_RotTo(0.21,MOTOR_DELAYUS);
-    // HAL_Delay(1500);
-    // Motortot_RotTo(-180.0,MOTOR_DELAYUS);
-    // HAL_Delay(500);
-    // Motortot_RotTo(-180.0,MOTOR_DELAYUS);
-    // HAL_Delay(1500);
-    // //yaw_move(-6400,35);
-
-    // Motortot_RotTo(0.21,MOTOR_DELAYUS);
-    // HAL_Delay(500);
-    // Motortot_RotTo(0.21,MOTOR_DELAYUS);
-    // HAL_Delay(1500);
+    Motortot_RotTo(180.0,MOTOR_DELAYUS);
+    HAL_Delay(500);
+    Motortot_RotTo(180.0,MOTOR_DELAYUS);
+    HAL_Delay(1500);
+    Motortot_RotTo(0.0,MOTOR_DELAYUS);
+    HAL_Delay(500);
+    Motortot_RotTo(0.0,MOTOR_DELAYUS);
+    HAL_Delay(1500);
+    Motortot_RotTo(-180.0,MOTOR_DELAYUS);
+    HAL_Delay(500);
+    Motortot_RotTo(-180.0,MOTOR_DELAYUS);
+    HAL_Delay(1500);
+    Motortot_RotTo(0.0,MOTOR_DELAYUS);
+    HAL_Delay(500);
+    Motortot_RotTo(0.0,MOTOR_DELAYUS);
+    HAL_Delay(1500);
     // Motortot_RotTo(180.0,MOTOR_DELAYUS);
     // HAL_Delay(1500);
     // Motortot_RotTo(0.0,MOTOR_DELAYUS);
-    //yaw_move(3200,35);
-    car_go(1,0,500,0);
-    HAL_Delay(3000);
-    car_go(1,0,-500,0);
-    HAL_Delay(3000);
-    // car_go(1,0,-500,0);
     // HAL_Delay(3000);
     // Motortot_Test();
     }

@@ -1,6 +1,6 @@
 #ifndef _GENERALDEF_H_
 #define _GENERALDEF_H_
-#include "main.h"
+#include "stm32f4xx_hal.h"
 // #include "i2c.h"
 #include "spi.h"
 #include "tim.h"

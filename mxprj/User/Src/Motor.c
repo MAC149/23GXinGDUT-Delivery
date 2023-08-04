@@ -287,8 +287,6 @@ void Motortot_GoY(float targety,uint16_t delay_us)
     }
 }
 
-
-
 void Motortot_RotTo(float target_yaw,uint16_t delay_us)
 {
     float temp[4];
@@ -342,7 +340,7 @@ void Motortot_RotTo(float target_yaw,uint16_t delay_us)
         while(1)
         {
 			temp[2]=OPS.zangle;
-			if(temp[3]==temp[2])
+			if(temp[3]==temp[2] || temp[2]==0.00)
 			{
 				continue;
 			}
@@ -368,405 +366,148 @@ void Motortot_RotTo(float target_yaw,uint16_t delay_us)
     } 
 }
 
-///copy
-
-//控制使能引脚
-/* 带参宏，可以像内联函数一样使用 */
-#define MOTORFL_EN(x)         HAL_GPIO_WritePin(MOTORFL_EN_GPIOX,MOTORFL_EN_GPIO_PIN,x)
-#define MOTORFL_PLU(x)        HAL_GPIO_WritePin(MOTORFL_STP_GPIOX,MOTORFL_STP_GPIO_PIN,x)
-#define MOTORFL_PLU_TOG       HAL_GPIO_TogglePin(MOTORFL_STP_GPIOX,MOTORFL_STP_GPIO_PIN)
-#define MOTORFL_DIR(x)        HAL_GPIO_WritePin(MOTORFL_DIR_GPIOX,MOTORFL_DIR_GPIO_PIN,x)
-	
-#define MOTORFR_EN(x)        HAL_GPIO_WritePin(MOTORFR_EN_GPIOX,MOTORFR_EN_GPIO_PIN,x)
-#define MOTORFR_PLU(x)        HAL_GPIO_WritePin(MOTORFR_STP_GPIOX,MOTORFR_STP_GPIO_PIN,x)
-#define MOTORFR_PLU_TOG       HAL_GPIO_TogglePin(MOTORFR_STP_GPIOX,MOTORFR_STP_GPIO_PIN)
-#define MOTORFR_DIR(x)        HAL_GPIO_WritePin(MOTORFR_DIR_GPIOX,MOTORFR_DIR_GPIO_PIN,x)
-
-#define MOTORBL_EN(x)         HAL_GPIO_WritePin(MOTORBL_EN_GPIOX,MOTORBL_EN_GPIO_PIN,x)
-#define MOTORBL_PLU(x)        HAL_GPIO_WritePin(MOTORBL_STP_GPIOX,MOTORBL_STP_GPIO_PIN,x)
-#define MOTORBL_PLU_TOG       HAL_GPIO_TogglePin(MOTORBL_STP_GPIOX,MOTORBL_STP_GPIO_PIN)
-#define MOTORBL_DIR(x)        HAL_GPIO_WritePin(MOTORBL_DIR_GPIOX,MOTORBL_DIR_GPIO_PIN,x)
-
-#define MOTORBR_EN(x)        HAL_GPIO_WritePin(MOTORBR_EN_GPIOX,MOTORBR_EN_GPIO_PIN,x)
-#define MOTORBR_PLU(x)        HAL_GPIO_WritePin(MOTORBR_STP_GPIOX,MOTORBR_STP_GPIO_PIN,x)
-#define MOTORBR_PLU_TOG       HAL_GPIO_TogglePin(MOTORBR_STP_GPIOX,MOTORBR_STP_GPIO_PIN)
-#define MOTORBR_DIR(x)        HAL_GPIO_WritePin(MOTORBR_DIR_GPIOX,MOTORBR_DIR_GPIO_PIN,x)
-
-#define _0_1_mm_y 2.0382f   //y方向前进0.1mm 需要的脉冲数量
-#define _0_1_mm_x 2.0983f   //x方向前进0.1mm 需要的脉冲数量
-
-#define ZTARGET_SPEED_MAX  10 
-
-float delay_FL;
-float delay_FR;
-float delay_BL;
-float delay_BR;
-
-float target_y = 0;
-float target_x = 0;
-float target_yaw = 0;
-
-int car_speed_max_now = 1;
-float pi_control_out;
-
-u8 speed_gx_bit = 0;
-u8 move_mode = 0;
-
-u16 car_speed_max = 100;
-u16 car_speed_yaw_max = 50;
-
-u8 Car_Loc_Flag=0;//0--start 1--approach 2--arrive
-
-union
-{
-	float yaw;
-	u8 usart_data[4];
-}my_yaw;
-
-//void classis_init() =Motortot_SetEn_OFF()
-
-u16 abs_(int a)
-{
-	if(a>=0)return a;
-	else return -a;
-}
-
-void speed_control()		//每10ms执行一次
-{
-	if(pi_control_out > car_speed_max_now)
-	{
-		if(car_speed_max_now < car_speed_max)
-		{
-			car_speed_max_now++;
-		}
-	}
-	else if(pi_control_out < car_speed_max_now)
-	{
-		car_speed_max_now = pi_control_out;
-	}
-}
-
-void move_motor_control()			//每5us运行一次
-{
-	static u16 Aa=0;
-	static u16 Bb=0;
-	static u16 Cc=0;
-	static u16 Dd=0;
-	
-	if(delay_FL!=0){if(++Aa>=(u16)delay_FL){MOTORFL_PLU_TOG;Aa=0;}}else {Aa=0;}		//x50 delay_fl=18
-	if(delay_FR!=0){if(++Bb>=(u16)delay_FR){MOTORFR_PLU_TOG;Bb=0;}}else {Bb=0;}
-	if(delay_BL!=0){if(++Cc>=(u16)delay_BL){MOTORBL_PLU_TOG;Cc=0;}}else {Cc=0;}
-	if(delay_BR!=0){if(++Dd>=(u16)delay_BR){MOTORBR_PLU_TOG;Dd=0;}}else {Dd=0;}
-}
-
-void velocity_analysis(float x,float y,float yaw)  //逆运动学模型  x方向右正左负  y方向前为正 后为负  yaw 逆时针为正
-{
-	float RF_sudu,LF_sudu,LB_sudu,RB_sudu;
-		
-	if(yaw > 30) yaw = 30;
-	else if(yaw < -30) yaw = -30;
-		
-	LF_sudu=y+x-yaw;
-	RF_sudu=y-x+yaw;			//速度
-	LB_sudu=y-x-yaw;
-	RB_sudu=y+x+yaw;
-
-	if(LF_sudu<0){LF_sudu=-LF_sudu;MOTORFL_DIR(CCW);}else MOTORFL_DIR(CW);
-	if(RF_sudu<0){RF_sudu=-RF_sudu;MOTORFR_DIR(CCW);}else MOTORFR_DIR(CW);
-	if(LB_sudu<0){LB_sudu=-LB_sudu;MOTORBL_DIR(CCW);}else MOTORBL_DIR(CW);
-	if(RB_sudu<0){RB_sudu=-RB_sudu;MOTORBR_DIR(CCW);}else MOTORBR_DIR(CW);
-	
-	if(RF_sudu!=0)delay_FR=100000/((RF_sudu*6400)/60.0);else delay_FR=0;			//输出的是半个脉冲的时间
-	if(LF_sudu!=0)delay_FL=100000/((LF_sudu*6400)/60.0);else delay_FL=0;
-	if(LB_sudu!=0)delay_BL=100000/((LB_sudu*6400)/60.0);else delay_BL=0;
-	if(RB_sudu!=0)delay_BR=100000/((RB_sudu*6400)/60.0);else delay_BR=0;
-
-}
-
-float abs_ff(float x)		//取绝对值
-{
-	if(x<0)return -x;
-	else return x;
-}
-
-float actual_rotation_angle(float now_angle,float tag_angle)
-{
-	float dis1,dis2;
-	dis1 = tag_angle - now_angle;
-	if (now_angle > 0)
-	{
-			dis2 = 180 - now_angle + tag_angle + 180;		//逆时针转
-	}
-	else
-	{
-			dis2 = -180 - now_angle + tag_angle - 180;		//顺时针转
-	}
-	if (abs_ff(dis1) < abs_ff(dis2))return dis1;
-	else return dis2;
-}
-
-void position_control()
-{
-	u8 x_deg_bit = 0;
-	u8 y_deg_bit = 0;
-	float move_kp = 0.4;		//0.14
-	float move_ki = 0;
-	float x_err;
-	float y_err;
-	float pi_x_out;
-	float pi_y_out;
-	float pi_x_out1;
-	float pi_y_out1;
-	
-	static float x_add_i = 0;
-	static float y_add_i = 0;
-	static u8 last_mode = 1;
-	x_err = target_x - OPS.pos_x;
-	y_err = target_y - OPS.pos_y;
-	
-	if(x_err < 200 && y_err < 200)Car_Loc_Flag = 1;	//判断已经接近目标		
-	
-	if(move_mode == 1)
-	{
-		/*积分的分离*/
-		if(x_err<5&&x_err>-5)x_add_i += x_err * move_ki;
-		else x_add_i=0;
-		if(y_err<5&&y_err>-5)y_add_i += y_err * move_ki;
-		else y_add_i=0;
-		
-		/*位置式PI*/
-		pi_x_out = x_err*move_kp+x_add_i;
-		pi_y_out = y_err*move_kp+y_add_i;
-		
-		pi_control_out = abs_ff(pi_x_out)+abs_ff(pi_y_out);
-		if((abs_ff(pi_x_out)+abs_ff(pi_y_out))>car_speed_max_now)
-		{
-			if(x_err<0){x_err = -x_err;x_deg_bit = 1;}
-			if(y_err<0){y_err = -y_err;y_deg_bit = 1;}
-			
-			pi_x_out = car_speed_max_now*(x_err/(x_err+y_err));
-			pi_y_out = car_speed_max_now*(y_err/(x_err+y_err));
-			if(x_deg_bit)pi_x_out=-pi_x_out;
-			if(y_deg_bit)pi_y_out=-pi_y_out;
-		}
-		pi_x_out1 = pi_x_out * cosf(((OPS.zangle/180.0f)*3.1415f)) + pi_y_out * sinf(((OPS.zangle/180.0f)*3.1415f));
-		pi_y_out1 = pi_y_out * cosf(((OPS.zangle/180.0f)*3.1415f)) - pi_x_out * sinf(((OPS.zangle/180.0f)*3.1415f));
-		velocity_analysis(pi_x_out1 , pi_y_out1, actual_rotation_angle(OPS.zangle,target_yaw)*3);
-
-		if(OPS.pos_y > target_y-2 && OPS.pos_y < target_y + 2 \
-		&& OPS.pos_x > target_x-2 && OPS.pos_x < target_x + 2 \
-		&& target_yaw<OPS.zangle+1 && target_yaw>OPS.zangle-1) 
-		{
-			Car_Loc_Flag=2;
-		}
-			
-		last_mode = 0;
-	}
-	else
-	{
-		x_add_i = 0;y_add_i = 0;
-		if(last_mode==0)
-		{
-			last_mode = 1;
-			velocity_analysis(0 , 0, 0);
-		}
-	}
-}
-
-void x_move(int move_mmx10,long speed)  //x方向移动 参数 移动距离 mm*10，速度
-{
-	u16 i,delay;
-	if(move_mmx10>0)		//右移
-	{
-		Motortot_SetDir_Right();
-	}
-	else					//左移
-	{
-		Motortot_SetDir_Left();
-		move_mmx10 = -move_mmx10;
-	}
-	move_mmx10 *= _0_1_mm_x;
-	delay = 500000/((speed*6400)/60.0);
-	Motortot_StpRun(move_mmx10,delay);
-	
-}
-
-void X_fast_move(float mm)   //x快速移动 参数 移动距离
-{
-	float speed = 5,j,num;
-	int i;
-	
-	if(mm!=0)
-	{
-		if(abs_(mm) > 1)
-		{
-			num = abs_(mm) * 10;  //总数 0.1mm
-			j = 80 / (num/3);
-			if(j > 0.15f)j = 0.15f;
-			for(i = 0;i < (num/3);i++)
-			{
-				if(mm < 0)x_move(-1,(long)speed);
-				if(mm > 0)x_move(1,(long)speed);
-				speed += j;
-			}
-			for(i = 0;i < (num/3);i++)
-			{
-				if(mm < 0)x_move(-1,(long)speed);
-				if(mm > 0)x_move(1,(long)speed);
-			}
-			for(i = 0;i < (num/3);i++)
-			{
-				if(mm < 0)x_move(-1,(long)speed);
-				if(mm > 0)x_move(1,(long)speed);
-				speed -= j;
-			}
-		}
-		else
-		{
-			x_move(mm*10,2);
-		}
-	}
-}
-
-
-void y_move(int move_mmx10,long speed)
-{
-	u16 i,delay;
-	if(move_mmx10>0)			//前进
-	{
-		Motortot_SetDir_Forward();
-	}
-	else						//后退
-	{
-		move_mmx10 = -move_mmx10;
-		Motortot_SetDir_Backward();
-	}
-	
-	move_mmx10 *=_0_1_mm_y;
-	delay = 500000/((speed*6400)/60.0);
-	Motortot_StpRun(move_mmx10,delay);
-}
-
-void Y_fast_move(float mm)
-{
-	float speed = 10,j,num;
-	int i;
-	
-	if(mm!=0)
-	{
-		if(abs_(mm) > 1)
-		{
-			num = abs_(mm) * 10;  //总数 0.1mm
-			j = 80 / (num/3);
-			if(j > 0.15f)j = 0.15f;
-			for(i = 0;i < (num/3);i++)
-			{
-				if(mm < 0)y_move(-1,(long)speed);
-				if(mm > 0)y_move(1,(long)speed);
-				speed += j;
-			}
-			for(i = 0;i < (num/3);i++)
-			{
-				if(mm < 0)y_move(-1,(long)speed);
-				if(mm > 0)y_move(1,(long)speed);
-			}
-			for(i = 0;i < (num/3);i++)
-			{
-				if(mm < 0)y_move(-1,(long)speed);
-				if(mm > 0)y_move(1,(long)speed);
-				speed -= j;
-			}
-		}
-		else
-		{
-			y_move(mm*10,2);
-		}
-	}
-}
-
-void yaw_move(int x,int speed)		//正为逆时针
-{
-	u16 i,delay;
-	delay = 500000/((speed*6400)/60.0);
-	if(x<0)
-	{
-		x=-x;
-		Motortot_SetDir_RotRight();
-	}
-	else
-	{
-		Motortot_SetDir_RotLeft();
-	}
-	Motortot_StpRun(x,delay);
-}
-
-void yaw_Spin_90(int cw_w)  //1逆时针 ，-1顺时针
-{
-	u16 i;
-	for(i=0;i<50;i++)
-	{
-		yaw_move(10*cw_w,i);
-	}
-	yaw_move(3700*cw_w,50);
-	for(i=50;i>0;i--)
-	{
-		yaw_move(10*cw_w,i);
-	}
-}
-
-void Rotate_PID(float target_z,int pwm)
-{
-	static float Integral_error=0,Last_error;
-	int angle;       //数据缓存区
-	int error = 0;         //偏差值
-	float P = 60,I = 20,D = 0;		 //积分系数，微分系数
-	
-	Integral_error += error;
-
-		error = target_z-OPS.zangle;
-		
-		angle = error*P+Integral_error*I+(error-Last_error)*D;
-
-	yaw_move(angle,pwm);
-		
-	Last_error = error;
-}
-
-void rotatePIDrealize(int sud)		//速度给10作用
-{
-//	HAL_Delay(100);
-	while(1)
-	{
-		if(OPS.zangle > -1 && OPS.zangle < 1)
-		{
-			break;
-		}
-		Rotate_PID(0,sud);
-		HAL_Delay(10);
-	}
-}
-
-void car_go(uint8_t mode,float fDistance_x,float fDistance_y,float fDistance_z)  
-{
-	
-	Car_Loc_Flag=0;
-	while(1)
-	{
-		if(mode)//(mode == ModeOps)
-		{
-			if(OPS.pos_x > fDistance_x-4 && OPS.pos_x < fDistance_x + 4 \
-				&& OPS.pos_y > fDistance_y-4 && OPS.pos_y < fDistance_y + 4 \
-				 && OPS.zangle > fDistance_z-4 && OPS.zangle < fDistance_z+4)
-			{
-				velocity_analysis(0,0,0);
-				Car_Loc_Flag = 2;
-				move_mode = 0;
-				break;
-			}
-		}
-	}
-}
-
 //--------selfDesign PID
+#define PID_KP 0.4
+#define PID_KI 0.01
+#define PID_KD 0.0
+#define PID_SPEED_KP 0.1
 
 
+bool Car_Run_Flag=0;
+bool Car_GoDis_Flag=0;
+typedef struct
+{
+	float current_x;
+	float current_y;
+	float current_yaw;
+	float target_x;
+	float target_y;
+	float target_yaw;
+	float error_x;
+	float error_y;
+	float errortot_x;
+	float errortot_y;
+	float erroradd_x;
+	float erroradd_y;
+	float errorlast_x;
+	float errorlast_y;
+	uint16_t speed_output;
+	uint16_t speed_max;
+}Car_PID_t;
+
+Car_PID_t PID={0};
+
+/*
+Speed ->Delay Convert Idea
+define SPEED from 0 -> 300
+refering DELAY_US from 300 -> 0
+*/
+#define SPEED_MAX_OVERALL 300
+#define DELAY_MAX_OVERALL 300
+#define DELAY_MIN_OVERALL 10
+uint16_t Delay_Convert(uint16_t speed)
+{
+    if(speed>SPEED_MAX_OVERALL)
+    {
+        return DELAY_MIN_OVERALL;
+    }
+    return 300-speed;
+}
+
+void PID_Interatct(bool targetDir,float target,float yawkeep)
+{
+    Car_GoDis_Flag=targetDir;
+    PID.target_yaw=yawkeep;
+    if(targetDir)
+    {
+        PID.target_x=target;
+    }
+    else
+    {
+        PID.target_y=target;
+    }
+    Car_Run_Flag=1;
+    while(Car_Run_Flag)
+    {
+        PIDSpeedControl();
+    }
+}
+
+void PID_ARR_Dec()
+{
+    if(!Car_Run_Flag)
+	{
+		return;
+	}
+    if(Car_GoDis_Flag)
+    {
+        if(PID.current_x<PID.target_x+0.5 && PID.current_x>PID.target_x-0.5)
+        {
+            Car_Run_Flag=0;
+        }
+    }
+    else
+    {
+         if(PID.current_y<PID.target_y+0.5 && PID.current_y>PID.target_y-0.5)
+        {
+            Car_Run_Flag=0;
+        }
+    }
+}
+
+#define PID_YAWKEEP_DELAY 100
+
+void PID_yaw_Keep()
+{
+    Motortot_RotTo(PID.target_yaw,PID_YAWKEEP_DELAY);
+    Motortot_RotTo(PID.target_yaw,PID_YAWKEEP_DELAY);
+}
+
+void PIDSpeedControl()
+{
+	if(!Car_Run_Flag)
+	{
+		return;
+	}
+	//PID.current_yaw=OPS.zangle;
+	//yaw keeping
+	if(Car_GoDis_Flag)
+	{
+		PID.current_x=OPS.pos_x;
+		PID.error_x=PID.target_x-PID.current_x;
+		PID.errortot_x+=PID.error_x;
+		PID.erroradd_x=PID.error_x-PID.errorlast_x;
+		PID.errorlast_x=PID.current_x;
+		PID.speed_output=(uint16_t)(PID_SPEED_KP*(PID_KP*PID.error_x+PID_KI*PID.errortot_x+PID_KD*PID.erroradd_x));
+        if(PID.current_x>PID.target_x)
+        {
+            Motortot_SetDir_Left();
+        }
+        else
+        {
+            Motortot_SetDir_Right();
+        }
+	}
+	else
+	{
+		PID.current_y=OPS.pos_y;
+		PID.error_y=PID.target_y-PID.current_y;
+		PID.errortot_y+=PID.error_y;
+		PID.erroradd_y=PID.error_y-PID.errorlast_y;
+		PID.errorlast_y=PID.current_y;
+		PID.speed_output=(uint16_t)(PID_SPEED_KP*(PID_KP*PID.error_y+PID_KI*PID.errortot_y+PID_KD*PID.erroradd_y));
+        if(PID.current_y>PID.target_y)
+        {
+            Motortot_SetDir_Backward();
+        }
+        else
+        {
+            Motortot_SetDir_Forward();
+        }
+	}
+	if(PID.speed_output>PID.speed_max)
+	{
+		PID.speed_output=PID.speed_max;
+	}
+    Motortot_StpRun(25,Delay_Convert(PID.speed_output));
+}

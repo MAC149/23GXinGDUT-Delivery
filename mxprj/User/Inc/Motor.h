@@ -43,6 +43,37 @@ zangle(yaw) CW- +CCW
 #define MOTORBR_DIR_GPIOX GPIOE
 #define MOTORBR_DIR_GPIO_PIN GPIO_PIN_15
 
+//COMPATIBILITY
+//控制使能引脚
+/* 带参宏，可以像内联函数一样使用 */
+#define MOTORFL_EN(x)         HAL_GPIO_WritePin(MOTORFL_EN_GPIOX,MOTORFL_EN_GPIO_PIN,x)
+#define MOTORFL_PLU(x)        HAL_GPIO_WritePin(MOTORFL_STP_GPIOX,MOTORFL_STP_GPIO_PIN,x)
+#define MOTORFL_PLU_TOG       HAL_GPIO_TogglePin(MOTORFL_STP_GPIOX,MOTORFL_STP_GPIO_PIN)
+#define MOTORFL_DIR(x)        HAL_GPIO_WritePin(MOTORFL_DIR_GPIOX,MOTORFL_DIR_GPIO_PIN,x)
+	
+#define MOTORFR_EN(x)        HAL_GPIO_WritePin(MOTORFR_EN_GPIOX,MOTORFR_EN_GPIO_PIN,x)
+#define MOTORFR_PLU(x)        HAL_GPIO_WritePin(MOTORFR_STP_GPIOX,MOTORFR_STP_GPIO_PIN,x)
+#define MOTORFR_PLU_TOG       HAL_GPIO_TogglePin(MOTORFR_STP_GPIOX,MOTORFR_STP_GPIO_PIN)
+#define MOTORFR_DIR(x)        HAL_GPIO_WritePin(MOTORFR_DIR_GPIOX,MOTORFR_DIR_GPIO_PIN,x)
+
+#define MOTORBL_EN(x)         HAL_GPIO_WritePin(MOTORBL_EN_GPIOX,MOTORBL_EN_GPIO_PIN,x)
+#define MOTORBL_PLU(x)        HAL_GPIO_WritePin(MOTORBL_STP_GPIOX,MOTORBL_STP_GPIO_PIN,x)
+#define MOTORBL_PLU_TOG       HAL_GPIO_TogglePin(MOTORBL_STP_GPIOX,MOTORBL_STP_GPIO_PIN)
+#define MOTORBL_DIR(x)        HAL_GPIO_WritePin(MOTORBL_DIR_GPIOX,MOTORBL_DIR_GPIO_PIN,x)
+
+#define MOTORBR_EN(x)        HAL_GPIO_WritePin(MOTORBR_EN_GPIOX,MOTORBR_EN_GPIO_PIN,x)
+#define MOTORBR_PLU(x)        HAL_GPIO_WritePin(MOTORBR_STP_GPIOX,MOTORBR_STP_GPIO_PIN,x)
+#define MOTORBR_PLU_TOG       HAL_GPIO_TogglePin(MOTORBR_STP_GPIOX,MOTORBR_STP_GPIO_PIN)
+#define MOTORBR_DIR(x)        HAL_GPIO_WritePin(MOTORBR_DIR_GPIOX,MOTORBR_DIR_GPIO_PIN,x)
+
+#define _0_1_mm_y 2.0382f   //y方向前进0.1mm 需要的脉冲数量
+#define _0_1_mm_x 2.0983f   //x方向前进0.1mm 需要的脉冲数量
+
+#define ZTARGET_SPEED_MAX  10 
+
+
+
+
 void Motortot_SetEn_On();
 void Motortot_SetEn_Off();
 void Motortot_SetDir(GPIO_PinState FL_DIR,GPIO_PinState FR_DIR, GPIO_PinState BL_DIR, GPIO_PinState BR_DIR);
@@ -76,24 +107,13 @@ void Motortot_GoXdis(float disx,uint16_t delay_us);
 void Motortot_GoYdis(float disy,uint16_t delay_us);
 void Motortot_RotTo(float target_yaw,uint16_t delay_us);
 
-//--cy
-void car_go(uint8_t mode,float fDistance_x,float fDistance_y,float fDistance_z);
-void yaw_move(int x,int speed);
-void move_motor_control(void);
-void get_speed_delay(int front_L,int front_R,int back_L,int back_R);
-void velocity_analysis(float x,float y,float yaw);
-void X_fast_move(float mm);
-void Y_fast_move(float mm);
-void yaw_move(int x,int speed);
-void yaw_Spin_90(int cw_w);  //1顺时针 ，-1逆时针
-void position_control(void);
-void ops_yaw_to_zreo(void);
-u16 abs_(int a);
-float actual_rotation_angle(float now_angle,float tag_angle);
-void speed_control(void);
-void rotatePIDrealize(int sud);			
-void car_go(uint8_t mode,float fDistance_x,float fDistance_y,float fDistance_z);
-	
+//--------selfDesign PID
+uint16_t Delay_Convert(uint16_t speed);
+void PID_Interatct(bool targetDir,float target,float yawkeep);
+void PID_ARR_Dec();
+void PID_yaw_Keep();
+void PIDSpeedControl();
+
 
 #endif // !_MOTOR_H_
 #define _MOTOR_H_

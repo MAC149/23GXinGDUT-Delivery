@@ -35,18 +35,18 @@ void  HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		if(++j==10)  //每10ms执行一次
 		{
 			j = 0;
+			PID_ARR_Dec();
 			
-			position_control(); //底盘坐标控制
 		}
 		if(++j2==1) //每5us*600=3ms执行一次
 		{
 			j2 = 0;
-			speed_control();
+			
 		}
 	}
 	else if(htim == &htim7)			//5us
 	{
-		move_motor_control();  //底盘电机控制
+		
 	}	
 	// if (htim->Instance == TIM6) {
     //     setState(true);

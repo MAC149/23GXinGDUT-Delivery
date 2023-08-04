@@ -7,6 +7,7 @@
 #include "OPS_system.h"
 #include "misc.h"
 #include <math.h>
+#include <stdio.h>
 
 void Motortot_Test();
 void Test_Mod();

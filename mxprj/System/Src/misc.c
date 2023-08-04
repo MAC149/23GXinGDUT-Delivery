@@ -1,9 +1,11 @@
 #include "misc.h"
-
+#include <stdio.h>
+#include <stdarg.h>
+#include <string.h>
 KEY_t  KEY1 = {KEY1_GPIO_Port,KEY1_Pin,FALSE,FALSE};      
 KEY_t  KEY2 = {KEY2_GPIO_Port,KEY2_Pin,FALSE,FALSE}; 
 KEY_t  KEY3 = {KEY3_GPIO_Port,KEY3_Pin,FALSE,FALSE}; 
-
+KEY_t  KEY4 = {KEY4_GPIO_Port,KEY4_Pin,FALSE,FALSE}; 
 
 uint8_t Key_Scan(KEY_t* KEY)
 {			
@@ -30,7 +32,6 @@ uint8_t Key_Scan(KEY_t* KEY)
 		if(COM->Click == TRUE)
 		{
 			//printf("检测到触摸按键单击\r\n");
-			
 			//按键1单击动作
 			if(COM->GPIOx == KEY1.GPIOx && COM->GPIO_Pin == KEY1_Pin)
 			{
@@ -39,41 +40,31 @@ uint8_t Key_Scan(KEY_t* KEY)
 			//按键2单击动作
 			else if(COM->GPIOx == KEY2.GPIOx && COM->GPIO_Pin == KEY2_Pin)
 			{
-				
-				//LED_TogglePin;
 			}
 			//按键3单击动作
 			else if(COM->GPIOx == KEY3.GPIOx && COM->GPIO_Pin == KEY3_Pin)
-			{}
-			
+			{
+			}
 		}
 		
 		if(COM->Press == TRUE)
 		{
 			//printf("检测到触摸按键长按\r\n");
-			
 			//按键1长按动作
 			if(COM->GPIOx == KEY1.GPIOx && COM->GPIO_Pin == KEY1_Pin)
 			{
-				
-				//LED_TogglePin;
 				HAL_Delay(200);
-				//LED_TogglePin;
 			}
 			//按键2长按动作
 			else if(COM->GPIOx == KEY2.GPIOx && COM->GPIO_Pin == KEY2_Pin)
 			{
-				
-				//LED_TogglePin;
 				HAL_Delay(200);
-				//LED_TogglePin;
 			}
 			//按键3长按动作
 			else if(COM->GPIOx == KEY3.GPIOx && COM->GPIO_Pin == KEY3_Pin)
 			{
 			}
 		}
-
 		//清除按键状态
 		COM->Click = FALSE;
 		COM->Press = FALSE;
@@ -81,3 +72,26 @@ uint8_t Key_Scan(KEY_t* KEY)
 	return 0;
 }
 
+int fputc(int ch, FILE *f)
+{
+ HAL_UART_Transmit(&huart1, (uint8_t *)&ch, 1, 0xFFFF);
+ return ch;
+}
+
+void UsartPrintf(UART_HandleTypeDef USARTx, char *fmt,...)
+{
+ 
+	unsigned char UsartPrintfBuf[296];
+	va_list ap;
+	unsigned char *pStr = UsartPrintfBuf;
+	
+	va_start(ap, fmt);
+	vsnprintf((char *)UsartPrintfBuf, sizeof(UsartPrintfBuf), fmt, ap);							//格式化
+	va_end(ap);
+	
+	while(*pStr != NULL)
+	{
+        HAL_UART_Transmit (&USARTx ,(uint8_t *)pStr++,1,HAL_MAX_DELAY );		
+	}
+ 
+}
