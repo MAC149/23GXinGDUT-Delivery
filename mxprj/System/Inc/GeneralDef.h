@@ -7,6 +7,8 @@
 #include "usart.h"
 #include "gpio.h"
 #include <stdbool.h>
+#include "misc.h"
+
 
 #define u64 uint64_t 
 #define u32 uint32_t 
@@ -16,7 +18,7 @@
 #define s32 int32_t
 #define s16 int16_t
 #define s8  int8_t
-#define DEBUG_UART huart3
+
 
 #define HIGH GPIO_PIN_SET       //高电平
 #define LOW  GPIO_PIN_RESET     //低电平

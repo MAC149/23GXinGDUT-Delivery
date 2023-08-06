@@ -1,7 +1,7 @@
 #ifndef _MISC_H_
 #define _MISC_H_
 
-#include "GeneralDef.h"
+#include "usart.h"
 
 #define KEY_ON	1
 #define KEY_OFF	0
@@ -15,6 +15,8 @@
 #define KEY3_GPIO_Port GPIOC
 #define KEY4_Pin GPIO_PIN_4
 #define KEY4_GPIO_Port GPIOC
+
+#define DEBUG_UART huart3
 
 void UsartPrintf(UART_HandleTypeDef USARTx, char *fmt,...);
 typedef struct

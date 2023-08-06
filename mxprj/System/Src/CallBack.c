@@ -36,12 +36,10 @@ void  HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		{
 			j = 0;
 			PID_ARR_Dec();
-			
 		}
-		if(++j2==1) //每5us*600=3ms执行一次
+		if(++j2==3) //每3ms执行一次
 		{
 			j2 = 0;
-			
 		}
 	}
 	else if(htim == &htim7)			//5us

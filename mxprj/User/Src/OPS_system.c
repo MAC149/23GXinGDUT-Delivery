@@ -189,13 +189,13 @@ static void Protocol_Analysis(void)
 	}
 	/*赋值*/
 	for(i=0;i<opsRxbuff_LENGTH-4;i++)
-		posture.data[i] = OPS.pucRxbuff[i+2];
-	OPS.zangle=posture.ActVal[0];
-	OPS.xangle=posture.ActVal[1];
-	OPS.yangle=posture.ActVal[2];
-	OPS.pos_x =posture.ActVal[3];
-	OPS.pos_y =posture.ActVal[4];
-	OPS.w_z   =posture.ActVal[5];
+		{posture.data[i] = OPS.pucRxbuff[i+2];}
+	if(posture.ActVal[0]!=0.00){OPS.zangle=posture.ActVal[0];}
+	if(posture.ActVal[1]!=0.00){OPS.xangle=posture.ActVal[1];}
+	if(posture.ActVal[2]!=0.00){OPS.yangle=posture.ActVal[2];}
+	if(posture.ActVal[3]!=0.00){OPS.pos_x =posture.ActVal[3];}
+	if(posture.ActVal[4]!=0.00){OPS.pos_y =posture.ActVal[4];}
+	if(posture.ActVal[5]!=0.00){OPS.w_z   =posture.ActVal[5];}
 	
 	//清缓存
 	for(i=0;i<opsRxbuff_LENGTH;i++)

@@ -98,16 +98,16 @@ void Test_Mod()
 {
     //Motortot_Test();
     //OLED_Test();
-    PC_Uart_Test();
+    //PC_Uart_Test();
     OLED_Init();
     Motortot_Init();
     Delay_Init();
     Motortot_SetEn_Off();
     OLED_ShowString(1,1,"INIT...",16);
-    OPS.OPS_Init();
+    // OPS.OPS_Init();
     OLED_Clear();
     OLED_ShowString(1,1,"PRESS SW1",16);
-    while(!Key_Scan(&KEY1));
+    // while(!Key_Scan(&KEY1));
     OLED_Clear();
     OLED_ShowString(1,1,"OPSx:",16);
     OLED_ShowString(2,1,"OPSy:",16);
@@ -117,6 +117,9 @@ void Test_Mod()
     //OPS_Rec_Test();
     while(1)
     {
+        HAL_Delay(3000);
+        Motortot_Forward(3200,350);
+        while(1);
         //Motortot_Test();
         // PID_Interatct(0,1000,0);
         // HAL_Delay(1500);

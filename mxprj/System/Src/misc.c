@@ -74,7 +74,7 @@ uint8_t Key_Scan(KEY_t* KEY)
 
 int fputc(int ch, FILE *f)
 {
- HAL_UART_Transmit(&huart1, (uint8_t *)&ch, 1, 0xFFFF);
+ HAL_UART_Transmit(&DEBUG_UART, (uint8_t *)&ch, 1, 0xFFFF);
  return ch;
 }
 
