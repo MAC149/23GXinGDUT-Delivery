@@ -19,6 +19,8 @@
 #define DEBUG_UART huart3
 
 void UsartPrintf(UART_HandleTypeDef USARTx, char *fmt,...);
+uint16_t abs_(int a);
+float abs_ff(float x);
 typedef struct
 {
 	GPIO_TypeDef* GPIOx;

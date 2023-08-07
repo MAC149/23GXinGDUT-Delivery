@@ -95,3 +95,14 @@ void UsartPrintf(UART_HandleTypeDef USARTx, char *fmt,...)
 	}
  
 }
+
+uint16_t abs_(int a)
+{
+	if(a>=0)return a;
+	else return -a;
+}
+
+float abs_ff(float x)//去绝对值
+{
+    return (x < 0) ? -x : x;
+}

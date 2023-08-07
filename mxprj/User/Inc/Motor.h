@@ -100,12 +100,29 @@ void Motortot_RotLeft(uint16_t time,uint16_t delay_us);
 void Motortot_RotRight(uint16_t time,uint16_t delay_us);
 void Motortot_ForLeft(uint16_t time,uint16_t delay_us);
 void Motortot_ForRight(uint16_t time,uint16_t delay_us);
+
 //-----ops
 void Motortot_GoX(float targetx,uint16_t delay_us);
 void Motortot_GoY(float targety,uint16_t delay_us);
 void Motortot_GoXdis(float disx,uint16_t delay_us);
 void Motortot_GoYdis(float disy,uint16_t delay_us);
 void Motortot_RotTo(float target_yaw,uint16_t delay_us);
+
+//-------coopPID
+void yaw_move(int x,int speed);
+void move_motor_control(void);
+void get_speed_delay(int front_L,int front_R,int back_L,int back_R);
+void velocity_analysis(float x,float y,float yaw);
+void X_fast_move(float mm);
+void Y_fast_move(float mm);
+void yaw_move(int x,int speed);
+void yaw_Spin_90(int cw_w);  //1顺时针 ，-1逆时针
+void position_control(void);
+void ops_yaw_to_zreo(void);
+float actual_rotation_angle(float now_angle,float tag_angle);
+void speed_control(void);
+void rotatePIDrealize(int sud);			
+void car_go(uint8_t mode, float fDistance_x, float fDistance_y, float target_yaw);
 
 //--------selfDesign PID
 uint16_t Delay_Convert(uint16_t speed);

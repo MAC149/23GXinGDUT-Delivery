@@ -8,6 +8,7 @@
 #include "misc.h"
 #include <math.h>
 #include <stdio.h>
+#include "vision.h"
 
 void Motortot_Test();
 void Test_Mod();

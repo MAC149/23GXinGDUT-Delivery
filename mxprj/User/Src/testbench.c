@@ -1,6 +1,9 @@
 #include "testbench.h"
 #define MOTOR_DELAYUS 200
 
+extern
+
+
 void Motortot_Test()
 {
     HAL_Delay(2500);
@@ -92,6 +95,31 @@ void PC_Uart_Test()
         printf("HelloWorld!\r\n");
         HAL_Delay(1000);
     }
+}
+
+
+extern bool Rec_Flag;
+extern uint8_t OpenMV_Rec[OPENMV_REC_BUF_LEN];
+extern int OpenMV_Data[4];
+void Vision_Test()
+{
+    OpenMV_Init();
+    while(1)
+    {
+        //printf("inside\r\n");
+        HAL_Delay(1500);
+        OpenMV_Receive_Start();
+        while(Rec_Flag);
+        printf("%s\r\n",OpenMV_Rec);
+        OpenMV_Data_Process();
+        printf("%d  %d  %d  %d\r\n",OpenMV_Data[0],OpenMV_Data[1],OpenMV_Data[2],OpenMV_Data[3]);
+    }
+    // while(1)
+    // {
+    //     HAL_Delay(1500);
+    //     printf("bbb");
+    //     HAL_UART_Transmit(&huart2,"aaa",3,100);
+    // }
 }
 
 void Test_Mod()
