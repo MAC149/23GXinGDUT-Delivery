@@ -98,28 +98,25 @@ void PC_Uart_Test()
 }
 
 
-extern bool Rec_Flag;
-extern uint8_t OpenMV_Rec[OPENMV_REC_BUF_LEN];
-extern int OpenMV_Data[4];
+extern int OpenMVGN_Data[4];
 void Vision_Test()
 {
-    OpenMV_Init();
-    while(1)
-    {
-        //printf("inside\r\n");
-        HAL_Delay(1500);
-        OpenMV_Receive_Start();
-        while(Rec_Flag);
-        printf("%s\r\n",OpenMV_Rec);
-        OpenMV_Data_Process();
-        printf("%d  %d  %d  %d\r\n",OpenMV_Data[0],OpenMV_Data[1],OpenMV_Data[2],OpenMV_Data[3]);
-    }
+    // OpenMV_Init();
+    _OpenMV_tt_Init(&OpenMV1,&OPENMV1_UART);
     // while(1)
     // {
+    //     printf("inside\r\n");
     //     HAL_Delay(1500);
-    //     printf("bbb");
-    //     HAL_UART_Transmit(&huart2,"aaa",3,100);
+    //     printf("%s\r\n",OpenMV1.OpenMV_Receive(&OpenMV1));
+    //     OpenMVGN_Data_Process(&OpenMV1);
+    //     printf("%d  %d  %d  %d\r\n",OpenMVGN_Data[0],OpenMVGN_Data[1],OpenMVGN_Data[2],OpenMVGN_Data[3]);
     // }
+    while(1)
+    {
+        HAL_Delay(1500);
+        printf("bbb");
+        OpenMV1.OpenMV_Send(&OpenMV1,(uint8_t*)"bbb",3);
+    }
 }
 
 void Test_Mod()
