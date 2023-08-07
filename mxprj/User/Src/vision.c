@@ -1,129 +1,134 @@
 #include "Vision.h"
 #include <stdlib.h>
 
-static uint8_t Openmv_RxBuf[OPENMV_REC_BUF_LEN]={0};
-static uint8_t Buf_pointer=0;
-static uint8_t Data_pointer=0;
-static uint8_t OpenMV_Rec_temp=0;
-static bool Data_flag=0;
-bool Rec_Flag=0;
-uint8_t OpenMV_Rec[OPENMV_REC_BUF_LEN]={0};
-
-int OpenMV_Data[4]={0};
 
 
-void OpenMV_Init()
+
+void OpenMV_Send(OpenMV_tt* that,uint8_t* CMD,uint8_t len)
 {
-    OpenMV_Rec_temp=0;
-    Rec_Flag=0;
-    Buf_pointer=0;
-    Data_pointer=0;
+    HAL_UART_Transmit(that->OpenMV_huart,CMD,len,10);
 }
 
-void OpenMV_SendCmd(uint8_t* CMD,uint8_t len)
+void OpenMV_Receive_Start(OpenMV_tt* that)
 {
-    HAL_UART_Transmit(&OPENMV_UART,CMD,len,10);
+    that->Buf_pointer=0;
+    that->Data_pointer=0;
+    that->Rec_Flag=1;
+    that->Data_flag=0;
+    that->Rec_temp=0;
+    HAL_UART_Receive_IT(that->OpenMV_huart,&that->Rec_temp,1);
 }
 
-void OpenMV_Receive_Start()
+uint8_t* OpenMV_Receive(OpenMV_tt* that)
 {
-    Buf_pointer=0;
-    Data_pointer=0;
-    Rec_Flag=1;
-    Data_flag=0;
-    HAL_UART_Receive_IT(&OPENMV_UART,&OpenMV_Rec_temp,1);
+    that->Buf_pointer=0;
+    that->Data_pointer=0;
+    that->Rec_Flag=1;
+    that->Data_flag=0;
+    that->Rec_temp=0;
+    HAL_UART_Receive_IT(that->OpenMV_huart,&that->Rec_temp,1);
+    while(that->Rec_Flag);
+    return that->OpenMV_Rec;
 }
 
-
-void OpenMV_Receive_ProcessACC()
+void OpenMV_Receive_ProcessACC(OpenMV_tt* that)
 {
-    Openmv_RxBuf[Buf_pointer]=OpenMV_Rec_temp;
-    if(Openmv_RxBuf[Buf_pointer]=='A' && Openmv_RxBuf[Buf_pointer-1]=='D' &&Data_flag==0)
+    that->Openmv_RxBuf[that->Buf_pointer]=that->Rec_temp;
+    if(that->Openmv_RxBuf[that->Buf_pointer]=='A' && that->Openmv_RxBuf[that->Buf_pointer-1]=='D' &&that->Data_flag==0)
     {
-        Data_flag=1;
+        that->Data_flag=1;
     }
-    else if(Openmv_RxBuf[Buf_pointer]=='\r')
+    else if(that->Openmv_RxBuf[that->Buf_pointer]=='\r')
     {
-        OpenMV_Rec[Data_pointer]=Openmv_RxBuf[Buf_pointer];
-        Rec_Flag=0;
+        that->OpenMV_Rec[that->Data_pointer]=that->Openmv_RxBuf[that->Buf_pointer];
+        that->Rec_Flag=0;
         return;
     }
-        else if(Data_flag)
+        else if(that->Data_flag)
     {
-        OpenMV_Rec[Data_pointer++]=Openmv_RxBuf[Buf_pointer];
+        that->OpenMV_Rec[that->Data_pointer++]=that->Openmv_RxBuf[that->Buf_pointer];
     }
-    Buf_pointer++;
-    HAL_UART_Receive_IT(&OPENMV_UART,&OpenMV_Rec_temp,1);
+    that->Buf_pointer++;
+    HAL_UART_Receive_IT(that->OpenMV_huart,&that->Rec_temp,1);
 }
 
 
-void OpenMV_Receive_Process()
+
+void OpenMV_Receive_ProcessNCB(OpenMV_tt* that)
 {
-    if(OpenMV_Rec_temp=='A' && Data_flag==0)
+    if(that->Rec_temp=='A' && that->Data_flag==0)
     {
-        Data_flag=1;
+       that->Data_flag=1;
     }
-    else if(OpenMV_Rec_temp=='\r')
+    else if(that->Rec_temp=='\r')
     {
-        Rec_Flag=0;
-        for(int i=0;i<=Buf_pointer;i++)
+        that->Rec_Flag=0;
+        for(int i=0;i<=that->Buf_pointer;i++)
         {
-            OpenMV_Rec[i]=Openmv_RxBuf[i];
+            that->OpenMV_Rec[i]=that->Openmv_RxBuf[i];
         }
         return;
     }
-        else if(Data_flag)
+        else if(that->Data_flag)
     {
-        Openmv_RxBuf[Buf_pointer++]=OpenMV_Rec_temp;
+        that->Openmv_RxBuf[that->Buf_pointer++]=that->Rec_temp;
     }
-    HAL_UART_Receive_IT(&OPENMV_UART,&OpenMV_Rec_temp,1);
+    HAL_UART_Receive_IT(that->OpenMV_huart,&that->Rec_temp,1);
 }
 
-#define OPENMV_STDATA_BUF_LEN 8
-void OpenMV_Data_Process()
+OpenMV_tt* _OpenMV_tt_Init(OpenMV_tt *that,UART_HandleTypeDef *MVhuart)
 {
-    char temp[OPENMV_STDATA_BUF_LEN];
-    uint8_t i,j=0;
-    switch (OpenMV_Rec[0])
-    {
-    case 'R':OpenMV_Data[0]=1;
-        break;
-    case 'G':OpenMV_Data[0]=2;
-        break;
-    case 'B':OpenMV_Data[0]=3;
-        break;
-    default:OpenMV_Data[0]=0;
-        break;
-    }
-    for(i=0;i<OPENMV_REC_BUF_LEN;i++)
-    {
-        if(OpenMV_Rec[i]=='(')
-        {
-            i++;
-            while(OpenMV_Rec[i]!= ',')
-            {
-                temp[j]=OpenMV_Rec[i];
-                i++;j++;
-            }
-            
-            OpenMV_Data[1]=atoi(temp);
-            j=0;
-            i+=2;
-            while(OpenMV_Rec[i]!= ')')
-            {
-                temp[j]=OpenMV_Rec[i];
-                i++;j++;
-            }
-            OpenMV_Data[2]=atoi(temp);
-            while(OpenMV_Rec[i]!=':'){i++;}
-            j=0;i++;
-            while(OpenMV_Rec[i]!= '\n')
-            {
-                temp[j]=OpenMV_Rec[i];
-                i++;j++;
-            }
-            OpenMV_Data[3]=atoi(temp);
-            break;
-        } 
-    }
+    that->OpenMV_huart=MVhuart;
+    that->Rec_temp=0;
+    that->Rec_Flag=0;
+    that->Data_flag=0;
+    that->Buf_pointer=0;
+    that->Data_pointer=0;
+    that->OpenMV_Receive_Process=OpenMV_Receive_ProcessACC;
+    that->OpenMV_Receive_Start=OpenMV_Receive_Start;
+    that->OpenMV_Receive=OpenMV_Receive;
+    that->OpenMV_Send=OpenMV_Send;
+    return that;
 }
+
+
+OpenMV_tt OpenMV1;
+
+
+int OpenMVGN_Data[4]={0};
+#define OPENMVGN_STDATA_BUF_LEN 8
+/* Rec example
+Blue Circle - Center: (265, 230), Radius: 54
+*/
+void OpenMVGN_Str2int(const char strch,const char endch,uint8_t *str,uint8_t* pointer,int *intdes)
+{
+    uint8_t i=0;
+    char temp[OPENMVGN_STDATA_BUF_LEN]={0};
+    while(str[(*pointer)++]!=strch);
+    while(str[*pointer]!=endch)
+    {
+        if(str[*pointer]==' '){(*pointer)++;continue;}
+        temp[i++]=str[(*pointer)++];
+    }
+    *intdes=atoi(temp);
+}
+
+void OpenMVGN_Data_Process(OpenMV_tt *that)
+{
+    uint8_t i,j=0;
+    switch (that->OpenMV_Rec[0])
+    {
+    case 'R':OpenMVGN_Data[0]=1;
+        break;
+    case 'G':OpenMVGN_Data[0]=2;
+        break;
+    case 'B':OpenMVGN_Data[0]=3;
+        break;
+    default:OpenMVGN_Data[0]=0;
+        break;
+    }
+    OpenMVGN_Str2int('(',',',that->OpenMV_Rec,&i,&OpenMVGN_Data[1]);
+    OpenMVGN_Str2int(',',')',that->OpenMV_Rec,&i,&OpenMVGN_Data[2]);
+    OpenMVGN_Str2int(':','\n',that->OpenMV_Rec,&i,&OpenMVGN_Data[3]);
+}
+
