@@ -28,7 +28,8 @@ typedef struct OpenMV_t
 OpenMV_tt* _OpenMV_tt_Init(OpenMV_tt *that,UART_HandleTypeDef *MVhuart);
 
 
-void OpenMVGN_Data_Process(OpenMV_tt *that);
+void OpenMVGN_Data_Process(uint8_t *str);
+void OpenMVGN_Adj(OpenMV_tt *that);
 
 extern OpenMV_tt OpenMV1;
 

@@ -1,6 +1,6 @@
-#include "Vision.h"
+#include "vision.h"
 #include <stdlib.h>
-
+#include "Motor.h"
 
 
 
@@ -104,8 +104,8 @@ void OpenMVGN_Str2int(const char strch,const char endch,uint8_t *str,uint8_t* po
 {
     uint8_t i=0;
     char temp[OPENMVGN_STDATA_BUF_LEN]={0};
-    while(str[(*pointer)++]!=strch);
-    while(str[*pointer]!=endch)
+    while((*pointer)<OPENMV_REC_BUF_LEN && str[(*pointer)]!='\0' && str[(*pointer)++]!=strch);
+    while((*pointer)<OPENMV_REC_BUF_LEN && str[(*pointer)]!='\0' && str[*pointer]!=endch)
     {
         if(str[*pointer]==' '){(*pointer)++;continue;}
         temp[i++]=str[(*pointer)++];
@@ -113,10 +113,10 @@ void OpenMVGN_Str2int(const char strch,const char endch,uint8_t *str,uint8_t* po
     *intdes=atoi(temp);
 }
 
-void OpenMVGN_Data_Process(OpenMV_tt *that)
+void OpenMVGN_Data_Process(uint8_t *str)
 {
-    uint8_t i,j=0;
-    switch (that->OpenMV_Rec[0])
+    uint8_t i=0;
+    switch (str[0])
     {
     case 'R':OpenMVGN_Data[0]=1;
         break;
@@ -127,8 +127,45 @@ void OpenMVGN_Data_Process(OpenMV_tt *that)
     default:OpenMVGN_Data[0]=0;
         break;
     }
-    OpenMVGN_Str2int('(',',',that->OpenMV_Rec,&i,&OpenMVGN_Data[1]);
-    OpenMVGN_Str2int(',',')',that->OpenMV_Rec,&i,&OpenMVGN_Data[2]);
-    OpenMVGN_Str2int(':','\n',that->OpenMV_Rec,&i,&OpenMVGN_Data[3]);
+    OpenMVGN_Str2int('(',',',str,&i,&OpenMVGN_Data[1]);
+    OpenMVGN_Str2int(',',')',str,&i,&OpenMVGN_Data[2]);
+    OpenMVGN_Str2int(':','\n',str,&i,&OpenMVGN_Data[3]);
 }
 
+
+#define OPENMV_RESX 320
+#define OPENMV_RESY 240
+
+void OpenMVGN_Adj(OpenMV_tt *that)
+{
+    bool x_ok,y_ok=0;
+    while(x_ok && y_ok)
+    {
+        that->OpenMV_Receive(that);
+        OpenMVGN_Data_Process(that->OpenMV_Rec);
+        if(OpenMVGN_Data[1]>(OPENMV_RESX/2)+3)
+        {
+            Motortot_Left(25,200);
+        }
+        else if(OpenMVGN_Data[1]<(OPENMV_RESX/2)-3)
+        {
+            Motortot_Right(25,200);
+        }
+        else
+        {
+            x_ok=1;
+        }
+        if(OpenMVGN_Data[2]>(OPENMV_RESY/2)+3)
+        {
+            Motortot_Backward(25,200);
+        }
+        else if(OpenMVGN_Data[2]<(OPENMV_RESY/2)-3)
+        {
+            Motortot_Forward(25,200);
+        }
+        else
+        {
+            y_ok=1;
+        }
+    }
+}

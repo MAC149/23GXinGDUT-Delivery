@@ -103,20 +103,20 @@ void Vision_Test()
 {
     // OpenMV_Init();
     _OpenMV_tt_Init(&OpenMV1,&OPENMV1_UART);
-    // while(1)
-    // {
-    //     printf("inside\r\n");
-    //     HAL_Delay(1500);
-    //     printf("%s\r\n",OpenMV1.OpenMV_Receive(&OpenMV1));
-    //     OpenMVGN_Data_Process(&OpenMV1);
-    //     printf("%d  %d  %d  %d\r\n",OpenMVGN_Data[0],OpenMVGN_Data[1],OpenMVGN_Data[2],OpenMVGN_Data[3]);
-    // }
     while(1)
     {
+        printf("inside\r\n");
         HAL_Delay(1500);
-        printf("bbb");
-        OpenMV1.OpenMV_Send(&OpenMV1,(uint8_t*)"bbb",3);
+        printf("%s\r\n",OpenMV1.OpenMV_Receive(&OpenMV1));
+        OpenMVGN_Data_Process(OpenMV1.OpenMV_Rec);
+        printf("%d  %d  %d  %d\r\n",OpenMVGN_Data[0],OpenMVGN_Data[1],OpenMVGN_Data[2],OpenMVGN_Data[3]);
     }
+    // while(1)
+    // {
+    //     HAL_Delay(1500);
+    //     printf("bbb");
+    //     OpenMV1.OpenMV_Send(&OpenMV1,(uint8_t*)"bbb",3);
+    // }
 }
 
 void Test_Mod()
@@ -132,7 +132,7 @@ void Test_Mod()
     // OPS.OPS_Init();
     OLED_Clear();
     OLED_ShowString(1,1,"PRESS SW1",16);
-    // while(!Key_Scan(&KEY1));
+    while(!Key_Scan(&KEY1));
     OLED_Clear();
     OLED_ShowString(1,1,"OPSx:",16);
     OLED_ShowString(2,1,"OPSy:",16);
@@ -146,34 +146,28 @@ void Test_Mod()
         Motortot_Forward(3200,350);
         while(1);
         //Motortot_Test();
-        // PID_Interatct(0,1000,0);
-        // HAL_Delay(1500);
-        // PID_Interatct(0,0,0);
-        // HAL_Delay(2500);
-    // Motortot_GoYdis(500,MOTOR_DELAYUS);
-    // HAL_Delay(1500);
-    // Motortot_GoYdis(-500,MOTOR_DELAYUS);
-    // HAL_Delay(2500);
-    // Motortot_GoYdis(-500,MOTOR_DELAYUS);
-    // HAL_Delay(1500);
-    // Motortot_GoYdis(500,MOTOR_DELAYUS);
-    // HAL_Delay(1500);
-    Motortot_RotTo(180.0,MOTOR_DELAYUS);
-    HAL_Delay(500);
     Motortot_RotTo(180.0,MOTOR_DELAYUS);
     HAL_Delay(1500);
     Motortot_RotTo(0.0,MOTOR_DELAYUS);
-    HAL_Delay(500);
-    Motortot_RotTo(0.0,MOTOR_DELAYUS);
     HAL_Delay(1500);
     Motortot_RotTo(-180.0,MOTOR_DELAYUS);
-    HAL_Delay(500);
-    Motortot_RotTo(-180.0,MOTOR_DELAYUS);
     HAL_Delay(1500);
     Motortot_RotTo(0.0,MOTOR_DELAYUS);
-    HAL_Delay(500);
-    Motortot_RotTo(0.0,MOTOR_DELAYUS);
     HAL_Delay(1500);
+    //    car_go(1,500,500,0);
+	// car_go(1,-500,500,0);
+	// car_go(1,-500,-500,0);
+	// car_go(1,-500,-500,0);
+	// Rotate_PID(90);
+	// HAL_Delay(1500);
+	// Rotate_PID(180);
+	// HAL_Delay(1500);
+	// Rotate_PID(90);
+	// HAL_Delay(1500);
+	// Rotate_PID(-90);
+	// HAL_Delay(1500);
+	// Rotate_PID(0);
+	// HAL_Delay(1500);
     // Motortot_RotTo(180.0,MOTOR_DELAYUS);
     // HAL_Delay(1500);
     // Motortot_RotTo(0.0,MOTOR_DELAYUS);

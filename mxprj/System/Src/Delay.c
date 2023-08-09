@@ -16,6 +16,12 @@ void Delay_Init()
     HAL_TIM_Base_Start_IT(&htim7);
 }
 
+void PIDT_Stop()
+{
+    HAL_TIM_Base_Stop_IT(&htim6);
+    HAL_TIM_Base_Stop_IT(&htim7);
+}
+
 void TIM6_Delay_us(uint32_t us) 
 {
     uint16_t startCnt = __HAL_TIM_GET_COUNTER(&htim6);
