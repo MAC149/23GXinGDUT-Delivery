@@ -52,19 +52,7 @@ void  HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 	}
 	else if(htim == &htim7)			//5us
 	{
-		if(++j1>=60000)
-		{
-			if((++temp)%6==0)
-			{
-				OLED_ShowNum(4,1,temp,6,16);
-			}
-			else if(temp>60000)
-			{
-				temp=0; 
-			}
-			j1=0;
-		}
-		//move_motor_control();  //底盘电机控制
+		move_motor_control();  //底盘电机控制
 	}	
 	// if (htim->Instance == TIM6) {
     //     setState(true);

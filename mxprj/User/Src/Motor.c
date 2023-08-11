@@ -295,7 +295,7 @@ void RotYaw_ParamUpdate(float target_yaw)
     RotYaw_Param[1] = (target_yaw == -180.0f) ? -target_yaw : target_yaw;
 }
 
-signed char RotYaw_Status()
+int8_t RotYaw_Status()
 {
     RotYaw_Param[2]=OPS.zangle;
     if(RotYaw_Param[0] == 180.0f || RotYaw_Param[0] == -180.0f)
@@ -321,7 +321,7 @@ signed char RotYaw_Status()
 void Motortot_RotTo(float target_yaw,uint16_t delay_us)
 {
     RotYaw_ParamUpdate(target_yaw);
-    while(1)
+    while(RotYaw_Status())
     {
         switch(RotYaw_Status())
         {

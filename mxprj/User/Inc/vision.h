@@ -4,7 +4,7 @@
 
 #define OPENMV_REC_BUF_LEN 64
 
-#define OPENMV1_UART huart4
+#define OPENMV1_UART huart6
 
 
 typedef struct OpenMV_t
@@ -27,7 +27,7 @@ typedef struct OpenMV_t
 
 OpenMV_tt* _OpenMV_tt_Init(OpenMV_tt *that,UART_HandleTypeDef *MVhuart);
 
-
+void OpenMV_Receive_Start(OpenMV_tt* that);
 void OpenMVGN_Data_Process(uint8_t *str);
 void OpenMVGN_Adj(OpenMV_tt *that);
 

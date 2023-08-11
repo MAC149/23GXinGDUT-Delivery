@@ -129,10 +129,10 @@ void Test_Mod()
     Delay_Init();
     Motortot_SetEn_Off();
     OLED_ShowString(1,1,"INIT...",16);
-    // OPS.OPS_Init();
+    //OPS.OPS_Init();
     OLED_Clear();
     OLED_ShowString(1,1,"PRESS SW1",16);
-    while(!Key_Scan(&KEY1));
+    //while(!Key_Scan(&KEY1));
     OLED_Clear();
     OLED_ShowString(1,1,"OPSx:",16);
     OLED_ShowString(2,1,"OPSy:",16);
@@ -140,15 +140,20 @@ void Test_Mod()
     HAL_TIM_Base_Start_IT(&htim13);
     Motortot_SetEn_On();
     //OPS_Rec_Test();
+    _OpenMV_tt_Init(&OpenMV1,&OPENMV1_UART);
     while(1)
     {
-        HAL_Delay(3000);
-        Motortot_Forward(3200,350);
-        while(1);
+        OpenMVGN_Adj(&OpenMV1);
+    }
+    while(1)
+    {
+        HAL_Delay(2000);
+        Vision_Test();
+        
         //Motortot_Test();
     Motortot_RotTo(180.0,MOTOR_DELAYUS);
     HAL_Delay(1500);
-    Motortot_RotTo(0.0,MOTOR_DELAYUS);
+    Motortot_RotTo(90.0,MOTOR_DELAYUS);
     HAL_Delay(1500);
     Motortot_RotTo(-180.0,MOTOR_DELAYUS);
     HAL_Delay(1500);

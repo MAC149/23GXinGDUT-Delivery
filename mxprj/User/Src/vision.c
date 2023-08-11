@@ -139,7 +139,7 @@ void OpenMVGN_Data_Process(uint8_t *str)
 void OpenMVGN_Adj(OpenMV_tt *that)
 {
     bool x_ok,y_ok=0;
-    while(x_ok && y_ok)
+    while((!x_ok) && (!y_ok))
     {
         that->OpenMV_Receive(that);
         OpenMVGN_Data_Process(that->OpenMV_Rec);
