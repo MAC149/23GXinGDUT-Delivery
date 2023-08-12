@@ -135,6 +135,8 @@ void OpenMVGN_Data_Process(uint8_t *str)
 
 #define OPENMV_RESX 320
 #define OPENMV_RESY 240
+#define OPENMVGN_XOFFSET 0
+#define OPENMVGN_YOFFSET 0
 
 void OpenMVGN_Adj(OpenMV_tt *that)
 {
@@ -143,23 +145,23 @@ void OpenMVGN_Adj(OpenMV_tt *that)
     {
         that->OpenMV_Receive(that);
         OpenMVGN_Data_Process(that->OpenMV_Rec);
-        if(OpenMVGN_Data[1]>(OPENMV_RESX/2)+3)
-        {
-            Motortot_Left(25,200);
-        }
-        else if(OpenMVGN_Data[1]<(OPENMV_RESX/2)-3)
+        if(OpenMVGN_Data[1]>((OPENMV_RESX/2)+OPENMVGN_XOFFSET)+5)
         {
             Motortot_Right(25,200);
+        }
+        else if(OpenMVGN_Data[1]<((OPENMV_RESX/2)+OPENMVGN_YOFFSET)-5)
+        {
+            Motortot_Left(25,200);
         }
         else
         {
             x_ok=1;
         }
-        if(OpenMVGN_Data[2]>(OPENMV_RESY/2)+3)
+        if(OpenMVGN_Data[2]>(OPENMV_RESY/2)+5)
         {
             Motortot_Backward(25,200);
         }
-        else if(OpenMVGN_Data[2]<(OPENMV_RESY/2)-3)
+        else if(OpenMVGN_Data[2]<(OPENMV_RESY/2)-5)
         {
             Motortot_Forward(25,200);
         }
