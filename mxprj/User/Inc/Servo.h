@@ -17,7 +17,7 @@ typedef struct
 
 void Servo_Set(Servo_t Servo,TIM_HandleTypeDef* Servo_TIMx,uint32_t Servo_Channel);
 void Servo_Init(Servo_t Servo);
-void Servo_SetDeg(Servo_t Servo,uint8_t Deg);
+void Servo_SetDeg(Servo_t Servo,uint16_t Deg);
 uint16_t Servo_Deg(uint8_t Deg);
 
 

@@ -9,6 +9,8 @@
 #include <math.h>
 #include <stdio.h>
 #include "vision.h"
+#include "Servo.h"
+#include <string.h>
 
 void Motortot_Test();
 void Test_Mod();

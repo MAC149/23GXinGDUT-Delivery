@@ -289,15 +289,14 @@ void Motortot_GoY(float targety,uint16_t delay_us)
 }
 
 
-float RotYaw_Param[4];
 
-void RotYaw_ParamUpdate(float target_yaw)
+void RotYaw_ParamUpdate(float target_yaw,float *RotYaw_Param)
 {
     RotYaw_Param[0] = (target_yaw == 180.0) ? -target_yaw : target_yaw;
     RotYaw_Param[1] = (target_yaw == -180.0) ? -target_yaw : target_yaw;
 }
 
-int8_t RotYaw_Status()
+int8_t RotYaw_Status(float* RotYaw_Param)
 {
     RotYaw_Param[2]=OPS.zangle;
     if(RotYaw_Param[0] == 180.0 || RotYaw_Param[0] == -180.0)
@@ -322,8 +321,9 @@ int8_t RotYaw_Status()
 
 void Motortot_RotTo(float target_yaw,uint16_t delay_us)
 {
-    RotYaw_ParamUpdate(target_yaw);
-    uint8_t temp=RotYaw_Status();
+    float ftmp[4];
+    RotYaw_ParamUpdate(target_yaw,ftmp);
+    uint8_t temp=RotYaw_Status(ftmp);
     while(temp)
     {
         switch(temp)
@@ -337,7 +337,7 @@ void Motortot_RotTo(float target_yaw,uint16_t delay_us)
             case 0:break;
             default:break;
         }
-        temp=RotYaw_Status();
+        temp=RotYaw_Status(ftmp);
     }
 }
 
@@ -704,8 +704,9 @@ void Rotate_PID(float target_z)
     int Integral_errormax = 2;
     int angle1;  // 数据缓存区
     float error; // 偏差值
-    RotYaw_ParamUpdate(target_z);
-    int8_t temp=RotYaw_Status();
+    float ftmp[4];
+    RotYaw_ParamUpdate(target_z,ftmp);
+    int8_t temp=RotYaw_Status(ftmp);
     while (temp)
     {
         error=Yaw_Angle_Dis(target_z);
@@ -721,7 +722,7 @@ void Rotate_PID(float target_z)
             Motortot_RotRight(2+angle1, 160-pwm);
         }
         Last_error = error;
-        temp=RotYaw_Status();
+        temp=RotYaw_Status(ftmp);
     }
 }
 

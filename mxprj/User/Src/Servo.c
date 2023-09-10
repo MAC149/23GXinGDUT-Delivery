@@ -11,7 +11,7 @@ void Servo_Init(Servo_t Servo)
     HAL_TIM_PWM_Start(Servo.Servo_TIMx,Servo.Servo_Channel);
 }
 
-void Servo_SetDeg(Servo_t Servo,uint8_t Deg)
+void Servo_SetDeg(Servo_t Servo,uint16_t Deg)
 {
     __HAL_TIM_SET_COMPARE(Servo.Servo_TIMx,Servo.Servo_Channel,Deg);
 }

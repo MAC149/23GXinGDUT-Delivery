@@ -138,36 +138,60 @@ void OpenMVGN_Data_Process(uint8_t *str)
 #define OPENMVGN_XOFFSET 0
 #define OPENMVGN_YOFFSET 0
 
-void OpenMVGN_Adj(OpenMV_tt *that)
+uint8_t OpenMVGN_Xst=0;
+uint8_t OpenMVGN_Yst=0;
+ 
+void OpenMVGN_StUpd(OpenMV_tt *that)
+{
+    that->OpenMV_Receive(that);
+    OpenMVGN_Data_Process(that->OpenMV_Rec);
+    if(OpenMVGN_Data[1]>((OPENMV_RESX/2)+OPENMVGN_XOFFSET)+5)
+    {
+        OpenMVGN_Xst=2;
+    }
+    else if(OpenMVGN_Data[1]<((OPENMV_RESX/2)+OPENMVGN_YOFFSET)-5)
+    {
+        OpenMVGN_Xst=1;
+    }
+    else
+    {
+        OpenMVGN_Xst=3;
+    }
+    if(OpenMVGN_Data[2]>(OPENMV_RESY/2)+5)
+    {
+        OpenMVGN_Yst=1;
+    }
+    else if(OpenMVGN_Data[2]<(OPENMV_RESY/2)-5)
+    {
+        OpenMVGN_Yst=2;
+    }
+    else
+    {
+        OpenMVGN_Yst=3;
+    }
+}
+
+
+void OpenMVGN_Adj()
 {
     bool x_ok,y_ok=0;
-    while((!x_ok) && (!y_ok))
+    while((OpenMVGN_Yst!=3) && (OpenMVGN_Xst!=3))
     {
-        that->OpenMV_Receive(that);
-        OpenMVGN_Data_Process(that->OpenMV_Rec);
-        if(OpenMVGN_Data[1]>((OPENMV_RESX/2)+OPENMVGN_XOFFSET)+5)
+        if(OpenMVGN_Xst==1)
         {
             Motortot_Right(25,200);
         }
-        else if(OpenMVGN_Data[1]<((OPENMV_RESX/2)+OPENMVGN_YOFFSET)-5)
+        else if(OpenMVGN_Xst==2)
         {
             Motortot_Left(25,200);
         }
-        else
-        {
-            x_ok=1;
-        }
-        if(OpenMVGN_Data[2]>(OPENMV_RESY/2)+5)
+        if(OpenMVGN_Yst==1)
         {
             Motortot_Backward(25,200);
         }
-        else if(OpenMVGN_Data[2]<(OPENMV_RESY/2)-5)
+        else if(OpenMVGN_Yst==2)
         {
             Motortot_Forward(25,200);
-        }
-        else
-        {
-            y_ok=1;
         }
     }
 }

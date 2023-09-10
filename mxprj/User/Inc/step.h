@@ -4,6 +4,9 @@
 #include "GeneralDef.h"
 #include "OLED.h"
 #include "Motor.h"
+#include "Scan.h"
+#include <string.h>
+
 
 void Full_Step();
 

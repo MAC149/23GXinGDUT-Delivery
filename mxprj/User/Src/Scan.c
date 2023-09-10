@@ -63,7 +63,7 @@ uint8_t* Scan_GetCode()
 
  void Scan_Rec_Process(uint8_t Scan_Char_Buf)
 {
-    if(Scan_Char_Buf==0x31)
+    if(Scan_Char_Buf==0x20)
     {
         HAL_UART_Receive_IT(&SCANER_UARTX,&Scan.Scan_Char_Buf,1);
         return;

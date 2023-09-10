@@ -1,3 +1,9 @@
+/*
+Scaner module setups:
+Using GM65
+Default Bitrate:9600
+Data preflex:DA(44 41)
+*/
 #ifndef _SCAN_H_
 #define _SCAN_H_
 #include"GeneralDef.h"
@@ -6,7 +12,7 @@
 
 
 //SCANER IO CONNECTION
-#define SCANER_UARTX huart2
+#define SCANER_UARTX huart6
 
 typedef struct
 {

@@ -29,7 +29,8 @@ OpenMV_tt* _OpenMV_tt_Init(OpenMV_tt *that,UART_HandleTypeDef *MVhuart);
 
 void OpenMV_Receive_Start(OpenMV_tt* that);
 void OpenMVGN_Data_Process(uint8_t *str);
-void OpenMVGN_Adj(OpenMV_tt *that);
+void OpenMVGN_StUpd(OpenMV_tt *that);
+void OpenMVGN_Adj();
 
 extern OpenMV_tt OpenMV1;
 

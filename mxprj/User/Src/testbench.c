@@ -45,12 +45,40 @@ void OLED_Test()
     }
 }
 
+void Scan_OLED()
+{
+    uint8_t *temp;
+    OLED_Init();
+    OLED_ShowString(1,1,"nihao",164);
+    while(1)
+    {
+        temp=Scan_GetCode();
+        HAL_UART_Transmit(&DEBUG_UART,temp,(uint16_t)Scan_Data_Length,1000);
+        OLED_ShowString(1,1,temp,164);
+        HAL_Delay(5000);
+    }
+}
+
+Servo_t Servo1;
+
 void Servo_Test()
 {
     // __HAL_TIM_SET_COMPARE(&htim3,TIM_CHANNEL_4,500);
     // HAL_Delay(2000);
     // __HAL_TIM_SET_COMPARE(&htim3,TIM_CHANNEL_4,2500);
     // HAL_Delay(3000);
+    HAL_TIM_PWM_Start(&htim12,TIM_CHANNEL_1);
+    while(1)
+    {
+       __HAL_TIM_SET_COMPARE(&htim12,TIM_CHANNEL_1,1500);
+        HAL_Delay(3000);
+        __HAL_TIM_SET_COMPARE(&htim12,TIM_CHANNEL_1,500);
+        HAL_Delay(3000);
+        __HAL_TIM_SET_COMPARE(&htim12,TIM_CHANNEL_1,2500);
+        HAL_Delay(3000);
+        __HAL_TIM_SET_COMPARE(&htim12,TIM_CHANNEL_1,2000);
+        HAL_Delay(4000);
+    }
 }
 
 uint8_t * OPSx=0;
@@ -142,6 +170,7 @@ void Test_Mod()
     //Motortot_Test();
     //OLED_Test();
     //PC_Uart_Test();
+    Servo_Test();
     OLED_Init();
     Motortot_Init();
     Delay_Init();
