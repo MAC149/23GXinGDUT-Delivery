@@ -437,7 +437,7 @@ float actual_rotation_angle(float now_angle,float tag_angle)
 }
 
 // 位置PID控制参数
-#define POSITION_KP 2.0
+#define POSITION_KP 1.4
 #define POSITION_KI 0.02
 #define POSITION_MAX_INTEGRAL 80
 
@@ -726,14 +726,12 @@ void Rotate_PID(float target_z)
     }
 }
 
-void car_go(uint8_t mode, float fDistance_x, float fDistance_y, float target_yaw)
+void car_go(uint8_t mode, double fDistance_x, double fDistance_y, float target_z)
 {
     const float tolerance = 2.0;   // 定义每个轴的容差范围
-    const float tolerance2 = 20.0; // 定义每个轴的容差范围
-    Car_Loc_Flag = 0;
     target_x = fDistance_x;
     target_y = fDistance_y;
-    target_yaw = target_yaw;
+    target_yaw = target_z;
     move_mode = 1;
     Delay_Init();
     if (mode)
@@ -746,9 +744,9 @@ void car_go(uint8_t mode, float fDistance_x, float fDistance_y, float target_yaw
 
             if (abs_(x_err) <= tolerance && abs_(y_err) <= tolerance && abs_(yaw_err) <= 1)
             {
-                velocity_analysis(0, 0, 0);
+//                velocity_analysis(0, 0, 0);
                 mode = 0;
-                HAL_Delay(1000);
+                HAL_Delay(500);
                 PIDT_Stop(); // Rotate_PID(target_yaw,80); // 将移动模式设置回0（停止）
                 break;
             }

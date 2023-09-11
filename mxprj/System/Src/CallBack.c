@@ -41,13 +41,16 @@ void  HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		if(++j==10)  //每10ms执行一次
 		{
 			j = 0;
-			//PID_ARR_Dec();
 			position_control(); //底盘坐标控制
 		}
 		if(++j2==3) //每3ms执行一次
 		{
 			j2 = 0;
 			speed_control();
+		}
+		if(++j1==5)
+		{
+			//OpenMVGN_StUpd(&OpenMV1);
 		}
 	}
 	else if(htim == &htim7)			//5us

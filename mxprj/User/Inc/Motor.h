@@ -118,7 +118,7 @@ float actual_rotation_angle(float now_angle,float tag_angle);
 void speed_control(void);
 void rotatePIDrealize(int sud);	
 
-void car_go(uint8_t mode, float fDistance_x, float fDistance_y, float target_yaw);
+void car_go(uint8_t mode, double fDistance_x, double fDistance_y, float target_z);
 void Rotate_PID(float target_z);
 
 

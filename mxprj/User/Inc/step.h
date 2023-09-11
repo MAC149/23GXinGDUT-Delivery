@@ -1,10 +1,16 @@
 #ifndef _STEP_H_
 #define _STEP_H_
 
-#include "GeneralDef.h"
-#include "OLED.h"
 #include "Motor.h"
+#include "Delay.h"
+#include "OLED.h"
 #include "Scan.h"
+#include "OPS_system.h"
+#include "misc.h"
+#include <math.h>
+#include <stdio.h>
+#include "vision.h"
+#include "Servo.h"
 #include <string.h>
 
 

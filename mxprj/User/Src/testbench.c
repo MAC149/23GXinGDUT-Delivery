@@ -167,10 +167,10 @@ void Vision_Test()
 
 void Test_Mod()
 {
-    //Motortot_Test();
+    Motortot_Test();
     //OLED_Test();
     //PC_Uart_Test();
-    Servo_Test();
+    //Servo_Test();
     OLED_Init();
     Motortot_Init();
     Delay_Init();
