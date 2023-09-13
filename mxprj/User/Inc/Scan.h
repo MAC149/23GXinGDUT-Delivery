@@ -12,7 +12,7 @@ Data preflex:DA(44 41)
 
 
 //SCANER IO CONNECTION
-#define SCANER_UARTX huart6
+#define SCANER_UARTX huart4
 
 typedef struct
 {

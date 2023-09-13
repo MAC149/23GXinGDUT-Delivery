@@ -3,6 +3,8 @@
 
 
 
+extern const double Pos_Target[8][2];
+
 void Motortot_Test()
 {
     HAL_Delay(2500);
@@ -70,13 +72,13 @@ void Servo_Test()
     HAL_TIM_PWM_Start(&htim12,TIM_CHANNEL_1);
     while(1)
     {
-       __HAL_TIM_SET_COMPARE(&htim12,TIM_CHANNEL_1,1500);
+       __HAL_TIM_SET_COMPARE(&htim12,TIM_CHANNEL_1,150);
         HAL_Delay(3000);
-        __HAL_TIM_SET_COMPARE(&htim12,TIM_CHANNEL_1,500);
+        __HAL_TIM_SET_COMPARE(&htim12,TIM_CHANNEL_1,50);
         HAL_Delay(3000);
-        __HAL_TIM_SET_COMPARE(&htim12,TIM_CHANNEL_1,2500);
+        __HAL_TIM_SET_COMPARE(&htim12,TIM_CHANNEL_1,250);
         HAL_Delay(3000);
-        __HAL_TIM_SET_COMPARE(&htim12,TIM_CHANNEL_1,2000);
+        __HAL_TIM_SET_COMPARE(&htim12,TIM_CHANNEL_1,200);
         HAL_Delay(4000);
     }
 }
@@ -146,31 +148,45 @@ void Vision_Test()
 {
     // OpenMV_Init();
     _OpenMV_tt_Init(&OpenMV1,&OPENMV1_UART);
-    while(1)
-    {
-        printf("inside\r\n");
-        HAL_Delay(1500);
-        printf("%s\r\n",OpenMV1.OpenMV_Receive(&OpenMV1));
-        OpenMVGN_Data_Process(OpenMV1.OpenMV_Rec);
-        printf("%d  %d  %d  %d\r\n",OpenMVGN_Data[0],OpenMVGN_Data[1],OpenMVGN_Data[2],OpenMVGN_Data[3]);
-    }
+    uint8_t* temp;
     // while(1)
     // {
+    //     printf("inside\r\n");
     //     HAL_Delay(1500);
-    //     printf("bbb");
-    //     OpenMV1.OpenMV_Send(&OpenMV1,(uint8_t*)"bbb",3);
+    //     printf("inside\r\n");
+    //     temp=OpenMV1.OpenMV_Receive(&OpenMV1);
+    //     printf("%s\r\n",temp);
+    //     OpenMVGN_Data_Process(OpenMV1.OpenMV_Rec);
+    //     printf("%d  %d  %d  %d\r\n",OpenMVGN_Data[0],OpenMVGN_Data[1],OpenMVGN_Data[2],OpenMVGN_Data[3]);
     // }
+    while(1)
+    {
+        HAL_Delay(1500);
+        printf("bbb");
+        //OpenMV1.OpenMV_Send(&OpenMV1,(uint8_t*)"bbb",3);
+        if(OpenMVGN_Cor(&OpenMV1,1))
+        {
+            printf("RED\r\n");
+        }
+    }
 }
 
-
+void PickSpot(uint8_t place,double yawa)
+{
+    car_go(1,Pos_Target[place][0],Pos_Target[place][1],yawa);
+    while(1);
+}
 
 
 void Test_Mod()
 {
-    Motortot_Test();
+    //Vision_Test();
+    //Motortot_Test();
     //OLED_Test();
     //PC_Uart_Test();
     //Servo_Test();
+    //HAL_TIM_PWM_Start(&htim12,TIM_CHANNEL_1);
+    //__HAL_TIM_SET_COMPARE(&htim12,TIM_CHANNEL_1,1500);
     OLED_Init();
     Motortot_Init();
     Delay_Init();
@@ -186,6 +202,8 @@ void Test_Mod()
     OLED_ShowString(3,1,"OPSyaw:",16);
     HAL_TIM_Base_Start_IT(&htim13);
     Motortot_SetEn_On();
+    //car_go(1,-130,1400,0);
+    PickSpot(2,90);
     //OPS_Rec_Test();
     // _OpenMV_tt_Init(&OpenMV1,&OPENMV1_UART);
     // while(1)
@@ -213,7 +231,7 @@ void Test_Mod()
 	// car_go(1,-500,500,0);
 	// car_go(1,-500,-500,0);
 	// car_go(1,-500,-500,0);
-	RotPID_Test();
+	//RotPID_Test();
     // Motortot_RotTo(180.0,MOTOR_DELAYUS);
     // HAL_Delay(1500);
     // Motortot_RotTo(0.0,MOTOR_DELAYUS);

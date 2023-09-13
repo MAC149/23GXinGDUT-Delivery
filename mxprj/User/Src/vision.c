@@ -99,6 +99,7 @@ int OpenMVGN_Data[4]={0};
 #define OPENMVGN_STDATA_BUF_LEN 8
 /* Rec example
 Blue Circle - Center: (265, 230), Radius: 54
+Found Circle - Center: (110, 77), Radius: 40 , Magnitude: 4080
 */
 void OpenMVGN_Str2int(const char strch,const char endch,uint8_t *str,uint8_t* pointer,int *intdes)
 {
@@ -140,11 +141,13 @@ void OpenMVGN_Data_Process(uint8_t *str)
 
 uint8_t OpenMVGN_Xst=0;
 uint8_t OpenMVGN_Yst=0;
- 
-void OpenMVGN_StUpd(OpenMV_tt *that)
+bool OpenMVGN_ReceiveFlag=0;
+
+void OpenMVGN_StUpd(OpenMV_tt *OpenMV)
 {
-    that->OpenMV_Receive(that);
-    OpenMVGN_Data_Process(that->OpenMV_Rec);
+    if(!OpenMVGN_ReceiveFlag){return;}
+    OpenMV->OpenMV_Receive(OpenMV);
+    OpenMVGN_Data_Process(OpenMV->OpenMV_Rec);
     if(OpenMVGN_Data[1]>((OPENMV_RESX/2)+OPENMVGN_XOFFSET)+5)
     {
         OpenMVGN_Xst=2;
@@ -172,9 +175,10 @@ void OpenMVGN_StUpd(OpenMV_tt *that)
 }
 
 
-void OpenMVGN_Adj()
+void OpenMVGN_Adj(OpenMV_tt *OpenMV)
 {
-    bool x_ok,y_ok=0;
+    OpenMV_Send(OpenMV,"PV",3);
+    OpenMVGN_ReceiveFlag=1;
     while((OpenMVGN_Yst!=3) && (OpenMVGN_Xst!=3))
     {
         if(OpenMVGN_Xst==1)
@@ -194,4 +198,31 @@ void OpenMVGN_Adj()
             Motortot_Forward(25,200);
         }
     }
+    OpenMVGN_ReceiveFlag=0;
+    OpenMV_Send(OpenMV,"ED",3);
+}
+
+bool OpenMVGN_Cor(OpenMV_tt *OpenMV,uint8_t Tar_cor)
+{
+    uint8_t* temp;
+    uint8_t* temp1;
+    switch(Tar_cor)
+    {
+        case 1:OpenMV_Send(OpenMV,"CRRED",6);break;
+        case 2:OpenMV_Send(OpenMV,"CRGREEN",8);break;
+        case 3:OpenMV_Send(OpenMV,"CRBLUE",7);break;
+        default:break;
+    }
+    while(1)
+    {
+        temp=OpenMV->OpenMV_Receive(OpenMV);
+        HAL_Delay(200);
+        temp1=OpenMV->OpenMV_Receive(OpenMV);
+        if(temp1==temp)
+        {
+            return 1;
+        }
+        HAL_Delay(200);
+    }
+    
 }
