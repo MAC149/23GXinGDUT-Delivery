@@ -1,24 +1,29 @@
 #include "step.h"
 
-#define SERVO_PAD_TIM htim12
-#define SERVO_PAD_CH TIM_CHANNEL_1
-#define SERVO_PAW_TIM htim12
-#define SERVO_PAW_CH TIM_CHANNEL_1
+#define SERVO_PAD_TIM htim3
+#define SERVO_PAD_CH TIM_CHANNEL_3
+#define SERVO_PAW_TIM htim3
+#define SERVO_PAW_CH TIM_CHANNEL_4
 
+#define SERVO_PAW_CLOSE 90
+#define SERVO_PAW_OPEN 130
+#define SERVO_PAD_RED 0
+#define SERVO_PAD_GREEN 90
+#define SERVO_PAD_BLUE 180
 
 Servo_t Servo_Pad;
+Servo_t Servo_Paw;
 
-
-const double Pos_Target[8][2]=
+const double Pos_Target[8][3]=
 {
--133,800,                           //扫码
--130,1400,                        //转盘
--960,1906,                        //粗加工
--1750,1120,                     //半成品
--1750,1850,                      //左上路口
--100,1700,                        //右上路口
--1689,80,                         //左下路口
--120,0                               //右下路口
+-133,800,0,                           //扫码
+-130,1410,0,                        //转盘
+-940,1936,90,                        //粗加工
+-1750,1120,180,                     //半成品
+-1750,1850,180,                      //左上路口
+-100,1700,0,                        //右上路口
+-1689,80,180,                         //左下路口
+-120,0,0                               //右下路口
 };
 
 
@@ -26,7 +31,8 @@ void Step_Init()
 {
     OLED_Init();
     Motortot_Init();
-	Servo_Set(Servo_Pad,&SERVO_PAD_TIM,SERVO_PAD_CH);
+	  Servo_Set(&Servo_Pad,&SERVO_PAD_TIM,SERVO_PAD_CH);
+    Servo_Set(&Servo_Paw,&SERVO_PAW_TIM,SERVO_PAW_CH);
     Delay_Init();
     Motortot_SetEn_Off();
     OLED_ShowString(1,1,"INIT...",16);
@@ -63,9 +69,9 @@ void Pad_Switch(char target)
 {
   switch(target)
   {
-    case '2':Servo_SetDeg(Servo_Pad,105);break;
-    case '3':Servo_SetDeg(Servo_Pad,165);break;
-    case '1':Servo_SetDeg(Servo_Pad,45);break;
+    case '1':Servo_SetDeg(&Servo_Pad,SERVO_PAD_RED);break;
+    case '2':Servo_SetDeg(&Servo_Pad,SERVO_PAD_GREEN);break;
+    case '3':Servo_SetDeg(&Servo_Pad,SERVO_PAD_BLUE);break;
   }
 }
 
@@ -160,51 +166,53 @@ void SM_Action(int Phase)
 }
 
 
-void car_goA(uint8_t place,double yawang)
+void car_goA(uint8_t place)
 {
-  car_go(1,Pos_Target[place][0],Pos_Target[place][1],yawang);
+  car_go(1,Pos_Target[place][0],Pos_Target[place][1],Pos_Target[place][2]);
 }
 
 void Rout1(uint8_t round)
 {
 	//去转盘
-	car_go(1,Pos_Target[1][0],Pos_Target[1][1],0);
+	car_goA(1);
 	HAL_Delay(2000);
 	//识别任务
 
 	//舵机动作组
 
 	//路口
-	car_go(1,Pos_Target[5][0],Pos_Target[5][1],0);
+	car_goA(5);
 	HAL_Delay(2000);
 	//粗加工
-	 car_go(1,Pos_Target[2][0],Pos_Target[2][1],90);
+	 car_goA(2);
 	 HAL_Delay(2000);
 	//矫正
 	//OPENMV
 	//舵机动作组
 
 	//路口
-	car_go(1,Pos_Target[4][0],Pos_Target[4][1],180);
+	car_goA(4);
 	HAL_Delay(2000);
 	//半成品
-	car_go(1,Pos_Target[3][0],Pos_Target[3][1],180);
+	car_goA(3);
 	HAL_Delay(2000);
 	//矫正
 	//OPENMV
 	//舵机动作组
 
 	//回路口
-	car_go(1,Pos_Target[6][0],Pos_Target[6][1],180);
+	car_goA(6);
 	HAL_Delay(2000);
-	car_go(1,Pos_Target[7][0],Pos_Target[7][1],0);
-	HAL_Delay(2000);
+  if(round==1)
+  {
+    car_goA(7);
+	  HAL_Delay(2000);
+  }
 }
 
 
 void Full_Step()
 {
-  while(1);
 	Step_Init();
 
 
@@ -214,7 +222,7 @@ void Full_Step()
   OLED_ShowString(3,1,"OPSyaw:",16);
   HAL_TIM_Base_Start_IT(&htim13);
 	//去扫码区
-	car_go(1,Pos_Target[0][0],Pos_Target[0][1],0);
+	car_goA(0);
 	HAL_Delay(2000);
 	//扫码
 	//Code_Scan();

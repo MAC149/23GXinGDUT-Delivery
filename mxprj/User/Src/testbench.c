@@ -62,25 +62,47 @@ void Scan_OLED()
 }
 
 Servo_t Servo1;
+Servo_t Servo2;
 
 void Servo_Test()
 {
-    // __HAL_TIM_SET_COMPARE(&htim3,TIM_CHANNEL_4,500);
-    // HAL_Delay(2000);
-    // __HAL_TIM_SET_COMPARE(&htim3,TIM_CHANNEL_4,2500);
-    // HAL_Delay(3000);
-    HAL_TIM_PWM_Start(&htim12,TIM_CHANNEL_1);
+    // HAL_TIM_PWM_Start(&htim12,TIM_CHANNEL_1);
+    // while(1)
+    // {
+    //    __HAL_TIM_SET_COMPARE(&htim12,TIM_CHANNEL_1,150);
+    //     HAL_Delay(3000);
+    //     __HAL_TIM_SET_COMPARE(&htim12,TIM_CHANNEL_1,50);
+    //     HAL_Delay(3000);
+    //     __HAL_TIM_SET_COMPARE(&htim12,TIM_CHANNEL_1,250);
+    //     HAL_Delay(3000);
+    //     __HAL_TIM_SET_COMPARE(&htim12,TIM_CHANNEL_1,200);
+    //     HAL_Delay(4000);
+    // }
+    Servo_Set(&Servo1,&htim3,TIM_CHANNEL_3);
+    Servo_Set(&Servo2,&htim3,TIM_CHANNEL_4);
+    Servo_Init(&Servo1);
+    Servo_Init(&Servo2);
     while(1)
     {
-       __HAL_TIM_SET_COMPARE(&htim12,TIM_CHANNEL_1,150);
-        HAL_Delay(3000);
-        __HAL_TIM_SET_COMPARE(&htim12,TIM_CHANNEL_1,50);
-        HAL_Delay(3000);
-        __HAL_TIM_SET_COMPARE(&htim12,TIM_CHANNEL_1,250);
-        HAL_Delay(3000);
-        __HAL_TIM_SET_COMPARE(&htim12,TIM_CHANNEL_1,200);
-        HAL_Delay(4000);
+        Servo_SetDeg(&Servo1,90);
+        HAL_Delay(2000);
+        Servo_SetDeg(&Servo1,0);
+        HAL_Delay(2000);
+        Servo_SetDeg(&Servo1,180);
+        HAL_Delay(2000);
+        Servo_SetDeg(&Servo1,135);
+        HAL_Delay(2000);
     }
+}
+
+void Servo_Adj()
+{
+    Servo_Set(&Servo1,&htim3,TIM_CHANNEL_3);
+    Servo_Set(&Servo2,&htim3,TIM_CHANNEL_4);
+    Servo_Init(&Servo1);
+    Servo_Init(&Servo2);
+    Servo_SetDeg(&Servo2,100);
+    while(1);
 }
 
 uint8_t * OPSx=0;
@@ -127,6 +149,22 @@ void RotPID_Test()
 	HAL_Delay(1500);
 }
 
+void RotLog_Test()
+{
+    Motortot_RotTo(90.0,MOTOR_DELAYUS);
+    HAL_Delay(1500);
+    Motortot_RotTo(-170.0,MOTOR_DELAYUS);
+    HAL_Delay(1500);
+    Motortot_RotTo(180.0,MOTOR_DELAYUS);
+    HAL_Delay(1500);
+    Motortot_RotTo(10.0,MOTOR_DELAYUS);
+    HAL_Delay(1500);
+    Motortot_RotTo(-10.0,MOTOR_DELAYUS);
+    HAL_Delay(1500);
+    Motortot_RotTo(0.0,MOTOR_DELAYUS);
+    HAL_Delay(3000);
+}
+
 void PC_Uart_Test()
 {
     // for(;;)
@@ -171,9 +209,9 @@ void Vision_Test()
     }
 }
 
-void PickSpot(uint8_t place,double yawa)
+void PickSpot(uint8_t place)
 {
-    car_go(1,Pos_Target[place][0],Pos_Target[place][1],yawa);
+    car_go(1,Pos_Target[place][0],Pos_Target[place][1],Pos_Target[place][2]);
     while(1);
 }
 
@@ -184,6 +222,7 @@ void Test_Mod()
     //Motortot_Test();
     //OLED_Test();
     //PC_Uart_Test();
+    //Servo_Adj();
     //Servo_Test();
     //HAL_TIM_PWM_Start(&htim12,TIM_CHANNEL_1);
     //__HAL_TIM_SET_COMPARE(&htim12,TIM_CHANNEL_1,1500);
@@ -203,7 +242,7 @@ void Test_Mod()
     HAL_TIM_Base_Start_IT(&htim13);
     Motortot_SetEn_On();
     //car_go(1,-130,1400,0);
-    PickSpot(2,90);
+    PickSpot(1);
     //OPS_Rec_Test();
     // _OpenMV_tt_Init(&OpenMV1,&OPENMV1_UART);
     // while(1)
@@ -219,24 +258,9 @@ void Test_Mod()
         //     printf("%f\r\n",OPS.zangle);
         // }
         //Motortot_Test();
-    // Motortot_RotTo(180.0,MOTOR_DELAYUS);
-    // HAL_Delay(1500);
-    // Motortot_RotTo(90.0,MOTOR_DELAYUS);
-    // HAL_Delay(1500);
-    // Motortot_RotTo(-180.0,MOTOR_DELAYUS);
-    // HAL_Delay(1500);
-    // Motortot_RotTo(0.0,MOTOR_DELAYUS);
-    // HAL_Delay(1500);
-    //    car_go(1,500,500,0);
-	// car_go(1,-500,500,0);
-	// car_go(1,-500,-500,0);
-	// car_go(1,-500,-500,0);
-	//RotPID_Test();
-    // Motortot_RotTo(180.0,MOTOR_DELAYUS);
-    // HAL_Delay(1500);
-    // Motortot_RotTo(0.0,MOTOR_DELAYUS);
-    // HAL_Delay(3000);
+
     // Motortot_Test();
     }
     //Scan_Test();
 }
+
