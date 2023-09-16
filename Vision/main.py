@@ -17,7 +17,7 @@ green_threshold = (26, 62, -58, -33, -34, 52) # 绿色阈值
 blue_threshold = (25, 88, -13, 33, -55, -10) # 蓝色阈值
 
 recv_data=""
-WRK_flag=2
+WRK_flag=0
 Blok_Object=1
 def Uart_recv():  # 串口接收数据
     global WRK_flag
@@ -67,7 +67,7 @@ while True:
                 #img.median(1) # 使用半径为1的中值滤波
                 img.gaussian(1) # 使用半径为1的高斯滤波
                 img.find_edges(image.EDGE_CANNY, threshold = (40, 80))
-                for c in img.find_circles(x_stride=4, y_stride=4 ,threshold = 4200, x_margin = 36, y_margin = 36, r_margin = 28,
+                for c in img.find_circles(x_stride=2, y_stride=1 ,threshold = 6000, x_margin = 36, y_margin = 36, r_margin = 28,
                 r_min = 38, r_max = 72, r_step = 2):
                     if c.r()>35 and c.r()<100:
                         #img.draw_circle(c.x(), c.y(), c.r(), color = (255,255, 255))

@@ -1,11 +1,11 @@
 #include "step.h"
 
 #define SERVO_PAD_TIM htim3
-#define SERVO_PAD_CH TIM_CHANNEL_3
+#define SERVO_PAD_CH TIM_CHANNEL_4
 #define SERVO_PAW_TIM htim3
-#define SERVO_PAW_CH TIM_CHANNEL_4
+#define SERVO_PAW_CH TIM_CHANNEL_3
 
-#define SERVO_PAW_CLOSE 90
+#define SERVO_PAW_CLOSE 75
 #define SERVO_PAW_OPEN 130
 #define SERVO_PAD_RED 0
 #define SERVO_PAD_GREEN 90
@@ -14,9 +14,16 @@
 Servo_t Servo_Pad;
 Servo_t Servo_Paw;
 
+#define PAW_OPEN Servo_SetDeg(&Servo_Paw,SERVO_PAW_OPEN)
+#define PAW_CLOSE Servo_SetDeg(&Servo_Paw,SERVO_PAW_CLOSE)
+#define PAD_R Servo_SetDeg(&Servo_Pad,SERVO_PAD_RED)
+#define PAD_G Servo_SetDeg(&Servo_Pad,SERVO_PAD_GREEN)
+#define PAD_B Servo_SetDeg(&Servo_Pad,SERVO_PAD_BLUE)
+
+
 const double Pos_Target[8][3]=
 {
--133,800,0,                           //扫码
+-170,1030,0,                           //扫码
 -130,1410,0,                        //转盘
 -940,1936,90,                        //粗加工
 -1750,1120,180,                     //半成品
@@ -48,12 +55,13 @@ void Step_Init()
 uint8_t *QRCode;
 uint8_t Act_Order1[3]={0};
 uint8_t Act_Order2[3]={0};
+
 void Code_Scan()
 {
 	do
 	{
 		QRCode=Scan_GetCode();
-        HAL_UART_Transmit(&DEBUG_UART,QRCode,(uint16_t)Scan_Data_Length,1000);
+    HAL_UART_Transmit(&DEBUG_UART,QRCode,(uint16_t)Scan_Data_Length,1000);
 	}
     while(!strcmp(QRCode,"TO"));
 	OLED_ShowString(1,1,QRCode,164);
@@ -63,6 +71,76 @@ void Code_Scan()
 		Act_Order2[i]=QRCode[i+4];
 	}
 	
+}
+
+void Pad_Put()
+{
+  lobotRunActionGroup(0,1000);
+  HAL_Delay(1000);
+  lobotRunActionGroup(2,1000);
+  HAL_Delay(1000);
+  PAW_OPEN;
+  HAL_Delay(500);
+  lobotRunActionGroup(0,1000);
+  HAL_Delay(1000);
+}
+
+void Pad_Pick()
+{
+  PAW_OPEN;
+  lobotRunActionGroup(0,1000);
+  HAL_Delay(1200);
+  lobotRunActionGroup(2,1000);
+  HAL_Delay(1200);
+  PAW_CLOSE;
+  HAL_Delay(500);
+  lobotRunActionGroup(0,1000);
+  HAL_Delay(1200);
+}
+
+void Pick_Action(uint8_t pos)
+{
+  lobotRunActionGroup(0,1000);
+  HAL_Delay(1200);
+  switch(pos)
+  {
+    case 1:lobotRunActionGroup(4,1000);break;
+    case 2:lobotRunActionGroup(3,1000);break;
+    case 3:lobotRunActionGroup(5,1000);break;
+  }
+  HAL_Delay(1200);
+  PAW_CLOSE;
+  HAL_Delay(500);
+  lobotRunActionGroup(0,1000);
+  HAL_Delay(1200);
+}
+
+void Put_Action(bool phase,uint8_t pos)
+{
+  lobotRunActionGroup(0,1000);
+  HAL_Delay(1000);
+  if(phase)
+  {
+    switch(pos)
+    {
+      case 1:lobotRunActionGroup(4,1000);break;
+      case 2:lobotRunActionGroup(3,1000);break;
+      case 3:lobotRunActionGroup(5,1000);break;
+    }
+  }
+  else
+  {
+      switch(pos)
+    {
+      case 1:lobotRunActionGroup(7,1000);break;
+      case 2:lobotRunActionGroup(6,1000);break;
+      case 3:lobotRunActionGroup(8,1000);break;
+    }
+  }
+  HAL_Delay(1000);
+  PAW_CLOSE;
+  HAL_Delay(1000);
+  lobotRunActionGroup(0,1000);
 }
 
 void Pad_Switch(char target)
@@ -75,7 +153,6 @@ void Pad_Switch(char target)
   }
 }
 
-
 void OG_Action(int Phase)
 {
     for(int i=(Phase-1)*4;i<((Phase-1)*4)+3;i++)
@@ -83,19 +160,26 @@ void OG_Action(int Phase)
       switch(QRCode[i])
       {
         case 1:Pad_Switch(QRCode[i]);
-		//识别红色
-		//抓
+        while(!OpenMVGN_Cor(&OpenMV1,1));		//识别红色
 		break;
         case 2:Pad_Switch(QRCode[i]);
-		//识别绿色
-		//抓
+		 while(!OpenMVGN_Cor(&OpenMV1,2));//识别绿色
 		break;
         case 3:Pad_Switch(QRCode[i]);
-		//识别蓝色
-		//抓
+		 while(!OpenMVGN_Cor(&OpenMV1,3));//识别蓝色
 		break;
         default:break;
       }
+      lobotRunActionGroup(9,500);//抓
+      PAW_CLOSE;
+      HAL_Delay(500);
+      lobotRunActionGroup(0,1000);
+      HAL_Delay(1200);
+      Pad_Put();
+      PAW_CLOSE;
+      lobotRunActionGroup(0,1000);
+      HAL_Delay(1200);
+      lobotRunActionGroup(10,1000);
     }
 }
 
@@ -103,29 +187,15 @@ void RM_Action(int Phase)
 {
     for(int i=(Phase-1)*4;i<((Phase-1)*4)+3;i++)
     {
-      switch(QRCode[i])
-      {
-        case '1'://放左
-		break;
-        case '2'://放中
-		break;
-        case '3'://放右
-		break;
-        default:break;
-      }
+      Pad_Switch(QRCode[i]);
+      Pad_Pick();
+      Put_Action(0,QRCode[i]);
     }
-    for(int i=0;i<3;i++)
+    for(int i=(Phase-1)*4;i<((Phase-1)*4)+3;i++)
     {
-      switch(QRCode[i])
-      {
-        case '1'://拿左
-		break;
-        case '2'://拿中
-		break;
-        case '3'://拿右
-		break;
-        default:break;
-      }
+      Pad_Switch(QRCode[i]);
+      Pick_Action(QRCode[i]);
+      Pad_Put();
     }
 }
 
@@ -137,13 +207,9 @@ void SM_Action(int Phase)
     {
       switch(QRCode[i])
       {
-        case '1'://放左
-		break;
-        case '2'://放中
-		break;
-        case '3'://放右
-		break;
-        default:break;
+        Pad_Switch(QRCode[i]);
+        Pad_Pick();
+        Put_Action(0,QRCode[i]);
       }
     }
   }
@@ -151,19 +217,15 @@ void SM_Action(int Phase)
   {
     for(int i=4;i<7;i++)
     {
-      switch(QRCode[i])
-      {
-        case '1'://垒放左
-		break;
-        case '2'://垒放中
-		break;
-        case '3'://垒放右
-		break;
-        default:break;
-      }
+        Pad_Switch(QRCode[i]);
+        Pad_Pick();
+        Put_Action(1,QRCode[i]);
     }
   }
 }
+
+
+
 
 
 void car_goA(uint8_t place)
@@ -186,7 +248,7 @@ void Rout1(uint8_t round)
 	//粗加工
 	 car_goA(2);
 	 HAL_Delay(2000);
-	//矫正
+	//OpenMVGN_Adj(&OpenMV1);//矫正
 	//OPENMV
 	//舵机动作组
 

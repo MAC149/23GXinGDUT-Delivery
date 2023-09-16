@@ -212,12 +212,85 @@ void Vision_Test()
 void PickSpot(uint8_t place)
 {
     car_go(1,Pos_Target[place][0],Pos_Target[place][1],Pos_Target[place][2]);
+    //while(1);
+}
+
+LobotServo _servos[4] = {{6,0},{7,0},{8,0},{9,0}};
+
+void ServoCon_Test()
+{
+    HAL_Delay(1000);
+    lobotServo_init();
+    _servos[0].Position = 1000;
+	_servos[1].Position = 930;
+	_servos[2].Position = 2000;
+	_servos[3].Position = 1930;
+    lobotServos_moveByArray(_servos,4,1000);
+    // lobotServos_runActionGroup(1,1);
+    //lobotServos_runActionGroup(2,1);
+    while (1);
+}
+
+void ServoAction_Test()
+{
+    HAL_Delay(2000);
+    lobotServo_init();
+    Servo_Set(&Servo1,&htim3,TIM_CHANNEL_3);
+    Servo_Init(&Servo1);
+    Servo_SetDeg(&Servo1,130);
+    lobotServos_runActionGroup(1,1);
+    HAL_Delay(1000);
+    lobotServos_runActionGroup(2,1);
+    HAL_Delay(1000);
+    Servo_SetDeg(&Servo1,80);
+    HAL_Delay(1000);
+    lobotServos_runActionGroup(1,1);
+    HAL_Delay(1000);
+    lobotServos_runActionGroup(0,1);
+    HAL_Delay(1000);
+    lobotServos_runActionGroup(3,1);
+    HAL_Delay(1000);
+    Servo_SetDeg(&Servo1,130);
+    HAL_Delay(1000);
+    lobotServos_runActionGroup(0,1);
+    HAL_Delay(1000);
+    while(1);
+}
+
+void ServoAction_Test1()
+{
+    HAL_Delay(1200);
+    lobotServo_init();
+    Servo_Set(&Servo1,&htim3,TIM_CHANNEL_3);
+    Servo_Init(&Servo1);
+    Servo_SetDeg(&Servo1,130);
+    lobotRunActionGroup(1,1000);
+    HAL_Delay(1200);
+    lobotRunActionGroup(2,1000);
+    HAL_Delay(1200);
+    Servo_SetDeg(&Servo1,80);
+    HAL_Delay(1200);
+    lobotRunActionGroup(1,1000);
+    HAL_Delay(1200);
+    lobotRunActionGroup(0,1000);
+    HAL_Delay(1200);
+    lobotRunActionGroup(6,1000);
+    HAL_Delay(1200);
+    Servo_SetDeg(&Servo1,130);
+    HAL_Delay(1200);
+    lobotRunActionGroup(0,1000);
+    HAL_Delay(1200);
     while(1);
 }
 
 
 void Test_Mod()
 {
+    //while(1);
+    //ServoCon_Test();
+    HAL_Delay(2000);
+    // lobotRunActionGroup(1,1000);
+    ServoAction_Test1();
     //Vision_Test();
     //Motortot_Test();
     //OLED_Test();
@@ -242,7 +315,8 @@ void Test_Mod()
     HAL_TIM_Base_Start_IT(&htim13);
     Motortot_SetEn_On();
     //car_go(1,-130,1400,0);
-    PickSpot(1);
+    PickSpot(0);
+    Scan_OLED();
     //OPS_Rec_Test();
     // _OpenMV_tt_Init(&OpenMV1,&OPENMV1_UART);
     // while(1)

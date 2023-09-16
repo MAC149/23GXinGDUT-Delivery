@@ -204,8 +204,8 @@ void OpenMVGN_Adj(OpenMV_tt *OpenMV)
 
 bool OpenMVGN_Cor(OpenMV_tt *OpenMV,uint8_t Tar_cor)
 {
-    uint8_t* temp;
-    uint8_t* temp1;
+    uint8_t temp;
+    uint8_t temp1;
     switch(Tar_cor)
     {
         case 1:OpenMV_Send(OpenMV,"CRRED",6);break;
@@ -215,9 +215,11 @@ bool OpenMVGN_Cor(OpenMV_tt *OpenMV,uint8_t Tar_cor)
     }
     while(1)
     {
-        temp=OpenMV->OpenMV_Receive(OpenMV);
-        HAL_Delay(200);
-        temp1=OpenMV->OpenMV_Receive(OpenMV);
+        OpenMVGN_Data_Process(OpenMV->OpenMV_Receive(OpenMV));
+        temp=OpenMVGN_Data[0];
+        HAL_Delay(500);
+        OpenMVGN_Data_Process(OpenMV->OpenMV_Receive(OpenMV));
+        temp1=OpenMVGN_Data[0];
         if(temp1==temp)
         {
             return 1;

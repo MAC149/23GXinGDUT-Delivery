@@ -12,6 +12,7 @@
 #include "vision.h"
 #include "Servo.h"
 #include <string.h>
+#include "LobotServoController.h"
 
 
 void Full_Step();
