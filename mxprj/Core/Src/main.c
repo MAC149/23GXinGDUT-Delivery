@@ -105,8 +105,8 @@ int main(void)
   MX_TIM7_Init();
   /* USER CODE BEGIN 2 */
   //HAL_TIM_Base_Start_IT(&htim13);
-  Test_Mod();
-  //Full_Step();
+  //  Test_Mod();
+  Full_Step();
   /* USER CODE END 2 */
 
   /* Infinite loop */

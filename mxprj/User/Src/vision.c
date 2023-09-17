@@ -181,6 +181,7 @@ void OpenMVGN_Adj(OpenMV_tt *OpenMV)
     OpenMVGN_ReceiveFlag=1;
     while((OpenMVGN_Yst!=3) && (OpenMVGN_Xst!=3))
     {
+        OpenMVGN_StUpd(&OpenMV1);
         if(OpenMVGN_Xst==1)
         {
             Motortot_Right(25,200);
@@ -189,11 +190,11 @@ void OpenMVGN_Adj(OpenMV_tt *OpenMV)
         {
             Motortot_Left(25,200);
         }
-        if(OpenMVGN_Yst==1)
+        if(OpenMVGN_Yst==2)
         {
             Motortot_Backward(25,200);
         }
-        else if(OpenMVGN_Yst==2)
+        else if(OpenMVGN_Yst==1)
         {
             Motortot_Forward(25,200);
         }
@@ -222,6 +223,7 @@ bool OpenMVGN_Cor(OpenMV_tt *OpenMV,uint8_t Tar_cor)
         temp1=OpenMVGN_Data[0];
         if(temp1==temp)
         {
+            OpenMV_Send(OpenMV,"END",4);
             return 1;
         }
         HAL_Delay(200);

@@ -84,14 +84,15 @@ void Servo_Test()
     Servo_Init(&Servo2);
     while(1)
     {
+        Servo_SetDeg(&Servo2,90);
         Servo_SetDeg(&Servo1,90);
-        HAL_Delay(2000);
-        Servo_SetDeg(&Servo1,0);
-        HAL_Delay(2000);
-        Servo_SetDeg(&Servo1,180);
-        HAL_Delay(2000);
-        Servo_SetDeg(&Servo1,135);
-        HAL_Delay(2000);
+        // HAL_Delay(2000);
+        // Servo_SetDeg(&Servo2,4);
+        // HAL_Delay(2000);
+        // Servo_SetDeg(&Servo2,180);
+        // HAL_Delay(2000);
+        // Servo_SetDeg(&Servo2,135);
+        // HAL_Delay(2000);
     }
 }
 
@@ -119,8 +120,12 @@ void FloatToUint8(uint8_t * char_array,float_t* data,uint16_t size)
 
 void OPS_Rec_Test()
 {
-    HAL_Delay(3500);
+    OLED_Init();
+        OLED_ShowString(1,1,"INIT...",16);
     OPS.OPS_Init();
+    OLED_Clear();
+    OLED_ShowString(1,1,"PRESS SW1",16);
+    while(!Key_Scan(&KEY1));
     OLED_ShowString(1,1,"OPSx:",16);
     OLED_ShowString(2,1,"OPSy:",16);
     OLED_ShowString(3,1,"OPSyaw:",16);
@@ -209,23 +214,39 @@ void Vision_Test()
     }
 }
 
+void Vision_Adj()
+{
+    // OpenMV_Init();
+    _OpenMV_tt_Init(&OpenMV1,&OPENMV1_UART);
+    lobotRunActionGroup(3,1000);
+    uint8_t* temp;
+    // while(1)
+    // {
+    //     HAL_Delay(1500);
+    //     printf("bbb");
+    //     //OpenMV1.OpenMV_Send(&OpenMV1,(uint8_t*)"bbb",3);
+        
+    // }
+    OpenMVGN_Adj(&OpenMV1);
+    while(1);
+}
+
 void PickSpot(uint8_t place)
 {
     car_go(1,Pos_Target[place][0],Pos_Target[place][1],Pos_Target[place][2]);
     //while(1);
 }
 
-LobotServo _servos[4] = {{6,0},{7,0},{8,0},{9,0}};
-
 void ServoCon_Test()
 {
+    LobotServo _servos1[4]={{6,0},{7,0},{8,0},{9,0}};
     HAL_Delay(1000);
     lobotServo_init();
-    _servos[0].Position = 1000;
-	_servos[1].Position = 930;
-	_servos[2].Position = 2000;
-	_servos[3].Position = 1930;
-    lobotServos_moveByArray(_servos,4,1000);
+    _servos1[0].Position = 1000;
+	_servos1[1].Position = 930;
+	_servos1[2].Position = 2000;
+	_servos1[3].Position = 1930;
+    lobotServos_moveByArray(_servos1,4,1000);
     // lobotServos_runActionGroup(1,1);
     //lobotServos_runActionGroup(2,1);
     while (1);
@@ -284,23 +305,60 @@ void ServoAction_Test1()
 }
 
 
+extern Servo_t Servo_Pad;
+extern Servo_t Servo_Paw;
+extern uint8_t *QRCode;
+
+void ActionTest()
+{
+    // uint8_t *temp;
+    _OpenMV_tt_Init(&OpenMV1,&OPENMV1_UART);
+    HAL_Delay(2000);
+    OLED_Init();
+    OLED_ShowString(1,1,"nihao",164);
+    Servo_Set(&Servo_Pad,&SERVO_PAD_TIM,SERVO_PAD_CH);
+    Servo_Set(&Servo_Paw,&SERVO_PAW_TIM,SERVO_PAW_CH);
+    Servo_Init(&Servo_Pad);
+    Servo_Init(&Servo_Paw);
+    lobotRunActionGroup(0,1000);
+    HAL_Delay(1200);
+    do
+	{
+		QRCode=Scan_GetCode();
+        HAL_UART_Transmit(&DEBUG_UART,QRCode,(uint16_t)Scan_Data_Length,1000);
+	}
+    while(!strcmp(QRCode,"TO"));
+	OLED_ShowString(1,1,QRCode,164);
+    OG_Action(1);
+    while(1);
+}
+
+
 void Test_Mod()
 {
-    //while(1);
+    // OPS_Rec_Test();
+    //Servo_Test();
+    // HAL_Delay(2000);
+    //ActionTest();
+    //Scan_OLED();
     //ServoCon_Test();
-    HAL_Delay(2000);
-    // lobotRunActionGroup(1,1000);
-    ServoAction_Test1();
+    //HAL_Delay(2000);
+    //lobotRunActionGroup(10,1000);
+    //while(1);
+    //ServoAction_Test1();
     //Vision_Test();
     //Motortot_Test();
     //OLED_Test();
     //PC_Uart_Test();
     //Servo_Adj();
-    //Servo_Test();
+    // Servo_Test();
     //HAL_TIM_PWM_Start(&htim12,TIM_CHANNEL_1);
     //__HAL_TIM_SET_COMPARE(&htim12,TIM_CHANNEL_1,1500);
     OLED_Init();
     Motortot_Init();
+    Motortot_SetEn_On();
+    Vision_Adj();
+
     Delay_Init();
     Motortot_SetEn_Off();
     OLED_ShowString(1,1,"INIT...",16);

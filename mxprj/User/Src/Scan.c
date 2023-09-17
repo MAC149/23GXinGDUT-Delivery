@@ -1,4 +1,5 @@
 #include "Scan.h"
+#include <stdio.h>
 
 const static uint8_t Scan_Trigger_buf[]={0x7E,0x00,0x08,0x01,0x00,0x02,0x01,0xAB,0xCD};
 static uint8_t Scan_Res[SCAN_RES_BUF_LENGTH]={0};
@@ -30,6 +31,7 @@ uint8_t* Scan_GetCode()
 			count=0;
             Scan_Data_Length=d_count;
             //HAL_UART_Transmit(&huart1,Scan_Res,d_count,1000);
+            printf("%s",scan_buf);
             return Scan_Res;
             break;
 		}
@@ -45,21 +47,23 @@ uint8_t* Scan_GetCode()
 	}
 }
 
-/* void Scan_Rec_Process(uint8_t Scan_Char_Buf)
-{
-	scan_buf[c_count]=Scan_Char_Buf;	
-	if(scan_buf[c_count++] == '\r')
-	{
-		for(uint8_t i=0;i<Scan_Data_Rev-1;i++)
-			Scan.Scan_Res[i] = scan_buf[c_count-Scan_Data_Rev+i];
-		Scan.Scan_Rec_Flag = 1;
-		c_count=0;
-	}
-    if(!Scan.Scan_Rec_Flag)
-    {
-        HAL_UART_Receive_IT(&SCANER_UARTX,&Scan.Scan_Char_Buf,1);
-    }
-} */
+#define Scan_Data_Rev 8
+
+// void Scan_Rec_Process(uint8_t Scan_Char_Buf)
+// {
+// 	scan_buf[c_count]=Scan_Char_Buf;	
+// 	if(scan_buf[c_count++] == '\r')
+// 	{
+// 		for(uint8_t i=0;i<Scan_Data_Rev-1;i++)
+// 			Scan.Scan_Res[i] = scan_buf[c_count-Scan_Data_Rev+i];
+// 		Scan_Rec_Flag = 1;
+// 		c_count=0;
+// 	}
+//     if(!Scan_Rec_Flag)
+//     {
+//         HAL_UART_Receive_IT(&SCANER_UARTX,&Scan.Scan_Char_Buf,1);
+//     }
+// }
 
  void Scan_Rec_Process(uint8_t Scan_Char_Buf)
 {
@@ -88,6 +92,8 @@ uint8_t* Scan_GetCode()
     }
     c_count++; 
 }
+
+
 
 Scan_t Scan =
 {
