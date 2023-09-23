@@ -5,7 +5,6 @@
 #include "Delay.h"
 #include "OLED.h"
 #include "Scan.h"
-#include "OPS_system.h"
 #include "misc.h"
 #include <math.h>
 #include <stdio.h>

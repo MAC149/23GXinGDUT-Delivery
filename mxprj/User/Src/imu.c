@@ -189,3 +189,20 @@ void IMUData2PC(void)
 	 //printf("Now the data of IMU has been sent.\r\n");
 
 }
+
+double IMU_yawExclusive()
+{
+	imuRecStart();
+   u8 i;
+   if (rs_ahrstype == 1)
+   {
+		if (Fd_rsahrs[1] == TYPE_AHRS && Fd_rsahrs[2] == AHRS_LEN)
+		{
+		AHRSData_Packet.Heading = DATA_Trans(Fd_rsahrs[27], Fd_rsahrs[28], Fd_rsahrs[29], Fd_rsahrs[30]);  // 偏航角
+		AHRSData_Packet.Timestamp = timestamp(Fd_rsahrs[47], Fd_rsahrs[48], Fd_rsahrs[49], Fd_rsahrs[50]); // 时间戳
+		// AHRSData2PC();
+		}
+		rs_ahrstype = 0;
+   }
+   return AHRSData_Packet.Heading*180.0f/pai;
+}

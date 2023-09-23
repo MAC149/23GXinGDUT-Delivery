@@ -29,5 +29,6 @@
 #define CW  HIGH                //顺时针
 #define CCW LOW                 //逆时针
 
+#define pai 3.1415926
 
 #endif // !_GENERALDEF_H_

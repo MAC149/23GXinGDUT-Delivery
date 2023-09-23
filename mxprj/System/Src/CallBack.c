@@ -22,15 +22,6 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 	}
 }
 
-void HAL_UART_IdleCallback(UART_HandleTypeDef *huart)
-{
-	if(huart->Instance == OPS_auart_handle.Instance)
-	{
-		//解析HMI协议
-		OPS.Protocol_Analysis();
-		HAL_UART_Receive_DMA(&OPS_auart_handle,OPS.pucRxbuff,opsRxbuff_LENGTH); //串口3开启DMA接收
-	}
-}
 
 void  HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
@@ -40,19 +31,18 @@ void  HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 	static u16 temp=0;
 	if(htim==&htim13)
 	{
-		OPS_OLED_Status_Update();
+		
 	}
 	else if(htim == &htim6)			//1ms
 	{
-		if(++j==10)  //每10ms执行一次
+		if(++j==200)  //每10ms执行一次
 		{
 			j = 0;
-			position_control(); //底盘坐标控制
+			YawKeep();
 		}
 		if(++j2==3) //每3ms执行一次
 		{
 			j2 = 0;
-			speed_control();
 		}
 		if(++j1==5)
 		{
@@ -61,7 +51,6 @@ void  HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 	}
 	else if(htim == &htim7)			//5us
 	{
-		move_motor_control();  //底盘电机控制
 	}	
 	// if (htim->Instance == TIM6) {
     //     setState(true);

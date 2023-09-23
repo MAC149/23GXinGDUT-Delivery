@@ -2,7 +2,6 @@
 #define _MOTOR_H_
 #include "GeneralDef.h"
 #include "Delay.h"
-#include "OPS_system.h"
 
 
 /*
@@ -101,26 +100,12 @@ void Motortot_RotRight(uint16_t time,uint16_t delay_us);
 void Motortot_ForLeft(uint16_t time,uint16_t delay_us);
 void Motortot_ForRight(uint16_t time,uint16_t delay_us);
 
-//-----ops
-void Motortot_GoX(float targetx,uint16_t delay_us);
-void Motortot_GoY(float targety,uint16_t delay_us);
-void Motortot_GoXdis(float disx,uint16_t delay_us);
-void Motortot_GoYdis(float disy,uint16_t delay_us);
 void Motortot_RotTo(float target_yaw,uint16_t delay_us);
 
-//-------coopPID
-void move_motor_control(void);
-void velocity_analysis(float x,float y,float yaw);
-void X_fast_move(float mm);
-void Y_fast_move(float mm);
-void position_control(void);
-float actual_rotation_angle(float now_angle,float tag_angle);
-void speed_control(void);
-void rotatePIDrealize(int sud);	
-
-void car_go(uint8_t mode, double fDistance_x, double fDistance_y, float target_z);
 void Rotate_PID(float target_z);
-
+void YawKeep();
+void YawKeepStart(double yawTarget);
+void YawKeepStop();
 
 #endif // !_MOTOR_H_
 #define _MOTOR_H_

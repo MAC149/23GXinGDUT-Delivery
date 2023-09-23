@@ -210,27 +210,7 @@ void SM_Action(uint8_t Phase)
     }
 }
 
-void OPSIT_Start()
-{
-  __HAL_UART_ENABLE_IT(&OPS_auart_handle,UART_IT_IDLE);
-  HAL_TIM_Base_Start_IT(&htim6);
-  HAL_TIM_Base_Start_IT(&htim7);
-  HAL_NVIC_EnableIRQ(DMA2_Stream2_IRQn);
-}
 
-void OPSIT_Stop()
-{
-  __HAL_UART_DISABLE_IT(&OPS_auart_handle,UART_IT_IDLE);
-  HAL_TIM_Base_Stop_IT(&htim6);
-  HAL_TIM_Base_Stop_IT(&htim7);
-  HAL_NVIC_DisableIRQ(DMA2_Stream2_IRQn);
-}
-
-
-void car_goA(uint8_t place)
-{
-  car_go(1,Pos_Target[place][0],Pos_Target[place][1],Pos_Target[place][2]);
-}
 
 void Rout1op(uint8_t round)
 {
@@ -323,63 +303,6 @@ Motortot_RotLeft(3900,200);
 //     car_goA(7);
 // 	  HAL_Delay(2000);
 //   }
-}
-
-void Rout1(uint8_t round)
-{
-	// OPSIT_Stop();
-	//扫码
-  if(round==1)
-  {
-  Code_Scan();
-  }
-  // OPSIT_Start();
-  lobotRunActionGroup(0,1000);
-	//去转盘
-	car_goA(1);
-	// HAL_Delay(2000);
-	//识别任务
-  // OPSIT_Stop();
-  OG_Action(round);
-  // OPSIT_Start();
-	//舵机动作组
-	//路口
-	car_goA(5);
-  // Motortot_Right(800,200);
-	// HAL_Delay(2000);
-	//粗加工
-	 car_goA(2);
-	//  HAL_Delay(2000);
-	//OpenMVGN_Adj(&OpenMV1);//矫正
-	//OPENMV
-  // OPSIT_Stop();
-	//舵机动作组
-  RM_Action(round);
-  // OPSIT_Start();
-	//路口
-	car_goA(4);
-	// HAL_Delay(2000);
-	//半成品
-	car_goA(3);
-  SM_Action(round);
-  
-	// HAL_Delay(2000);
-	//矫正
-	//OPENMV
-	//舵机动作组
-  // OPSIT_Stop();
-
-  
-	//回路口
-  // OPSIT_Start();
-	car_goA(6);
-// while(1);
-// 	HAL_Delay(2000);
-  if(round==1)
-  {
-    car_goA(7);
-	  // HAL_Delay(2000);
-  }
 }
 
 

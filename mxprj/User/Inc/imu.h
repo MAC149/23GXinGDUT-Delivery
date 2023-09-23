@@ -4,7 +4,7 @@
 #include "stdio.h"
 #include "GeneralDef.h"
 
-#define IMU_UART huart5
+#define IMU_UART huart1
 
 #define FRAME_HEADER      0X7B //Frame_header //֡ͷ
 #define FRAME_TAIL        0X7D //Frame_tail   //֡β
@@ -71,10 +71,9 @@ void IMUData2PC(void);
 
 void imuRec(void);
 
-float XYZ_Target_Speed_transition(u8 High,u8 Low);
 u8 TTL_Hex2Dec(void);  
 float DATA_Trans(u8 Data_1,u8 Data_2,u8 Data_3,u8 Data_4);
 void imuRecStart();
-
+double IMU_yawExclusive();
 
 #endif // !_IMU_H_
