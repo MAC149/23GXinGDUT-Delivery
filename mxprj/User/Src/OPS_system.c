@@ -144,7 +144,6 @@ void Update_A(float New_A)
 void OPS_init(void)
 {
 	__HAL_UART_ENABLE_IT(&OPS_auart_handle,UART_IT_IDLE);                         //使能空闲中断
-	
 	HAL_UART_Receive_DMA(&OPS_auart_handle,OPS.pucRxbuff,opsRxbuff_LENGTH); //开启DMA接收
 	HAL_Delay(7000);
 	HAL_Delay(6500);
@@ -191,12 +190,18 @@ static void Protocol_Analysis(void)
 	/*赋值*/
 	for(i=0;i<opsRxbuff_LENGTH-4;i++)
 		{posture.data[i] = OPS.pucRxbuff[i+2];}
-	if(fabs(posture.ActVal[0])>=1e-6){OPS.zangle=posture.ActVal[0];}
-	if(fabs(posture.ActVal[1])>=1e-6){OPS.xangle=posture.ActVal[1];}
-	if(fabs(posture.ActVal[2])>=1e-6){OPS.yangle=posture.ActVal[2];}
-	if(fabs(posture.ActVal[3])>=1e-6){OPS.pos_x =posture.ActVal[3];}
-	if(fabs(posture.ActVal[4])>=1e-6){OPS.pos_y =posture.ActVal[4];}
-	if(fabs(posture.ActVal[5])>=1e-6){OPS.w_z   =posture.ActVal[5];}
+	// if(fabs(posture.ActVal[0])>=1e-6){OPS.zangle=posture.ActVal[0];}
+	// if(fabs(posture.ActVal[1])>=1e-6){OPS.xangle=posture.ActVal[1];}
+	// if(fabs(posture.ActVal[2])>=1e-6){OPS.yangle=posture.ActVal[2];}
+	// if(fabs(posture.ActVal[3])>=1e-6){OPS.pos_x =posture.ActVal[3];}
+	// if(fabs(posture.ActVal[4])>=1e-6){OPS.pos_y =posture.ActVal[4];}
+	// if(fabs(posture.ActVal[5])>=1e-6){OPS.w_z   =posture.ActVal[5];}
+	OPS.zangle=posture.ActVal[0];
+	OPS.xangle=posture.ActVal[1];
+	OPS.yangle=posture.ActVal[2];
+	OPS.pos_x =posture.ActVal[3];
+	OPS.pos_y =posture.ActVal[4];
+	OPS.w_z   =posture.ActVal[5];
 	
 	//清缓存
 	for(i=0;i<opsRxbuff_LENGTH;i++)

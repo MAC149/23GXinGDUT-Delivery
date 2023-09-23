@@ -13,6 +13,7 @@
 #include "Servo.h"
 #include <string.h>
 #include "LobotServoController.h"
+#include "imu.h"
 
 #define PAW_OPEN Servo_SetDeg(&Servo_Paw,SERVO_PAW_OPEN)
 #define PAW_CLOSE Servo_SetDeg(&Servo_Paw,SERVO_PAW_CLOSE)

@@ -1,4 +1,5 @@
 #include "CallBack.h"
+#include <string.h>
 
 static uint8_t Scan_Rec_RX;
 
@@ -6,15 +7,19 @@ static uint8_t Scan_Rec_RX;
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
 	uint8_t Res5;
-    if(huart==&SCANER_UARTX)
-    {
-        Scan_Rec_RX=Scan.Scan_Char_Buf;
-        Scan.Scan_Rec_Process(Scan_Rec_RX);
-    }
-    else if(huart==OpenMV1.OpenMV_huart)
-    {
-        OpenMV1.OpenMV_Receive_Process(&OpenMV1);
-    }
+	if (huart == &SCANER_UARTX)
+	{
+		Scan_Rec_RX = Scan.Scan_Char_Buf;
+		Scan.Scan_Rec_Process(Scan_Rec_RX);
+	}
+	else if (huart == OpenMV1.OpenMV_huart)
+	{
+		OpenMV1.OpenMV_Receive_Process(&OpenMV1);
+	}
+	else if (huart == &IMU_UART)
+	{
+		imuRec();
+	}
 }
 
 void HAL_UART_IdleCallback(UART_HandleTypeDef *huart)

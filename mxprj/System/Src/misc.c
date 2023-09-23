@@ -78,6 +78,13 @@ int fputc(int ch, FILE *f)
  return ch;
 }
 
+int fgetc(FILE *f)
+{
+	uint8_t ch=0;
+	HAL_UART_Receive(&DEBUG_UART, (uint8_t *)&ch, 1, 0xFFFF);
+	return ch;
+}
+
 void UsartPrintf(UART_HandleTypeDef USARTx, char *fmt,...)
 {
  

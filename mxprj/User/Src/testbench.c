@@ -1,6 +1,6 @@
 #include "testbench.h"
 #define MOTOR_DELAYUS 200
-
+#define pai 3.1415926
 
 
 extern const double Pos_Target[8][2];
@@ -333,10 +333,31 @@ void ActionTest()
     while(1);
 }
 
+extern bool IMU_Rec_Flag;
+extern IMUData_Packet_t IMUData_Packet;
+extern AHRSData_Packet_t AHRSData_Packet;
+void Imu_Test()
+{
+    double actRoll,actPitch,actHeading;
+    while(1)
+    {
+        imuRecStart();
+        while(!IMU_Rec_Flag);
+        TTL_Hex2Dec();
+        actRoll=AHRSData_Packet.Roll*180/pai;
+        actPitch=AHRSData_Packet.Pitch*180/pai;
+        actHeading=AHRSData_Packet.Heading*180/pai;
+        printf("AHRS: The Roll =  %f\r\n",actRoll);
+        printf("AHRS: The Pitch =  %f\r\n",actPitch);
+        printf("AHRS: The Heading =  %f\r\n",actHeading);
+        // HAL_Delay(2000);
+    }
+    
+}
 
 void Test_Mod()
 {
-    // OPS_Rec_Test();
+    //OPS_Rec_Test();
     //Servo_Test();
     // HAL_Delay(2000);
     //ActionTest();
@@ -354,6 +375,10 @@ void Test_Mod()
     // Servo_Test();
     //HAL_TIM_PWM_Start(&htim12,TIM_CHANNEL_1);
     //__HAL_TIM_SET_COMPARE(&htim12,TIM_CHANNEL_1,1500);
+    printf("nihao\r\n");
+    HAL_UART_Transmit(&huart1,(uint8_t *)"init",4,1000);
+    Imu_Test();
+
     OLED_Init();
     Motortot_Init();
     Motortot_SetEn_On();
