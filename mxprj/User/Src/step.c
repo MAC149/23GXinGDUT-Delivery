@@ -7,20 +7,6 @@ Servo_t Servo_Paw;
 
 
 
-
-const double Pos_Target[8][3]=
-{
--170,730,0,                           //扫码
--130,1410,0,                        //转盘
--940,1936,90,                        //粗加工
--1750,1120,180,                     //半成品
--1750,1850,180,                      //左上路口
--100,1700,0,                        //右上路口
--1689,80,180,                         //左下路口
--120,0,0                               //右下路口
-};
-
-
 void Step_Init()
 {
     OLED_Init();
@@ -32,7 +18,6 @@ void Step_Init()
     // Delay_Init();
     Motortot_SetEn_Off();
     OLED_ShowString(1,1,"INIT...",16);
-    // OPS.OPS_Init();
     OLED_Clear();
     OLED_ShowString(1,1,"PRESS SW1",16);
     while(!Key_Scan(&KEY1));
@@ -216,20 +201,13 @@ void Rout1op(uint8_t round)
 {
     Motortot_Left(2000,200);
   Motortot_Forward(9400,200);
-  // X_fast_move(-250);
-  // Y_fast_move(950);
-	// OPSIT_Stop();
 	//扫码
   if(round==1)
   {
   Code_Scan();
   }
-  // OPSIT_Start();
   lobotRunActionGroup(0,1000);
 	//去转盘
-	// car_goA(1);
-  // X_fast_move(180);
-  // Y_fast_move(800);
   Motortot_Forward(8600,200);
   if(round==1)
   {
@@ -241,12 +219,9 @@ Motortot_Right(1000,200);
   }
 	// HAL_Delay(2000);
 	//识别任务
-  // OPSIT_Stop();
   OG_Action(round);
-  // OPSIT_Start();
 	//舵机动作组
 	//路口
-	// car_goA(5);
   Motortot_Left(1400,200);
   if(round==1)
   {
@@ -261,19 +236,14 @@ Motortot_Forward(6200,200);
   // Motortot_Right(800,200);
 	// HAL_Delay(2000);
 	//粗加工
-	//  car_goA(2);
 	//  HAL_Delay(2000);
 	//OpenMVGN_Adj(&OpenMV1);//矫正
 	//OPENMV
-  // OPSIT_Stop();
 	//舵机动作组
   RM_Action(round);
-  // OPSIT_Start();
 	//路口
-	// car_goA(4);
 	// HAL_Delay(2000);
 	//半成品
-	// car_goA(3);
   Motortot_Forward(9950,200);
   Motortot_RotLeft(3900,200);
   Motortot_Forward(9670,200);
@@ -283,7 +253,6 @@ Motortot_Forward(6200,200);
 	//矫正
 	//OPENMV
 	//舵机动作组
-  // OPSIT_Stop();
   
   Motortot_Forward(13930,200);
   Motortot_RotLeft(4000,200);
@@ -295,12 +264,10 @@ Motortot_RotLeft(3900,200);
   
 	//回路口
   // OPSIT_Start();
-	// car_goA(6);
 // while(1);
 // 	HAL_Delay(2000);
 //   if(round==1)
 //   {
-//     car_goA(7);
 // 	  HAL_Delay(2000);
 //   }
 }
@@ -311,7 +278,6 @@ void Full_Step()
   // while(1);
 	Step_Init();
 	//去扫码区
-	// car_goA(0);
 
 	//---------------------------------r1
 	Rout1op(1);
@@ -321,6 +287,5 @@ void Full_Step()
   while(1);
 	//结束
 	HAL_Delay(2000);
-	// car_go(1,0,0,180);
 	while(1);
 }

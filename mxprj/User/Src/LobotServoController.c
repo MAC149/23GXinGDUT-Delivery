@@ -57,7 +57,7 @@ void lobotServo_move(uint8_t servoID, uint16_t Position, uint16_t Time)
 	if (servoID > 31 || !(Time > 0)) {  //舵机ID不能打于31,可根据对应控制板修改
 		return;
 	}
-	LobotTxBuf[0] = LobotTxBuf[1] = FRAME_HEADER;    //填充帧头
+	LobotTxBuf[0] = LobotTxBuf[1] = LB_FRAME_HEADER;    //填充帧头
 	LobotTxBuf[2] = 8;
 	LobotTxBuf[3] = CMD_SERVO_MOVE;           //数据长度=要控制舵机数*3+5，此处=1*3+5//填充舵机移动指令
 	LobotTxBuf[4] = 1;                        //要控制的舵机个数
@@ -87,7 +87,7 @@ void lobotServos_moveByArray(LobotServo servos[], uint8_t Num, uint16_t Time)
 	if (Num < 1 || Num > 32 || !(Time > 0)) {
 		return;                                          //舵机数不能为零和大与32，时间不能为零
 	}
-	LobotTxBuf[0] = LobotTxBuf[1] = FRAME_HEADER;      //填充帧头
+	LobotTxBuf[0] = LobotTxBuf[1] = LB_FRAME_HEADER;      //填充帧头
 	LobotTxBuf[2] = Num * 3 + 5;                       //数据长度 = 要控制舵机数*3+5
 	LobotTxBuf[3] = CMD_SERVO_MOVE;                    //填充舵机移动指令
 	LobotTxBuf[4] = Num;                               //要控制的舵机个数
@@ -121,7 +121,7 @@ void lobotServos_move(uint8_t Num, uint16_t Time, ...)
 	if (Num < 1 || Num > 32) {
 		return;               //舵机数不能为零和大与32，时间不能小于0
 	}
-	LobotTxBuf[0] = LobotTxBuf[1] = FRAME_HEADER;      //填充帧头
+	LobotTxBuf[0] = LobotTxBuf[1] = LB_FRAME_HEADER;      //填充帧头
 	LobotTxBuf[2] = Num * 3 + 5;                //数据长度 = 要控制舵机数 * 3 + 5
 	LobotTxBuf[3] = CMD_SERVO_MOVE;             //舵机移动指令
 	LobotTxBuf[4] = Num;                        //要控制舵机数
@@ -152,7 +152,7 @@ void lobotServos_move(uint8_t Num, uint16_t Time, ...)
  **********************************************************************************/
 void lobotServos_runActionGroup(uint8_t numOfAction, uint16_t Times)
 {
-	LobotTxBuf[0] = LobotTxBuf[1] = FRAME_HEADER;  //填充帧头
+	LobotTxBuf[0] = LobotTxBuf[1] = LB_FRAME_HEADER;  //填充帧头
 	LobotTxBuf[2] = 5;                      //数据长度，数据帧除帧头部分数据字节数，此命令固定为5
 	LobotTxBuf[3] = CMD_ACTION_GROUP_RUN;   //填充运行动作组命令
 	LobotTxBuf[4] = numOfAction;            //填充要运行的动作组号
@@ -172,8 +172,8 @@ void lobotServos_runActionGroup(uint8_t numOfAction, uint16_t Times)
  **********************************************************************************/
 void lobotServos_stopActionGroup(void)
 {
-	LobotTxBuf[0] = FRAME_HEADER;     //填充帧头
-	LobotTxBuf[1] = FRAME_HEADER;
+	LobotTxBuf[0] = LB_FRAME_HEADER;     //填充帧头
+	LobotTxBuf[1] = LB_FRAME_HEADER;
 	LobotTxBuf[2] = 2;                //数据长度，数据帧除帧头部分数据字节数，此命令固定为2
 	LobotTxBuf[3] = CMD_ACTION_GROUP_STOP;   //填充停止运行动作组命令
 
@@ -189,7 +189,7 @@ void lobotServos_stopActionGroup(void)
  **********************************************************************************/
 void lobotServos_setActionGroupSpeed(uint8_t numOfAction, uint16_t Speed)
 {
-	LobotTxBuf[0] = LobotTxBuf[1] = FRAME_HEADER;   //填充帧头
+	LobotTxBuf[0] = LobotTxBuf[1] = LB_FRAME_HEADER;   //填充帧头
 	LobotTxBuf[2] = 5;                       //数据长度，数据帧除帧头部分数据字节数，此命令固定为5
 	LobotTxBuf[3] = CMD_ACTION_GROUP_SPEED;  //填充设置动作组速度命令
 	LobotTxBuf[4] = numOfAction;             //填充要设置的动作组号
@@ -222,8 +222,8 @@ void lobotServos_setAllActionGroupSpeed(uint16_t Speed)
 void getBatteryVoltage(void)
 {
 //	uint16_t Voltage = 0;
-	LobotTxBuf[0] = FRAME_HEADER;  //填充帧头
-	LobotTxBuf[1] = FRAME_HEADER;
+	LobotTxBuf[0] = LB_FRAME_HEADER;  //填充帧头
+	LobotTxBuf[1] = LB_FRAME_HEADER;
 	LobotTxBuf[2] = 2;             //数据长度，数据帧除帧头部分数据字节数，此命令固定为2
 	LobotTxBuf[3] = CMD_GET_BATTERY_VOLTAGE;  //填充获取电池电压命令
 
@@ -254,7 +254,7 @@ void lobotServos_ControlProcessing(uint8_t Res)
 
 	if (!isGotFrameHeader) //判断帧头
 	{  
-		if (Res == FRAME_HEADER) 
+		if (Res == LB_FRAME_HEADER) 
 		{
 			frameHeaderCount++;
 			if (frameHeaderCount == 2) 

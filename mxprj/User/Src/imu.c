@@ -1,6 +1,8 @@
 #include<math.h>
 #include "imu.h"
 #include <string.h>
+#include "OLED.h"
+
 IMUData_Packet_t IMUData_Packet;
 AHRSData_Packet_t AHRSData_Packet;
 u8 ttl_receive;
@@ -190,10 +192,13 @@ void IMUData2PC(void)
 
 }
 
+double IMU_yawData=0;
+
 double IMU_yawExclusive()
 {
 	imuRecStart();
    u8 i;
+   while(!IMU_Rec_Flag);
    if (rs_ahrstype == 1)
    {
 		if (Fd_rsahrs[1] == TYPE_AHRS && Fd_rsahrs[2] == AHRS_LEN)
@@ -205,4 +210,16 @@ double IMU_yawExclusive()
 		rs_ahrstype = 0;
    }
    return AHRSData_Packet.Heading*180.0f/pai;
+}
+
+double IMU_yawDataUpdate()
+{
+	IMU_yawData=IMU_yawExclusive();
+	return IMU_yawData;
+}
+
+void OLED_ShowYaw()
+{
+	IMU_yawDataUpdate();
+	OLED_ShowFNum(1,5,IMU_yawData,7,16);
 }

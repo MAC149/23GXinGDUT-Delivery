@@ -7,7 +7,7 @@
 #define KEY_OFF	0
 
 
-#define KEY1_Pin GPIO_PIN_1
+#define KEY1_Pin GPIO_PIN_4 
 #define KEY1_GPIO_Port GPIOC
 #define KEY2_Pin GPIO_PIN_0
 #define KEY2_GPIO_Port GPIOC

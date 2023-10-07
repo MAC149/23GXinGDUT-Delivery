@@ -11,7 +11,7 @@
 
 #define g_servoControl_uart_handle huart5
 
-#define FRAME_HEADER 0x55             //帧头
+#define LB_FRAME_HEADER 0x55             //帧头
 #define CMD_SERVO_MOVE 0x03           //舵机移动指令
 #define CMD_ACTION_GROUP_RUN 0x06     //运行动作组指令
 #define CMD_ACTION_GROUP_STOP 0x07    //停止动作组指令

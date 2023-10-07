@@ -1,5 +1,5 @@
 #include "testbench.h"
-#define MOTOR_DELAYUS 200
+#define MOTOR_DELAYUS 300
 
 
 
@@ -98,13 +98,25 @@ void Servo_Test()
 
 void Servo_Adj()
 {
-    HAL_Delay(4000);
+    HAL_Delay(1300);
     Servo_Set(&Servo1,&htim3,TIM_CHANNEL_3);//PB0
     Servo_Set(&Servo2,&htim3,TIM_CHANNEL_4);//PB1
     Servo_Init(&Servo1);
     Servo_Init(&Servo2);
-    Servo_SetDeg(&Servo2,90);
+    Servo_SetDeg(&Servo2,180);
     while(1);
+}
+
+void MotorLT_Test()
+{
+    Motor_LiftEn_On();
+    while(1)
+    {
+        Motor_LiftUp(3000,200);
+        HAL_Delay(2000);
+        Motor_LiftDown(3000,200);
+        HAL_Delay(2000);
+    }
 }
 
 uint8_t * OPSx=0;
@@ -139,13 +151,13 @@ void RotLog_Test()
 {
     Motortot_RotTo(90.0,MOTOR_DELAYUS);
     HAL_Delay(1500);
-    Motortot_RotTo(-170.0,MOTOR_DELAYUS);
+    Motortot_RotTo(350.0,MOTOR_DELAYUS);
     HAL_Delay(1500);
-    Motortot_RotTo(180.0,MOTOR_DELAYUS);
+    Motortot_RotTo(360.0,MOTOR_DELAYUS);
     HAL_Delay(1500);
     Motortot_RotTo(10.0,MOTOR_DELAYUS);
     HAL_Delay(1500);
-    Motortot_RotTo(-10.0,MOTOR_DELAYUS);
+    Motortot_RotTo(350.0,MOTOR_DELAYUS);
     HAL_Delay(1500);
     Motortot_RotTo(0.0,MOTOR_DELAYUS);
     HAL_Delay(3000);
@@ -316,15 +328,7 @@ void Imu_Test()
     double actRoll,actPitch,actHeading;
     while(1)
     {
-        imuRecStart();
-        while(!IMU_Rec_Flag);
-        TTL_Hex2Dec();
-        actRoll=AHRSData_Packet.Roll*180/pai;
-        actPitch=AHRSData_Packet.Pitch*180/pai;
-        actHeading=AHRSData_Packet.Heading*180/pai;
-        printf("AHRS: The Roll =  %f\r\n",actRoll);
-        printf("AHRS: The Pitch =  %f\r\n",actPitch);
-        printf("AHRS: The Heading =  %f\r\n",actHeading);
+        printf("AHRS: The Heading =  %f\r\n",IMU_yawExclusive());
         // HAL_Delay(2000);
     }
     
@@ -342,35 +346,36 @@ void Test_Mod()
     //while(1);
     //ServoAction_Test1();
     //Vision_Test();
-    //Motortot_Test();
+    // Motortot_Test();
     //OLED_Test();
     //PC_Uart_Test();
-    //Servo_Adj();
+    // Servo_Adj();
+    // MotorLT_Test();
     // Servo_Test();
     //HAL_TIM_PWM_Start(&htim12,TIM_CHANNEL_1);
     //__HAL_TIM_SET_COMPARE(&htim12,TIM_CHANNEL_1,1500);
     printf("nihao\r\n");
     HAL_UART_Transmit(&huart1,(uint8_t *)"init",4,1000);
-    // Imu_Test();
-    Servo_Adj();
+    Imu_Test();
+    // Servo_Adj();
     OLED_Init();
     Motortot_Init();
     Motortot_SetEn_On();
-    Vision_Adj();
+    //Vision_Adj();
 
     Delay_Init();
     Motortot_SetEn_Off();
     OLED_ShowString(1,1,"INIT...",16);
+    HAL_Delay(4000);
     OLED_Clear();
     OLED_ShowString(1,1,"PRESS SW1",16);
     while(!Key_Scan(&KEY1));
     OLED_Clear();
-    OLED_ShowString(1,1,"OPSx:",16);
-    OLED_ShowString(2,1,"OPSy:",16);
-    OLED_ShowString(3,1,"OPSyaw:",16);
+    OLED_ShowString(1,1,"yaw:",16);
     HAL_TIM_Base_Start_IT(&htim13);
     Motortot_SetEn_On();
-    Scan_OLED();
+    // RotPID_Test();
+    // Scan_OLED();
     // _OpenMV_tt_Init(&OpenMV1,&OPENMV1_UART);
     // while(1)
     // {

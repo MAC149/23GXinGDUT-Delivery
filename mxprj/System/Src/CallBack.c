@@ -31,7 +31,7 @@ void  HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 	static u16 temp=0;
 	if(htim==&htim13)
 	{
-		
+		OLED_ShowYaw();
 	}
 	else if(htim == &htim6)			//1ms
 	{

@@ -41,6 +41,13 @@ zangle(yaw) CW- +CCW
 #define MOTORBR_STP_GPIO_PIN GPIO_PIN_11
 #define MOTORBR_DIR_GPIOX GPIOE
 #define MOTORBR_DIR_GPIO_PIN GPIO_PIN_12
+//MOTORLIFT
+#define MOTORLT_EN_GPIOX GPIOE
+#define MOTORLT_EN_GPIO_PIN GPIO_PIN_2
+#define MOTORLT_STP_GPIOX GPIOE
+#define MOTORLT_STP_GPIO_PIN GPIO_PIN_3
+#define MOTORLT_DIR_GPIOX GPIOC
+#define MOTORLT_DIR_GPIO_PIN GPIO_PIN_13
 
 //COMPATIBILITY
 //控制使能引脚
@@ -106,6 +113,12 @@ void Rotate_PID(float target_z);
 void YawKeep();
 void YawKeepStart(double yawTarget);
 void YawKeepStop();
+
+void Motor_LiftUp(uint16_t time, uint16_t delay_us);
+void Motor_LiftDown(uint16_t time, uint16_t delay_us);
+void Motor_LiftEn_On();
+void Motor_LiftEn_Off();
+
 
 #endif // !_MOTOR_H_
 #define _MOTOR_H_

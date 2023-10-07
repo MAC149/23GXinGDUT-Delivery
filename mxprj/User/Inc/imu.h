@@ -4,10 +4,10 @@
 #include "stdio.h"
 #include "GeneralDef.h"
 
-#define IMU_UART huart1
+#define IMU_UART huart5
 
-#define FRAME_HEADER      0X7B //Frame_header //֡ͷ
-#define FRAME_TAIL        0X7D //Frame_tail   //֡β
+#define FRAME_HEADER      0X7B //Frame_header 
+#define FRAME_TAIL        0X7D //Frame_tail 
 #define SEND_DATA_SIZE    24
 #define RECEIVE_DATA_SIZE 11
 #define IMU_RS 64
@@ -75,5 +75,8 @@ u8 TTL_Hex2Dec(void);
 float DATA_Trans(u8 Data_1,u8 Data_2,u8 Data_3,u8 Data_4);
 void imuRecStart();
 double IMU_yawExclusive();
+double IMU_yawDataUpdate();
+
+void OLED_ShowYaw();
 
 #endif // !_IMU_H_
