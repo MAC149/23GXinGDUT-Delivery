@@ -12,7 +12,7 @@ Data preflex:DA(44 41)
 
 
 //SCANER IO CONNECTION
-#define SCANER_UARTX huart6
+#define SCANER_UARTX huart4
 
 typedef struct
 {
@@ -21,7 +21,7 @@ typedef struct
 }Scan_t;
 
 
-uint8_t*  Scan_GetCode();
+void Scan_GetCode();
 
 extern Scan_t Scan;
 extern uint8_t Scan_Data_Length;

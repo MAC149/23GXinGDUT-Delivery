@@ -1,6 +1,6 @@
 #ifndef __OLED_H
 #define __OLED_H
-
+#include "main.h"
 #define _OLED_INCH_13
 //#define _OLED_INCH_096
 

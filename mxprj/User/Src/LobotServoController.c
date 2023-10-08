@@ -42,7 +42,7 @@ LobotServo servos[5] =
 void lobotServo_init(void)
 {
 	HAL_UART_Receive_IT(&g_servoControl_uart_handle,&LobotServoUart.ucDatabuf,1);
-	lobotServos_moveByArray(servos,5,2000);
+	//lobotServos_moveByArray(servos,5,2000);
 }
 /*********************************************************************************
  * Function:  lobotServo_move
@@ -295,4 +295,42 @@ void lobotServos_ControlProcessing(uint8_t Res)
 		}
 	}
 	
+}
+
+
+void lobotControl(uint16_t duo1_angle,uint16_t duo2_angle,uint16_t duo3_angle,uint16_t duo4_angle,uint16_t speed,uint8_t num)
+{
+	LobotServo _servos[4] = {{6,duo1_angle},{7,duo2_angle},{8,duo3_angle},{9,duo4_angle}};
+	if(num !=4 )
+		switch(num)
+		{
+			case 0:lobotServo_move(0,_servos[0].Position,speed);break;
+			case 1:lobotServo_move(1,_servos[1].Position,speed);break;
+			case 2:lobotServo_move(2,_servos[2].Position,speed);break;
+			case 3:lobotServo_move(3,_servos[3].Position,speed);break;
+		}
+	else
+		lobotServos_moveByArray(_servos,4,speed);
+}
+
+const LobotServo ActionGroup[11][4]=
+{
+	{{6,2000},{7,930},{8,2000},{9,1930}},//0放上过渡
+	{{6,945},{7,930},{8,2000},{9,1930}},//1盘上过渡
+	{{6,945},{7,700},{8,1880},{9,2250}},//2盘中
+	{{6,2000},{7,2400},{8,600},{9,1900}},//3中一层
+	{{6,2340},{7,2500},{8,750},{9,1570}},//4左一层
+	{{6,1700},{7,2500},{8,750},{9,1550}},//5右一层
+	{{6,2000},{7,1970},{8,810},{9,2050}},//6中二层
+	{{6,2300},{7,2150},{8,920},{9,1750}},//7左二层
+	{{6,1700},{7,2180},{8,960},{9,1660}},//8右二层
+	{{6,2030},{7,1810},{8,800},{9,2270}},//9转盘拿
+	{{6,2030},{7,1550},{8,1020},{9,2300}}//10转盘上
+};
+
+LobotServo _servosTemp[4];
+void lobotRunActionGroup(uint8_t AcGp,uint16_t speed)
+{
+	memcpy(&_servosTemp,ActionGroup[AcGp],4*sizeof(LobotServo));
+	lobotServos_moveByArray(_servosTemp,4,speed);
 }

@@ -54,6 +54,7 @@ void getBatteryVoltage(void);
 void lobotServos_receiveHandle(void);
 void lobotServos_ControlProcessing(uint8_t Res);
 
+void lobotRunActionGroup(uint8_t AcGp,uint16_t speed);
 
 extern bool isUartRxCompleted;
 extern uint8_t LobotRxBuf[16];
