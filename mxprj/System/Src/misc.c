@@ -18,7 +18,7 @@ uint8_t Key_Scan(KEY_t* KEY)
 		COM->Click = FALSE;
 		COM->Press = TRUE;
 		//触摸按键长按检测
-		for(i=0;i<200;i++)
+		for(i=0;i<100;i++)
 		{
 			HAL_Delay(10);
 			//如果2s内，按键状态出现高电平，此时按键为单击，跳出循环
@@ -44,6 +44,7 @@ uint8_t Key_Scan(KEY_t* KEY)
 			//按键3单击动作
 			else if(COM->GPIOx == KEY3.GPIOx && COM->GPIO_Pin == KEY3_Pin)
 			{
+				return 1;
 			}
 		}
 		
@@ -63,11 +64,30 @@ uint8_t Key_Scan(KEY_t* KEY)
 			//按键3长按动作
 			else if(COM->GPIOx == KEY3.GPIOx && COM->GPIO_Pin == KEY3_Pin)
 			{
+				return 1;
 			}
 		}
 		//清除按键状态
 		COM->Click = FALSE;
 		COM->Press = FALSE;
+	}
+	return 0;
+}
+
+uint8_t Key_PressEZ(KEY_t* KEY)
+{			
+	KEY_t* const  COM = KEY;
+	uint8_t i = 0;
+	
+	/*检测是否有按键按下 */
+	if(HAL_GPIO_ReadPin(COM->GPIOx,COM->GPIO_Pin) == KEY_ON )  
+	{	 
+			HAL_Delay(50);
+			//如果2s内，按键状态出现高电平，此时按键为单击，跳出循环
+			if(HAL_GPIO_ReadPin(COM->GPIOx,COM->GPIO_Pin) == KEY_ON)
+			{
+				return 1;
+			}
 	}
 	return 0;
 }

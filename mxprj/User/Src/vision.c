@@ -145,7 +145,7 @@ bool OpenMVGN_ReceiveFlag=0;
 
 void OpenMVGN_StUpd(OpenMV_tt *OpenMV)
 {
-    if(!OpenMVGN_ReceiveFlag){return;}
+    //if(!OpenMVGN_ReceiveFlag){return;}
     OpenMV->OpenMV_Receive(OpenMV);
     OpenMVGN_Data_Process(OpenMV->OpenMV_Rec);
     if(OpenMVGN_Data[1]>((OPENMV_RESX/2)+OPENMVGN_XOFFSET)+5)
@@ -178,29 +178,33 @@ void OpenMVGN_StUpd(OpenMV_tt *OpenMV)
 void OpenMVGN_Adj(OpenMV_tt *OpenMV)
 {
     OpenMV_Send(OpenMV,"PV",3);
-    OpenMVGN_ReceiveFlag=1;
-    while((OpenMVGN_Yst!=3) && (OpenMVGN_Xst!=3))
+    //OpenMVGN_ReceiveFlag=1;
+    OpenMVGN_Xst=0;
+    OpenMVGN_Yst=0;
+    while((OpenMVGN_Yst!=3) || (OpenMVGN_Xst!=3))
     {
         OpenMVGN_StUpd(&OpenMV1);
-        if(OpenMVGN_Xst==1)
-        {
-            Motortot_Right(25,200);
-        }
-        else if(OpenMVGN_Xst==2)
-        {
-            Motortot_Left(25,200);
-        }
-        if(OpenMVGN_Yst==2)
+        if(OpenMVGN_Xst==2)
         {
             Motortot_Backward(25,200);
         }
+        else if(OpenMVGN_Xst==1)
+        {
+            
+            Motortot_Forward(25,200);
+        } 
+        if(OpenMVGN_Yst==2)
+        {
+            Motortot_Right(25,200);
+
+        }
         else if(OpenMVGN_Yst==1)
         {
-            Motortot_Forward(25,200);
+            Motortot_Left(25,200);
         }
     }
-    OpenMVGN_ReceiveFlag=0;
-    OpenMV_Send(OpenMV,"ED",3);
+    //OpenMVGN_ReceiveFlag=0;
+    OpenMV_Send(OpenMV,"END",4);
 }
 
 bool OpenMVGN_Cor(OpenMV_tt *OpenMV,uint8_t Tar_cor)

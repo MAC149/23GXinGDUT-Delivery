@@ -78,7 +78,18 @@ zangle(yaw) CW- +CCW
 #define ZTARGET_SPEED_MAX  10
 #define MOTOR_STP_1ROUND 3200 
 
-
+/* typedef struct Motor_t
+{
+    GPIO_TypeDef* Motor_EN_GPIOX;
+    uint16_t Motor_EN_GPIOPin;
+    GPIO_TypeDef* Motor_Stp_GPIOX;
+    uint16_t Motor_Stp_GPIOPin;
+    GPIO_TypeDef* Motor_Dir_GPIOX;
+    uint16_t Motor_Dir_GPIOPin;
+    void(* Motor_En_Set)(struct Motor_t *, GPIO_PinState);
+    void(* Motor_Dir_Set)(struct Motor_t *, GPIO_PinState);
+    void(* Motor_Stp_Set)(struct Motor_t *, GPIO_PinState);
+}Motor_tt; */
 
 void Motortot_SetEn_On();
 void Motortot_SetEn_Off();
@@ -111,14 +122,15 @@ void Motortot_RotTo(float target_yaw,uint16_t delay_us);
 
 void Rotate_PID(float target_z);
 void YawKeep();
-void YawKeepStart(double yawTarget);
+void YawKeepStart(float yawTarget,char dir);
 void YawKeepStop();
 
 void Motor_LiftUp(uint16_t time, uint16_t delay_us);
 void Motor_LiftDown(uint16_t time, uint16_t delay_us);
 void Motor_LiftEn_On();
 void Motor_LiftEn_Off();
-
+void Motor_Lift_Reset(uint16_t delay_us);
+void Motor_Lift_GoPos(uint16_t tarpos,uint16_t delayus);
 
 #endif // !_MOTOR_H_
 #define _MOTOR_H_

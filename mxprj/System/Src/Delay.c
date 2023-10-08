@@ -13,7 +13,7 @@ void for_delay_us(uint32_t us)
 void Delay_Init()
 {
     HAL_TIM_Base_Start_IT(&htim6);
-    HAL_TIM_Base_Start_IT(&htim7);
+    //HAL_TIM_Base_Start_IT(&htim7);
 }
 
 void PIDT_Stop()

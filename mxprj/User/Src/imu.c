@@ -220,6 +220,6 @@ double IMU_yawDataUpdate()
 
 void OLED_ShowYaw()
 {
-	IMU_yawDataUpdate();
+	// IMU_yawDataUpdate();
 	OLED_ShowFNum(1,5,IMU_yawData,7,16);
 }

@@ -7,7 +7,7 @@
 #define KEY_OFF	0
 
 
-#define KEY1_Pin GPIO_PIN_4 
+#define KEY1_Pin GPIO_PIN_0
 #define KEY1_GPIO_Port GPIOC
 #define KEY2_Pin GPIO_PIN_0
 #define KEY2_GPIO_Port GPIOC
@@ -37,6 +37,7 @@ typedef enum
 } FlagStatus_t;
 
 uint8_t Key_Scan(KEY_t* KEY);
+uint8_t Key_PressEZ(KEY_t* KEY);
 
 extern KEY_t  KEY1; 
 extern KEY_t  KEY2; 

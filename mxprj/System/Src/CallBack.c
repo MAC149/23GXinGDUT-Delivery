@@ -22,37 +22,39 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 	}
 }
 
-
-void  HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
 	static u32 j = 0;
-	static u32 j1 = 0; //计数器
-	static u32 j2 = 0; //计数器
-	static u16 temp=0;
-	if(htim==&htim13)
+	static u32 j1 = 0; // 计数器
+	static u32 j2 = 0; // 计数器
+	static u16 temp = 0;
+
+	if (htim == &htim6) // 1ms
 	{
-		OLED_ShowYaw();
-	}
-	else if(htim == &htim6)			//1ms
-	{
-		if(++j==200)  //每10ms执行一次
+		if (++j == 500) // 每10ms执行一次
 		{
 			j = 0;
-			YawKeep();
+			//YawKeep();
 		}
-		if(++j2==3) //每3ms执行一次
-		{
-			j2 = 0;
-		}
-		if(++j1==5)
-		{
-			//OpenMVGN_StUpd(&OpenMV1);
-		}
+
+		// if(++j2==3) //每3ms执行一次
+		// {
+		// 	j2 = 0;
+		// }
+		// if(++j1==5)
+		// {
+		// 	//OpenMVGN_StUpd(&OpenMV1);
+		// }
 	}
-	else if(htim == &htim7)			//5us
+	else if (htim == &htim13)
 	{
-	}	
+		OLED_ShowYaw();
+		YawKeep();
+	}
+	else if (htim == &htim7) // 5us
+	{
+	}
 	// if (htim->Instance == TIM6) {
-    //     setState(true);
-    // }
+	//     setState(true);
+	// }
 }

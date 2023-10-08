@@ -1,8 +1,12 @@
 #include "Motor.h"
 #define PUL_DIS_1MM 15
 #include <math.h>
-#include "stdio.h"
+#include <stdio.h>
 #include "imu.h"
+#include <string.h>
+#include "step.h"
+
+static GPIO_PinState MotorNowDir[4];
 
 void Motortot_SetEn_On()
 {
@@ -18,6 +22,24 @@ void Motortot_SetEn_Off()
     HAL_GPIO_WritePin(MOTORFR_EN_GPIOX,MOTORFR_EN_GPIO_PIN,GPIO_PIN_RESET);
     HAL_GPIO_WritePin(MOTORBL_EN_GPIOX,MOTORBL_EN_GPIO_PIN,GPIO_PIN_RESET);
     HAL_GPIO_WritePin(MOTORBR_EN_GPIOX,MOTORBR_EN_GPIO_PIN,GPIO_PIN_RESET);
+}
+
+void Motortot_SetEn(bool status)
+{
+    if (status)
+    {
+        HAL_GPIO_WritePin(MOTORFL_EN_GPIOX, MOTORFL_EN_GPIO_PIN, GPIO_PIN_SET);
+        HAL_GPIO_WritePin(MOTORFR_EN_GPIOX, MOTORFR_EN_GPIO_PIN, GPIO_PIN_SET);
+        HAL_GPIO_WritePin(MOTORBL_EN_GPIOX, MOTORBL_EN_GPIO_PIN, GPIO_PIN_SET);
+        HAL_GPIO_WritePin(MOTORBR_EN_GPIOX, MOTORBR_EN_GPIO_PIN, GPIO_PIN_SET);
+    }
+    else
+    {
+        HAL_GPIO_WritePin(MOTORFL_EN_GPIOX, MOTORFL_EN_GPIO_PIN, GPIO_PIN_RESET);
+        HAL_GPIO_WritePin(MOTORFR_EN_GPIOX, MOTORFR_EN_GPIO_PIN, GPIO_PIN_RESET);
+        HAL_GPIO_WritePin(MOTORBL_EN_GPIOX, MOTORBL_EN_GPIO_PIN, GPIO_PIN_RESET);
+        HAL_GPIO_WritePin(MOTORBR_EN_GPIOX, MOTORBR_EN_GPIO_PIN, GPIO_PIN_RESET);
+    }
 }
 
 void Motortot_SetDir(GPIO_PinState FL_DIR,GPIO_PinState FR_DIR, GPIO_PinState BL_DIR, GPIO_PinState BR_DIR)
@@ -204,15 +226,116 @@ void Motortot_ForRight(uint16_t time,uint16_t delay_us)
     Motortot_StpRun_ForRight(time,delay_us);
 }
 
+//
+static uint16_t Motor_Lift_Pos=0;
 
+void Motor_LiftEn_On()
+{
+    HAL_GPIO_WritePin(MOTORLT_DIR_GPIOX, MOTORLT_EN_GPIO_PIN, GPIO_PIN_SET);
+}
 
+void Motor_LiftEn_Off()
+{
+    HAL_GPIO_WritePin(MOTORLT_DIR_GPIOX, MOTORLT_EN_GPIO_PIN, GPIO_PIN_RESET);
+}
+
+void Motor_LiftEn(bool status)
+{
+    if(status)
+    {
+        HAL_GPIO_WritePin(MOTORLT_DIR_GPIOX, MOTORLT_EN_GPIO_PIN, GPIO_PIN_SET);
+    }
+    else
+    {
+        HAL_GPIO_WritePin(MOTORLT_DIR_GPIOX, MOTORLT_EN_GPIO_PIN, GPIO_PIN_RESET);
+    }
+}
+
+void Motor_LiftUp(uint16_t time, uint16_t delay_us)
+{
+    HAL_GPIO_WritePin(MOTORLT_DIR_GPIOX, MOTORLT_DIR_GPIO_PIN, GPIO_PIN_RESET);
+    for (uint16_t i = 0; i < time; i++)
+    {
+        HAL_GPIO_WritePin(MOTORLT_STP_GPIOX, MOTORLT_STP_GPIO_PIN, GPIO_PIN_SET);
+        HAL_Delay_us(delay_us);
+        HAL_GPIO_WritePin(MOTORLT_STP_GPIOX, MOTORLT_STP_GPIO_PIN, GPIO_PIN_RESET);
+        HAL_Delay_us(delay_us);
+    }
+    Motor_Lift_Pos+=time;
+}
+
+void Motor_LiftDown(uint16_t time, uint16_t delay_us)
+{
+    HAL_GPIO_WritePin(MOTORLT_DIR_GPIOX, MOTORLT_DIR_GPIO_PIN, GPIO_PIN_SET);
+    for (uint16_t i = 0; i < time; i++)
+    {
+        HAL_GPIO_WritePin(MOTORLT_STP_GPIOX, MOTORLT_STP_GPIO_PIN, GPIO_PIN_SET);
+        HAL_Delay_us(delay_us);
+        HAL_GPIO_WritePin(MOTORLT_STP_GPIOX, MOTORLT_STP_GPIO_PIN, GPIO_PIN_RESET);
+        HAL_Delay_us(delay_us);
+    }
+    Motor_Lift_Pos+=time;
+}
+
+void Motor_Lift_SetDir_Up()
+{
+    HAL_GPIO_WritePin(MOTORLT_DIR_GPIOX, MOTORLT_DIR_GPIO_PIN, GPIO_PIN_RESET);
+}
+
+void Motor_Lift_SetDir_Down()
+{
+    HAL_GPIO_WritePin(MOTORLT_DIR_GPIOX, MOTORLT_DIR_GPIO_PIN, GPIO_PIN_SET);
+}
+
+void Motor_Init()
+{
+    Motortot_Init();
+    HAL_GPIO_WritePin(MOTORLT_DIR_GPIOX, MOTORLT_DIR_GPIO_PIN, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(MOTORLT_STP_GPIOX,MOTORLT_STP_GPIO_PIN,GPIO_PIN_RESET);
+}
+
+void Motor_Set_En(bool status)
+{
+    Motortot_SetEn(status);
+    Motor_LiftEn(status);
+}
+
+void Motor_Lift_StpRun(uint16_t time, uint16_t delay_us)
+{
+    for (uint16_t i = 0; i < time; i++)
+    {
+        HAL_GPIO_WritePin(MOTORLT_STP_GPIOX, MOTORLT_STP_GPIO_PIN, GPIO_PIN_SET);
+        HAL_Delay_us(delay_us);
+        HAL_GPIO_WritePin(MOTORLT_STP_GPIOX, MOTORLT_STP_GPIO_PIN, GPIO_PIN_RESET);
+        HAL_Delay_us(delay_us);
+    }
+}
+
+void Motor_Lift_GoPos(uint16_t tarpos,uint16_t delayus)
+{
+    if(tarpos>MOTOR_LIFT_TOP)
+    {
+        tarpos = MOTOR_LIFT_TOP;
+    }
+    else if(tarpos>Motor_Lift_Pos)
+    {
+        Motor_LiftUp(tarpos-Motor_Lift_Pos,delayus);
+    }
+    else if(tarpos<Motor_Lift_Pos)
+    {
+        Motor_LiftDown(Motor_Lift_Pos-tarpos,delayus);
+    }
+    Motor_Lift_Pos=tarpos;
+}
+
+//
 void RotYaw_ParamUpdate(float target_yaw,float *RotYaw_Param)
 {
     RotYaw_Param[0] = (target_yaw == 360.0) ? 0.0 : target_yaw;
     RotYaw_Param[1] = (target_yaw == 0.0) ? 360.0 : target_yaw;
 }
 
-int8_t RotYaw_Status(float* RotYaw_Param)
+uint8_t RotYaw_Status(float* RotYaw_Param)
 {
     RotYaw_Param[2]=IMU_yawDataUpdate();
     if(RotYaw_Param[0] == 360.0 || RotYaw_Param[0] == 0.0)
@@ -228,7 +351,7 @@ int8_t RotYaw_Status(float* RotYaw_Param)
     {
         if(RotYaw_Param[2] > RotYaw_Param[0]+0.2)
         {return 1;}
-        else if(RotYaw_Param[2]<RotYaw_Param[0]- 0.2)
+        else if(RotYaw_Param[2]<RotYaw_Param[1]- 0.2)
         {return 2;}
         else
         {return 0;}
@@ -250,14 +373,14 @@ void Motortot_RotTo(float target_yaw,uint16_t delay_us)
             case 2: Motortot_SetDir_RotRight();
                 Motortot_StpRun(8,delay_us);
                 break;
-            case 0:break;
+            case 0:return;break;
             default:break;
         }
         temp=RotYaw_Status(ftmp);
     }
 }
 
-
+//
 void x_move(int move_mmx10, long speed) // x方向移动 参数 移动距离 mm*10，速度
 {
     u16 i, delay;
@@ -385,18 +508,18 @@ void Y_fast_move(float mm)
 //----------
 float Yaw_Angle_Dis(float yaw_target)
 {
-    float now_angle=IMU_yawExclusive();
+    float now_angle=IMU_yawDataUpdate();
     float error1=fabs(yaw_target-now_angle);
     float error2=360.0-error1;
     float error=(error1<error2) ? error1 : error2;
     if(now_angle>=180.0)
     {
-        if((yaw_target>=now_angle) || (yaw_target<=(now_angle-180.0))){return error;}
+        if((yaw_target>=now_angle) || (yaw_target<=(now_angle-180.0))){return -error;}
         else{return error;}
     }
     else
     {
-        if((yaw_target<=now_angle) || (yaw_target>=180.0+now_angle)){return -error;}
+        if((yaw_target<=now_angle) || (yaw_target>=(180.0+now_angle))){return error;}
         else{return -error;}
     }
 }
@@ -406,37 +529,41 @@ float Yaw_Angle_Dis(float yaw_target)
 void Rotate_PID(float target_z)
 {
     static float Integral_error = 0, Last_error = 0;
-    const float P = 0.4, I = 0.01, D = 0.0;
+    const float P = 0.6, I = 0.01, D = 0.0;
     int Integral_errormax = 2;
     int angle1;  // 数据缓存区
     float error; // 偏差值
     float ftmp[4];
     RotYaw_ParamUpdate(target_z,ftmp);
-    int8_t temp=RotYaw_Status(ftmp);
+    uint8_t temp=RotYaw_Status(ftmp);
     while (temp)
     {
         error=Yaw_Angle_Dis(target_z);
         printf("%f\r\n",error);
-        int pwm = fabs(error) * P * 2 + fabs(Integral_error * I * 2) + (error - Last_error) * D;
-        angle1 = fabs(error * P) + fabs(Integral_error * I) + (error - Last_error) * D;
+        int pwm = fabs(error) * P * 2.4;// + fabs(Integral_error * I * 2) + (error - Last_error) * D;
+        angle1 = fabs(error * P);// + fabs(Integral_error * I) + (error - Last_error) * D;
         if (error > 0)
         {
-            Motortot_RotLeft(2+angle1,160- pwm);
+            Motortot_RotLeft(4+angle1,160- pwm);
+            // Motortot_RotLeft(8,160);
         }
-        if (error < 0)
+        else if (error < 0)
         {
-            Motortot_RotRight(2+angle1, 160-pwm);
+            Motortot_RotRight(4+angle1, 160-pwm);
+            // Motortot_RotRight(8, 160);
         }
         Last_error = error;
         temp=RotYaw_Status(ftmp);
     }
 }
 
-bool YawKeepFlag=0;
-double YawKeepTar=0;
-void YawKeepStart(double yawTarget)
+static bool YawKeepFlag=0;
+static float YawKeepTar=0;
+static char YawRawDir=0;
+void YawKeepStart(float yawTarget,char dir)
 {
     YawKeepTar=yawTarget;
+    YawRawDir=dir;
     YawKeepFlag=1;
 }
 
@@ -445,44 +572,37 @@ void YawKeepStop()
     YawKeepFlag=0;
 }
 
+
+void RawDirRev()
+{
+    switch(YawRawDir)
+    {
+        case 'W':Motortot_SetDir_Forward();break;
+        case 'S':Motortot_SetDir_Backward();break;
+        case 'A':Motortot_SetDir_Left();break;
+        case 'D':Motortot_SetDir_Right();break;
+        case 'E':Motortot_SetDir_RotRight();break;
+        case 'Q':Motortot_SetDir_RotLeft();break;
+    }
+}
+
 void YawKeep()
 {
     if(YawKeepFlag)
     {
-        Motortot_RotTo(YawKeepTar,50);
+        Rotate_PID(YawKeepTar);
+        RawDirRev();
     }
 }
 
-void Motor_LiftEn_On()
-{
-    HAL_GPIO_WritePin(MOTORLT_DIR_GPIOX, MOTORLT_EN_GPIO_PIN, GPIO_PIN_SET);
-}
 
-void Motor_LiftEn_Off()
+void Motor_Lift_Reset(uint16_t delay_us)
 {
-    HAL_GPIO_WritePin(MOTORLT_DIR_GPIOX, MOTORLT_EN_GPIO_PIN, GPIO_PIN_RESET);
-}
-
-void Motor_LiftUp(uint16_t time, uint16_t delay_us)
-{
-    HAL_GPIO_WritePin(MOTORLT_DIR_GPIOX, MOTORLT_DIR_GPIO_PIN, GPIO_PIN_RESET);
-    for (uint16_t i = 0; i < time; i++)
+    Motor_Lift_SetDir_Down();
+    while(!Key_PressEZ(&KEY3))
     {
-        HAL_GPIO_WritePin(MOTORLT_STP_GPIOX, MOTORLT_STP_GPIO_PIN, GPIO_PIN_SET);
-        HAL_Delay_us(delay_us);
-        HAL_GPIO_WritePin(MOTORLT_STP_GPIOX, MOTORLT_STP_GPIO_PIN, GPIO_PIN_RESET);
-        HAL_Delay_us(delay_us);
+        Motor_Lift_StpRun(10,delay_us);
     }
+    Motor_Lift_Pos=0;
 }
 
-void Motor_LiftDown(uint16_t time, uint16_t delay_us)
-{
-    HAL_GPIO_WritePin(MOTORLT_DIR_GPIOX, MOTORLT_DIR_GPIO_PIN, GPIO_PIN_SET);
-    for (uint16_t i = 0; i < time; i++)
-    {
-        HAL_GPIO_WritePin(MOTORLT_STP_GPIOX, MOTORLT_STP_GPIO_PIN, GPIO_PIN_SET);
-        HAL_Delay_us(delay_us);
-        HAL_GPIO_WritePin(MOTORLT_STP_GPIOX, MOTORLT_STP_GPIO_PIN, GPIO_PIN_RESET);
-        HAL_Delay_us(delay_us);
-    }
-}

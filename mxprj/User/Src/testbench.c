@@ -63,6 +63,7 @@ void Scan_OLED()
 
 Servo_t Servo1;
 Servo_t Servo2;
+Servo_t Servo3;
 
 void Servo_Test()
 {
@@ -99,11 +100,34 @@ void Servo_Test()
 void Servo_Adj()
 {
     HAL_Delay(1300);
-    Servo_Set(&Servo1,&htim3,TIM_CHANNEL_3);//PB0
-    Servo_Set(&Servo2,&htim3,TIM_CHANNEL_4);//PB1
+    Servo_Set(&Servo1,&htim4,TIM_CHANNEL_2);//PD13PAW
+    Servo_Set(&Servo2,&htim4,TIM_CHANNEL_3);//PD14ROT
+    Servo_Set(&Servo3,&htim4,TIM_CHANNEL_4);//PD15PAD
     Servo_Init(&Servo1);
     Servo_Init(&Servo2);
-    Servo_SetDeg(&Servo2,180);
+    Servo_Init(&Servo3);
+    Servo_SetDeg(&Servo1,130);
+    Servo_SetDeg(&Servo2,25);
+    Servo_SetDeg(&Servo3,0);
+    while(1);
+}
+
+void Motor_Lift_Adj()
+{
+    HAL_Delay(1300);
+    Servo_Set(&Servo1,&htim4,TIM_CHANNEL_2);//PD13PAW
+    Servo_Set(&Servo2,&htim4,TIM_CHANNEL_3);//PD14ROT
+    Servo_Init(&Servo1);
+    Servo_Init(&Servo2);
+    Servo_SetDeg(&Servo1,130);
+    Servo_SetDeg(&Servo2,158);
+    HAL_Delay(600);
+    Motor_Lift_Reset(100);
+    Motor_Lift_GoPos(5500,100);
+    // Servo_SetDeg(&Servo2,25);
+    // HAL_Delay(600);
+    // Motor_LiftDown(550,100);
+    // Servo_SetDeg(&Servo1,95);
     while(1);
 }
 
@@ -135,13 +159,13 @@ void RotPID_Test()
 {
     Rotate_PID(90);
 	HAL_Delay(1500);
-	Rotate_PID(-170);
+	Rotate_PID(350);
 	HAL_Delay(1500);
-	Rotate_PID(180);
+	Rotate_PID(360);
 	HAL_Delay(1500);
 	Rotate_PID(10);
 	HAL_Delay(1500);
-	Rotate_PID(-10);
+	Rotate_PID(350);
 	HAL_Delay(1500);
     Rotate_PID(0);
 	HAL_Delay(1500);
@@ -211,7 +235,9 @@ void Vision_Adj()
 {
     // OpenMV_Init();
     _OpenMV_tt_Init(&OpenMV1,&OPENMV1_UART);
-    lobotRunActionGroup(3,1000);
+    // lobotRunActionGroup(3,1000);
+    Motor_Lift_Reset(80);
+    Motor_Lift_GoPos(MOTOR_LIFT_2XGND,80);
     uint8_t* temp;
     // while(1)
     // {
@@ -220,7 +246,11 @@ void Vision_Adj()
     //     //OpenMV1.OpenMV_Send(&OpenMV1,(uint8_t*)"bbb",3);
         
     // }
-    OpenMVGN_Adj(&OpenMV1);
+    while(1)
+    {
+        OpenMVGN_Adj(&OpenMV1);
+        HAL_Delay(500);
+    }
     while(1);
 }
 
@@ -241,59 +271,60 @@ void ServoCon_Test()
 
 void ServoAction_Test()
 {
-    HAL_Delay(2000);
-    lobotServo_init();
-    Servo_Set(&Servo1,&htim3,TIM_CHANNEL_3);
+    HAL_Delay(1300);
+    Servo_Set(&Servo1,&htim4,TIM_CHANNEL_2);//PD13PAW
+    Servo_Set(&Servo2,&htim4,TIM_CHANNEL_3);//PD14ROT
+    Servo_Set(&Servo3,&htim4,TIM_CHANNEL_4);//PD15PAD
     Servo_Init(&Servo1);
+    Servo_Init(&Servo2);
+    Servo_Init(&Servo3);
+    //
     Servo_SetDeg(&Servo1,130);
-    lobotServos_runActionGroup(1,1);
-    HAL_Delay(1000);
-    lobotServos_runActionGroup(2,1);
-    HAL_Delay(1000);
-    Servo_SetDeg(&Servo1,80);
-    HAL_Delay(1000);
-    lobotServos_runActionGroup(1,1);
-    HAL_Delay(1000);
-    lobotServos_runActionGroup(0,1);
-    HAL_Delay(1000);
-    lobotServos_runActionGroup(3,1);
-    HAL_Delay(1000);
+    Servo_SetDeg(&Servo2,158);
+    Servo_SetDeg(&Servo3,90);
+    HAL_Delay(600);
+    Motor_Lift_Reset(100);
+    //
+    Motor_Lift_GoPos(5000,100);
+    Servo_SetDeg(&Servo2,25);
+    HAL_Delay(600);
+    Motor_Lift_GoPos(4450,100);
+    Servo_SetDeg(&Servo1,95);
+    HAL_Delay(600);
+    Motor_Lift_GoPos(5000,100);
+    Servo_SetDeg(&Servo2,158);
+    HAL_Delay(600);
+    Motor_Lift_Reset(100);
     Servo_SetDeg(&Servo1,130);
-    HAL_Delay(1000);
-    lobotServos_runActionGroup(0,1);
-    HAL_Delay(1000);
+    /* Servo_SetDeg(&Servo1,95);
+    HAL_Delay(600);
+    Motor_LiftUp(5000,100);
+    Servo_SetDeg(&Servo2,25);
+    HAL_Delay(600);
+    Motor_LiftDown(5000-4450,100);
+    Servo_SetDeg(&Servo1,130);
+    HAL_Delay(600);
+    Motor_LiftUp(5000-4450,100);
+    Servo_SetDeg(&Servo2,158);
+    HAL_Delay(300);
+    Motor_Lift_Reset(100); */
     while(1);
 }
 
-void ServoAction_Test1()
+void Motor_LiftRes_Test()
 {
-    HAL_Delay(1200);
-    lobotServo_init();
-    Servo_Set(&Servo1,&htim3,TIM_CHANNEL_3);
-    Servo_Init(&Servo1);
-    Servo_SetDeg(&Servo1,130);
-    lobotRunActionGroup(1,1000);
-    HAL_Delay(1200);
-    lobotRunActionGroup(2,1000);
-    HAL_Delay(1200);
-    Servo_SetDeg(&Servo1,80);
-    HAL_Delay(1200);
-    lobotRunActionGroup(1,1000);
-    HAL_Delay(1200);
-    lobotRunActionGroup(0,1000);
-    HAL_Delay(1200);
-    lobotRunActionGroup(6,1000);
-    HAL_Delay(1200);
-    Servo_SetDeg(&Servo1,130);
-    HAL_Delay(1200);
-    lobotRunActionGroup(0,1000);
-    HAL_Delay(1200);
-    while(1);
+    while (1)
+    {
+        Motor_Lift_Reset(200);
+        HAL_Delay(2000);
+        Motor_LiftUp(3000, 200);
+        HAL_Delay(2000);
+    }
 }
-
 
 extern Servo_t Servo_Pad;
 extern Servo_t Servo_Paw;
+extern Servo_t Servo_Rot;
 extern uint8_t *QRCode;
 
 void ActionTest()
@@ -303,11 +334,14 @@ void ActionTest()
     HAL_Delay(2000);
     OLED_Init();
     OLED_ShowString(1,1,"nihao",164);
-    Servo_Set(&Servo_Pad,&SERVO_PAD_TIM,SERVO_PAD_CH);
+	Servo_Set(&Servo_Pad,&SERVO_PAD_TIM,SERVO_PAD_CH);
     Servo_Set(&Servo_Paw,&SERVO_PAW_TIM,SERVO_PAW_CH);
+    Servo_Set(&Servo_Rot,&SERVO_ROT_TIM,SERVO_ROT_CH);
     Servo_Init(&Servo_Pad);
     Servo_Init(&Servo_Paw);
-    lobotRunActionGroup(0,1000);
+    Servo_Init(&Servo_Rot);
+    PreAction();
+    // lobotRunActionGroup(0,1000);
     HAL_Delay(1200);
     do
 	{
@@ -316,7 +350,7 @@ void ActionTest()
 	}
     while(!strcmp(QRCode,"TO"));
 	OLED_ShowString(1,1,QRCode,164);
-    OG_Action(1);
+    RM_Action(1);
     while(1);
 }
 
@@ -334,39 +368,54 @@ void Imu_Test()
     
 }
 
+void YawKeep_Test()
+{
+    while (1)
+    {
+        YawKeepStart(0,'A');
+        Motortot_Left(6400, 2000);
+        HAL_Delay(1500);
+        Motortot_Right(6400, 2000);
+        HAL_Delay(1500);
+        YawKeepStop();
+    }
+}
+
 void Test_Mod()
 {
+    // Motor_LiftRes_Test();
     //Servo_Test();
     // HAL_Delay(2000);
-    //ActionTest();
+    // ActionTest();
     //Scan_OLED();
     //ServoCon_Test();
     //HAL_Delay(2000);
     //lobotRunActionGroup(10,1000);
     //while(1);
-    //ServoAction_Test1();
+    // ServoAction_Test();
     //Vision_Test();
     // Motortot_Test();
     //OLED_Test();
     //PC_Uart_Test();
     // Servo_Adj();
+    // Motor_Lift_Adj();
     // MotorLT_Test();
     // Servo_Test();
     //HAL_TIM_PWM_Start(&htim12,TIM_CHANNEL_1);
     //__HAL_TIM_SET_COMPARE(&htim12,TIM_CHANNEL_1,1500);
     printf("nihao\r\n");
     HAL_UART_Transmit(&huart1,(uint8_t *)"init",4,1000);
-    Imu_Test();
+    // Imu_Test();
     // Servo_Adj();
     OLED_Init();
     Motortot_Init();
     Motortot_SetEn_On();
-    //Vision_Adj();
+    Vision_Adj();
 
     Delay_Init();
     Motortot_SetEn_Off();
     OLED_ShowString(1,1,"INIT...",16);
-    HAL_Delay(4000);
+    HAL_Delay(3500);
     OLED_Clear();
     OLED_ShowString(1,1,"PRESS SW1",16);
     while(!Key_Scan(&KEY1));
@@ -374,7 +423,9 @@ void Test_Mod()
     OLED_ShowString(1,1,"yaw:",16);
     HAL_TIM_Base_Start_IT(&htim13);
     Motortot_SetEn_On();
+    YawKeep_Test();
     // RotPID_Test();
+    // RotLog_Test();
     // Scan_OLED();
     // _OpenMV_tt_Init(&OpenMV1,&OPENMV1_UART);
     // while(1)
@@ -385,12 +436,7 @@ void Test_Mod()
     {
         HAL_Delay(2000);
         // Vision_Test();
-        // while(1)
-        // {
-        //     printf("%f\r\n",OPS.zangle);
-        // }
         //Motortot_Test();
-
     // Motortot_Test();
     }
     //Scan_Test();
