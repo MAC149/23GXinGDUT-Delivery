@@ -1,15 +1,14 @@
 #include "Scan.h"
 #include <stdio.h>
-#include <string.h>
 
 const static uint8_t Scan_Trigger_buf[]={0x7E,0x00,0x08,0x01,0x00,0x02,0x01,0xAB,0xCD};
 uint8_t Scan_Res[SCAN_RES_BUF_LENGTH]={0};
 static uint8_t count=0;
 static uint8_t c_count=0;
 static uint8_t d_count=0;
-static uint8_t scan_buf[512]={0};
+static uint8_t scan_buf[128]={0};
 static volatile bool Scan_Rec_Flag=0;
-static bool Scan_TO_Flag=0;
+bool Scan_TO_Flag=0;
 static bool Scan_Data_Flag=0;
 uint8_t Scan_Data_Length=0;
 //static uint8_t Scan_Data_Rev=0;
@@ -34,10 +33,7 @@ void Scan_GetCode()
             //HAL_UART_Transmit(&huart1,Scan_Res,d_count,1000);
 						
             printf("scanf=%s\r\n",Scan_Res);
-            for(int i=0;i<16;i++)
-			{
-				
-			}
+           Scan_Res[d_count]='\0';
             break;
 		}
 		else if(count >= 50)		//每0.5秒重新发一次数据
@@ -83,7 +79,7 @@ void Scan_GetCode()
     {
         Scan_Rec_Flag=1;
     }
-    if(Scan_Data_Flag)
+    else if(Scan_Data_Flag)
     {
         Scan_Res[d_count++] = scan_buf[c_count];
     }

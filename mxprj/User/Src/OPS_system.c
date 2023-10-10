@@ -146,10 +146,11 @@ void OPS_init(void)
 	__HAL_UART_ENABLE_IT(&OPS_auart_handle,UART_IT_IDLE);                         //使能空闲中断
 	
 	HAL_UART_Receive_DMA(&OPS_auart_handle,OPS.pucRxbuff,opsRxbuff_LENGTH); //开启DMA接收
-	HAL_Delay(7000);
-	HAL_Delay(6500);
+	// HAL_Delay(7000);
+	// HAL_Delay(6500);
 //	Update_all();
 }
+
 
 /**
 	* @name   Protocol_Analysis
