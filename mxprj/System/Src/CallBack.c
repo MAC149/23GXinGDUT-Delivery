@@ -28,7 +28,7 @@ void HAL_UART_IdleCallback(UART_HandleTypeDef *huart)
 	}
 	if(huart->Instance == SCANER_UARTX.Instance)
 	{
-		Scan_Data_Length=SCAN_DMA_MAX_LENGTH- __HAL_DMA_GET_COUNTER(&hdma_uart4_rx);
+		scan_dmabuf_length=SCAN_DMA_MAX_LENGTH- __HAL_DMA_GET_COUNTER(&hdma_uart4_rx);
 		//scan_dmabuf[Scan_Data_Length]='\0';
 		Scan_DMA_RecProcess();
 	}

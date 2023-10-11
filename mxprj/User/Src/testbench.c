@@ -207,16 +207,16 @@ void Vision_Test()
     // OpenMV_Init();
     _OpenMV_tt_Init(&OpenMV1,&OPENMV1_UART);
     uint8_t* temp;
-    // while(1)
-    // {
-    //     printf("inside\r\n");
-    //     HAL_Delay(1500);
-    //     printf("inside\r\n");
-    //     temp=OpenMV1.OpenMV_Receive(&OpenMV1);
-    //     printf("%s\r\n",temp);
-    //     OpenMVGN_Data_Process(OpenMV1.OpenMV_Rec);
-    //     printf("%d  %d  %d  %d\r\n",OpenMVGN_Data[0],OpenMVGN_Data[1],OpenMVGN_Data[2],OpenMVGN_Data[3]);
-    // }
+    while(1)
+    {
+        printf("inside\r\n");
+        HAL_Delay(1500);
+        printf("inside\r\n");
+        temp=OpenMV1.OpenMV_Receive(&OpenMV1);
+        printf("%s\r\n",temp);
+        OpenMVGN_Data_Process(OpenMV1.OpenMV_Rec);
+        printf("%d  %d  %d  %d\r\n",OpenMVGN_Data[0],OpenMVGN_Data[1],OpenMVGN_Data[2],OpenMVGN_Data[3]);
+    }
     while(1)
     {
         HAL_Delay(1500);
@@ -367,13 +367,13 @@ void Test_Mod()
     //PC_Uart_Test();
     //Servo_Adj();
     // Servo_Test();
-    Scan_TestDMA();
+    // Scan_TestDMA();
     //HAL_TIM_PWM_Start(&htim12,TIM_CHANNEL_1);
     //__HAL_TIM_SET_COMPARE(&htim12,TIM_CHANNEL_1,1500);
     OLED_Init();
     Motortot_Init();
     Motortot_SetEn_On();
-    Vision_Adj();
+    // Vision_Adj();
 
     Delay_Init();
     Motortot_SetEn_Off();
@@ -388,9 +388,10 @@ void Test_Mod()
     OLED_ShowString(3,1,"OPSyaw:",16);
     HAL_TIM_Base_Start_IT(&htim13);
     Motortot_SetEn_On();
+    Vision_Test();
     //car_go(1,-130,1400,0);
-    PickSpot(0);
-    Scan_OLED();
+    // PickSpot(0);
+    // Scan_OLED();
     //OPS_Rec_Test();
     // _OpenMV_tt_Init(&OpenMV1,&OPENMV1_UART);
     // while(1)

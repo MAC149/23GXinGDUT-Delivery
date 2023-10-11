@@ -38,7 +38,7 @@ void Step_Init()
     OLED_ShowString(1,1,"PRESS SW1",16);
     while(!Key_Scan(&KEY1));
     OLED_Clear();
-        OLED_ShowString(1,1,"OPSx:",16);
+    OLED_ShowString(1,1,"OPSx:",16);
     OLED_ShowString(2,1,"OPSy:",16);
     OLED_ShowString(3,1,"OPSyaw:",16);
     HAL_TIM_Base_Start_IT(&htim13);
@@ -48,25 +48,25 @@ void Step_Init()
 	HAL_Delay(500);//----------------DELETE WHEN ON STAGE
 }
 
-uint8_t QRCode[32];
+uint8_t* QRCode;
 uint8_t Act_Order1[3]={0};
 uint8_t Act_Order2[3]={0};
-extern uint8_t Scan_Res[16];
 extern bool Scan_TO_Flag;
 
 void Code_Scan()
 {
   HAL_UART_DMAStop(&huart1);
-/*   do
+  do
 	{
-		Scan_GetCodeDMA();
-    //HAL_UART_Transmit(&DEBUG_UART,QRCode,(uint16_t)Scan_Data_Length,1000);
+		QRCode=Scan_GetCodeDMA();
+    // HAL_UART_Transmit(&DEBUG_UART,QRCode,(uint16_t)Scan_Data_Length,1000);
   }
-  while(!strcmp(Scan_Res,"TO")); */
-  Scan_GetCodeDMA();
+  while(!strcmp(QRCode,"TO"));
+  // QRCode=Scan_GetCodeDMA();
   // printf("%s",QRCode);
   // QRCode="123+321";
-	printf("qcode=%s\r\n",SCANRES);
+	printf("qcode=%s\r\n",QRCode);
+  OPS.OPS_Init();
 	//OLED_ShowString(1,1,SCANRES,164);
 	// for (uint8_t i = 0; i < 3; i++)
 	// {
@@ -164,15 +164,16 @@ void OG_Action(int Phase)
     {
       PAW_OPEN;
       HAL_Delay(250);
-      switch(scan_dmabuf[c_count+i])
+      switch(QRCode[i])
       {
-        case '1':Pad_Switch(Scan_Res[i]);
+        case '1':Pad_Switch(QRCode[i]);
+        printf("red\r\n");
         while(!OpenMVGN_Cor(&OpenMV1,1));		//识别红色
 		    break;
-        case '2':Pad_Switch(Scan_Res[i]);
+        case '2':Pad_Switch(QRCode[i]);
 		    while(!OpenMVGN_Cor(&OpenMV1,2));//识别绿色
 		    break;
-        case '3':Pad_Switch(Scan_Res[i]);
+        case '3':Pad_Switch(QRCode[i]);
 		    while(!OpenMVGN_Cor(&OpenMV1,3));//识别蓝色
 		    break;
         default:break;
@@ -195,16 +196,16 @@ void RM_Action(int Phase)
 {
     for(int i=(Phase-1)*4;i<((Phase-1)*4)+3;i++)
     {
-      Pad_Switch(Scan_Res[i]);
+      Pad_Switch(QRCode[i]);
       lobotRunActionGroup(0,500);
       HAL_Delay(600);
       Pad_Pick();
-      Put_Action(1,Scan_Res[i]);
+      Put_Action(1,QRCode[i]);
     }
     for(int i=(Phase-1)*4;i<((Phase-1)*4)+3;i++)
     {
-      Pad_Switch(Scan_Res[i]);
-      Pick_Action(Scan_Res[i]);
+      Pad_Switch(QRCode[i]);
+      Pick_Action(QRCode[i]);
       Pad_Put();
     }
 }
@@ -213,11 +214,11 @@ void SM_Action(uint8_t Phase)
 {
     for(int i=(Phase-1)*4;i<((Phase-1)*4)+3;i++)
     {
-      Pad_Switch(Scan_Res[i]);
+      Pad_Switch(QRCode[i]);
       lobotRunActionGroup(0,500);
       HAL_Delay(600);
       Pad_Pick();
-      Put_Action(Phase,Scan_Res[i]);
+      Put_Action(Phase,QRCode[i]);
     }
 }
 
