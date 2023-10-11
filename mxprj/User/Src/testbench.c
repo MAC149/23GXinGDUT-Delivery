@@ -22,13 +22,28 @@ void Motortot_Test()
     HAL_Delay(2500);
 }
 
+extern uint8_t Scan_Res[SCAN_RES_BUF_LENGTH];
 void Scan_Test()
 {
     uint8_t *temp;
     while(1)
     {
 //        temp=Scan_GetCode();
-        HAL_UART_Transmit(&DEBUG_UART,temp,(uint16_t)Scan_Data_Length,1000);
+        HAL_UART_Transmit(&DEBUG_UART,Scan_Res,(uint16_t)Scan_Data_Length,1000);
+        HAL_Delay(5000);
+    }
+}
+
+void Scan_TestDMA()
+{
+    uint8_t *temp;
+    while(1)
+    {
+//        temp=Scan_GetCode();
+        	__HAL_UART_ENABLE_IT(&SCANER_UARTX,UART_IT_IDLE);    
+        Scan_GetCodeDMA();
+        // HAL_UART_Transmit(&DEBUG_UART,temp,(uint16_t)Scan_Data_Length,1000);
+        printf("res:%s\r\n",Scan_Res);
         HAL_Delay(5000);
     }
 }
@@ -336,7 +351,7 @@ void ActionTest()
 
 void Test_Mod()
 {
-    OPS_Rec_Test();
+    // OPS_Rec_Test();
     //Servo_Test();
     // HAL_Delay(2000);
     //ActionTest();
@@ -352,6 +367,7 @@ void Test_Mod()
     //PC_Uart_Test();
     //Servo_Adj();
     // Servo_Test();
+    Scan_TestDMA();
     //HAL_TIM_PWM_Start(&htim12,TIM_CHANNEL_1);
     //__HAL_TIM_SET_COMPARE(&htim12,TIM_CHANNEL_1,1500);
     OLED_Init();

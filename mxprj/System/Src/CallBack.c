@@ -1,15 +1,16 @@
 #include "CallBack.h"
 
 static uint8_t Scan_Rec_RX;
-
+//extern uint8_t scan_dmabuf[SCAN_DMA_MAX_LENGTH];
+extern DMA_HandleTypeDef hdma_uart4_rx;
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
 	uint8_t Res5;
     if(huart==&SCANER_UARTX)
     {
-        Scan_Rec_RX=Scan.Scan_Char_Buf;
-        Scan.Scan_Rec_Process(Scan_Rec_RX);
+        // Scan_Rec_RX=Scan.Scan_Char_Buf;
+        // Scan.Scan_Rec_Process(Scan_Rec_RX);
     }
     else if(huart==OpenMV1.OpenMV_huart)
     {
@@ -24,6 +25,12 @@ void HAL_UART_IdleCallback(UART_HandleTypeDef *huart)
 		//解析HMI协议
 		OPS.Protocol_Analysis();
 		HAL_UART_Receive_DMA(&OPS_auart_handle,OPS.pucRxbuff,opsRxbuff_LENGTH); //串口3开启DMA接收
+	}
+	if(huart->Instance == SCANER_UARTX.Instance)
+	{
+		Scan_Data_Length=SCAN_DMA_MAX_LENGTH- __HAL_DMA_GET_COUNTER(&hdma_uart4_rx);
+		//scan_dmabuf[Scan_Data_Length]='\0';
+		Scan_DMA_RecProcess();
 	}
 }
 

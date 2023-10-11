@@ -59,6 +59,7 @@
 extern TIM_HandleTypeDef htim6;
 extern TIM_HandleTypeDef htim7;
 extern TIM_HandleTypeDef htim13;
+extern DMA_HandleTypeDef hdma_uart4_rx;
 extern DMA_HandleTypeDef hdma_usart1_rx;
 extern UART_HandleTypeDef huart4;
 extern UART_HandleTypeDef huart1;
@@ -207,6 +208,20 @@ void SysTick_Handler(void)
 /******************************************************************************/
 
 /**
+  * @brief This function handles DMA1 stream2 global interrupt.
+  */
+void DMA1_Stream2_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA1_Stream2_IRQn 0 */
+
+  /* USER CODE END DMA1_Stream2_IRQn 0 */
+  HAL_DMA_IRQHandler(&hdma_uart4_rx);
+  /* USER CODE BEGIN DMA1_Stream2_IRQn 1 */
+
+  /* USER CODE END DMA1_Stream2_IRQn 1 */
+}
+
+/**
   * @brief This function handles USART1 global interrupt.
   */
 void USART1_IRQHandler(void)
@@ -219,6 +234,7 @@ void USART1_IRQHandler(void)
 	if(__HAL_UART_GET_FLAG(&huart1,UART_FLAG_IDLE) != 0x00u)
 	{
 		__HAL_UART_CLEAR_IDLEFLAG(&huart1);
+    HAL_UART_DMAStop(&huart1);
 		HAL_UART_IdleCallback(&huart1);
 	}
   /* USER CODE END USART1_IRQn 1 */
@@ -262,7 +278,12 @@ void UART4_IRQHandler(void)
   /* USER CODE END UART4_IRQn 0 */
   HAL_UART_IRQHandler(&huart4);
   /* USER CODE BEGIN UART4_IRQn 1 */
-
+	if(__HAL_UART_GET_FLAG(&huart4,UART_FLAG_IDLE) != 0x00u)
+	{
+		__HAL_UART_CLEAR_IDLEFLAG(&huart4);
+    HAL_UART_DMAStop(&huart4);
+		HAL_UART_IdleCallback(&huart4);
+	}
   /* USER CODE END UART4_IRQn 1 */
 }
 

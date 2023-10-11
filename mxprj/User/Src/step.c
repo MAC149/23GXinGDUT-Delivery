@@ -32,14 +32,19 @@ void Step_Init()
     // Delay_Init();
     Motortot_SetEn_Off();
     OLED_ShowString(1,1,"INIT...",16);
-    // OPS.OPS_Init();
-    HAL_Delay(14500);
+    OPS.OPS_Init();
+    // HAL_Delay(14500);
     OLED_Clear();
     OLED_ShowString(1,1,"PRESS SW1",16);
     while(!Key_Scan(&KEY1));
     OLED_Clear();
+        OLED_ShowString(1,1,"OPSx:",16);
+    OLED_ShowString(2,1,"OPSy:",16);
+    OLED_ShowString(3,1,"OPSyaw:",16);
+    HAL_TIM_Base_Start_IT(&htim13);
 	Motortot_SetEn_On();
   _OpenMV_tt_Init(&OpenMV1,&OPENMV1_UART);
+  __HAL_UART_ENABLE_IT(&SCANER_UARTX,UART_IT_IDLE);    
 	HAL_Delay(500);//----------------DELETE WHEN ON STAGE
 }
 
@@ -51,16 +56,18 @@ extern bool Scan_TO_Flag;
 
 void Code_Scan()
 {
-  do
+  HAL_UART_DMAStop(&huart1);
+/*   do
 	{
-		Scan_GetCode();
+		Scan_GetCodeDMA();
     //HAL_UART_Transmit(&DEBUG_UART,QRCode,(uint16_t)Scan_Data_Length,1000);
   }
-  while(!strcmp(Scan_Res,"TO"));
+  while(!strcmp(Scan_Res,"TO")); */
+  Scan_GetCodeDMA();
   // printf("%s",QRCode);
   // QRCode="123+321";
-	printf("qcode=%s\r\n",Scan_Res);
-	OLED_ShowString(1,1,Scan_Res,164);
+	printf("qcode=%s\r\n",SCANRES);
+	//OLED_ShowString(1,1,SCANRES,164);
 	// for (uint8_t i = 0; i < 3; i++)
 	// {
 	// 	Act_Order1[i]=QRCode[i];
@@ -157,7 +164,7 @@ void OG_Action(int Phase)
     {
       PAW_OPEN;
       HAL_Delay(250);
-      switch(Scan_Res[i])
+      switch(scan_dmabuf[c_count+i])
       {
         case '1':Pad_Switch(Scan_Res[i]);
         while(!OpenMVGN_Cor(&OpenMV1,1));		//识别红色
