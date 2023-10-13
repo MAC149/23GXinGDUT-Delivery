@@ -1,12 +1,12 @@
 #include "vision.h"
 #include <stdlib.h>
 #include "Motor.h"
-
+#include <stdio.h>
 
 
 void OpenMV_Send(OpenMV_tt* that,uint8_t* CMD,uint8_t len)
 {
-    HAL_UART_Transmit(that->OpenMV_huart,CMD,len,10);
+    HAL_UART_Transmit(that->OpenMV_huart,CMD,len,1000);
 }
 
 void OpenMV_Receive_Start(OpenMV_tt* that)
@@ -38,7 +38,7 @@ void OpenMV_Receive_ProcessACC(OpenMV_tt* that)
     {
         that->Data_flag=1;
     }
-    else if(that->Openmv_RxBuf[that->Buf_pointer]=='\r')
+    else if(that->Openmv_RxBuf[that->Buf_pointer]==0x0D)
     {
         that->OpenMV_Rec[that->Data_pointer]=that->Openmv_RxBuf[that->Buf_pointer];
         that->Rec_Flag=0;
@@ -136,8 +136,8 @@ void OpenMVGN_Data_Process(uint8_t *str)
 
 #define OPENMV_RESX 320
 #define OPENMV_RESY 240
-#define OPENMVGN_XOFFSET 0
-#define OPENMVGN_YOFFSET 0
+const static int16_t OPENMVGN_XOFFSET = 0;
+const static int16_t OPENMVGN_YOFFSET =  25;
 
 uint8_t OpenMVGN_Xst=0;
 uint8_t OpenMVGN_Yst=0;
@@ -146,13 +146,13 @@ bool OpenMVGN_ReceiveFlag=0;
 void OpenMVGN_StUpd(OpenMV_tt *OpenMV)
 {
     //if(!OpenMVGN_ReceiveFlag){return;}
-    OpenMV->OpenMV_Receive(OpenMV);
-    OpenMVGN_Data_Process(OpenMV->OpenMV_Rec);
-    if(OpenMVGN_Data[1]>((OPENMV_RESX/2)+OPENMVGN_XOFFSET)+5)
+    OpenMVGN_Data_Process(OpenMV->OpenMV_Receive(OpenMV));
+    //printf("dat1%ddat2%d\r\n",OpenMVGN_Data[1],OpenMVGN_Data[2]);
+    if(OpenMVGN_Data[1]>((OPENMV_RESX/2)+OPENMVGN_XOFFSET+8))
     {
         OpenMVGN_Xst=2;
     }
-    else if(OpenMVGN_Data[1]<((OPENMV_RESX/2)+OPENMVGN_YOFFSET)-5)
+    else if(OpenMVGN_Data[1]<((OPENMV_RESX/2)+OPENMVGN_XOFFSET-8))
     {
         OpenMVGN_Xst=1;
     }
@@ -160,11 +160,11 @@ void OpenMVGN_StUpd(OpenMV_tt *OpenMV)
     {
         OpenMVGN_Xst=3;
     }
-    if(OpenMVGN_Data[2]>(OPENMV_RESY/2)+5)
+    if(OpenMVGN_Data[2]>((OPENMV_RESY/2)+OPENMVGN_YOFFSET+8))
     {
         OpenMVGN_Yst=1;
     }
-    else if(OpenMVGN_Data[2]<(OPENMV_RESY/2)-5)
+    else if(OpenMVGN_Data[2]<((OPENMV_RESY/2)+OPENMVGN_YOFFSET-8))
     {
         OpenMVGN_Yst=2;
     }
@@ -174,37 +174,75 @@ void OpenMVGN_StUpd(OpenMV_tt *OpenMV)
     }
 }
 
-
 void OpenMVGN_Adj(OpenMV_tt *OpenMV)
 {
-    OpenMV_Send(OpenMV,"PV",3);
-    //OpenMVGN_ReceiveFlag=1;
-    OpenMVGN_Xst=0;
-    OpenMVGN_Yst=0;
-    while((OpenMVGN_Yst!=3) || (OpenMVGN_Xst!=3))
+    OpenMV_Send(OpenMV, "PV", 3);
+    // OpenMVGN_ReceiveFlag=1;
+    OpenMVGN_Xst = 0;
+    OpenMVGN_Yst = 0;
+    while ((OpenMVGN_Yst != 3) || (OpenMVGN_Xst != 3))
     {
         OpenMVGN_StUpd(&OpenMV1);
-        if(OpenMVGN_Xst==2)
-        {
-            Motortot_Backward(25,200);
-        }
-        else if(OpenMVGN_Xst==1)
-        {
-            
-            Motortot_Forward(25,200);
-        } 
-        if(OpenMVGN_Yst==2)
-        {
-            Motortot_Right(25,200);
-
-        }
-        else if(OpenMVGN_Yst==1)
-        {
-            Motortot_Left(25,200);
-        }
+            if (OpenMVGN_Xst == 2)
+            {
+                Motortot_Backward(20, 250);
+            }
+            else if (OpenMVGN_Xst == 1)
+            {
+                Motortot_Forward(20, 250);
+            }
+            if (OpenMVGN_Yst == 2)
+            {
+                Motortot_Right(20, 250);
+            }
+            else if (OpenMVGN_Yst == 1)
+            {
+                Motortot_Left(20, 250);
+            }
     }
-    //OpenMVGN_ReceiveFlag=0;
-    OpenMV_Send(OpenMV,"END",4);
+    // OpenMVGN_ReceiveFlag=0;
+    OpenMV_Send(OpenMV, "END", 4);
+    return;
+}
+
+#define OPENMV_RESXU (OPENMV_RESX / 2) + OPENMVGN_XOFFSET
+#define OPENMV_RESYU (OPENMV_RESY / 2) + OPENMVGN_YOFFSET
+
+inline void OpenMVGN_AdjPacked(OpenMV_tt *OpenMV)
+{
+    OpenMV_Send(OpenMV, "PV", 3);
+    bool tempx = 0;
+    bool tempy = 0;
+    while ((tempx != 1) || (tempy != 1))
+    {
+            OpenMVGN_Data_Process(OpenMV->OpenMV_Receive(OpenMV));
+            if (OpenMVGN_Data[1] > OPENMV_RESXU+1 )
+            {
+                
+                Motortot_Backward(4, 300);
+            }
+            else if (OpenMVGN_Data[1] < OPENMV_RESXU-1)
+            {
+                Motortot_Forward(4, 300);
+            }
+            else
+            {
+                tempx = 1;
+            }
+            if (OpenMVGN_Data[2] > OPENMV_RESYU+1)
+            {
+                Motortot_Left(4, 300);
+            }
+            else if (OpenMVGN_Data[2] < OPENMV_RESYU - 1)
+            {
+                Motortot_Right(4, 300);
+            }
+            else
+            {
+                tempy = 1;
+            }
+    }
+    OpenMV_Send(OpenMV, "END", 4);
 }
 
 bool OpenMVGN_Cor(OpenMV_tt *OpenMV,uint8_t Tar_cor)
@@ -222,7 +260,7 @@ bool OpenMVGN_Cor(OpenMV_tt *OpenMV,uint8_t Tar_cor)
     {
         OpenMVGN_Data_Process(OpenMV->OpenMV_Receive(OpenMV));
         temp=OpenMVGN_Data[0];
-        HAL_Delay(500);
+        HAL_Delay(650);
         OpenMVGN_Data_Process(OpenMV->OpenMV_Receive(OpenMV));
         temp1=OpenMVGN_Data[0];
         if(temp1==temp)
@@ -232,5 +270,6 @@ bool OpenMVGN_Cor(OpenMV_tt *OpenMV,uint8_t Tar_cor)
         }
         HAL_Delay(200);
     }
-    
 }
+
+

@@ -61,6 +61,27 @@ void Scan_OLED()
     }
 }
 
+//void OPS_Rec_Test()
+//{
+//    OLED_Init();
+//        OLED_ShowString(1,1,"INIT...",16);
+//    OPS.OPS_Init();
+//    OLED_Clear();
+//    OLED_ShowString(1,1,"PRESS SW1",16);
+//    while(!Key_Scan(&KEY1));
+//    OLED_ShowString(1,1,"OPSx:",16);
+//    OLED_ShowString(2,1,"OPSy:",16);
+//    OLED_ShowString(3,1,"OPSyaw:",16);
+//    while(1)
+//    {
+//        OLED_ShowFNum(1,6,OPS.pos_x,7,16);
+//        OLED_ShowFNum(2,6,OPS.pos_y,7,16);
+//        OLED_ShowFNum(3,8,OPS.zangle,7,16);
+//        HAL_Delay(400);
+//    }
+//}
+
+
 Servo_t Servo1;
 Servo_t Servo2;
 Servo_t Servo3;
@@ -106,11 +127,39 @@ void Servo_Adj()
     Servo_Init(&Servo1);
     Servo_Init(&Servo2);
     Servo_Init(&Servo3);
-    Servo_SetDeg(&Servo1,130);
-    Servo_SetDeg(&Servo2,25);
-    Servo_SetDeg(&Servo3,0);
+    Servo_SetDeg(&Servo1,96);
+    // Servo_SetDeg(&Servo2,25);
+    // Servo_SetDeg270(&Servo3,20);
     while(1);
 }
+
+void Servo_AdjFree()
+{
+    HAL_Delay(1300);
+    Servo_Set(&Servo1,&htim4,TIM_CHANNEL_2);//PD13PAW
+    Servo_Set(&Servo2,&htim4,TIM_CHANNEL_3);//PD14ROT
+    Servo_Set(&Servo3,&htim4,TIM_CHANNEL_4);//PD15PAD
+    Servo_Init(&Servo1);
+    Servo_Init(&Servo2);
+    Servo_Init(&Servo3);
+    Servo_SetDeg(&Servo2,160);
+    HAL_Delay(600);
+    Motor_Lift_Reset(100);
+    Motor_Lift_GoPos(5000,100);
+    Servo_SetDeg(&Servo1,102);
+    Servo_SetDeg(&Servo2,160);
+    Servo_SetDeg270(&Servo3,27);
+    Servo_SetDeg(&Servo2,25);
+    while(1);
+}
+
+void MotorGoDis_Test()
+{
+    HAL_Delay(1500);
+    Motortot_Forward(1940,200);
+    while(1);
+}
+
 
 void Motor_Lift_Adj()
 {
@@ -123,7 +172,9 @@ void Motor_Lift_Adj()
     Servo_SetDeg(&Servo2,158);
     HAL_Delay(600);
     Motor_Lift_Reset(100);
-    Motor_Lift_GoPos(5500,100);
+    Motor_Lift_GoPos(5400,100);
+    Motor_Lift_GoPos(3600,100);
+    Motor_Lift_Reset(100);
     // Servo_SetDeg(&Servo2,25);
     // HAL_Delay(600);
     // Motor_LiftDown(550,100);
@@ -233,11 +284,17 @@ void Vision_Test()
 
 void Vision_Adj()
 {
+    //Servo_Set(&Servo1,&htim4,TIM_CHANNEL_2);//PD13PAW
+    Servo_Set(&Servo2,&htim4,TIM_CHANNEL_3);//PD14ROT
+    //Servo_Init(&Servo1);
+    Servo_Init(&Servo2);
+    //Servo_SetDeg(&Servo1,130);
+    Servo_SetDeg(&Servo2,160);
     // OpenMV_Init();
     _OpenMV_tt_Init(&OpenMV1,&OPENMV1_UART);
     // lobotRunActionGroup(3,1000);
     Motor_Lift_Reset(80);
-    Motor_Lift_GoPos(MOTOR_LIFT_2XGND,80);
+    Motor_Lift_GoPos(MOTOR_LIFT_VSJD,80);
     uint8_t* temp;
     // while(1)
     // {
@@ -246,12 +303,12 @@ void Vision_Adj()
     //     //OpenMV1.OpenMV_Send(&OpenMV1,(uint8_t*)"bbb",3);
         
     // }
-    while(1)
-    {
-        OpenMVGN_Adj(&OpenMV1);
-        HAL_Delay(500);
-    }
-    while(1);
+    // OpenMVGN_Adj(&OpenMV1);
+    OpenMVGN_AdjPacked(&OpenMV1);
+    printf("out\r\n");
+    HAL_Delay(500);
+    Motor_Lift_Reset(100);
+    //while(1);
 }
 
 void ServoCon_Test()
@@ -334,6 +391,7 @@ void ActionTest()
     HAL_Delay(2000);
     OLED_Init();
     OLED_ShowString(1,1,"nihao",164);
+    __HAL_UART_ENABLE_IT(&SCANER_UARTX,UART_IT_IDLE);   
 	Servo_Set(&Servo_Pad,&SERVO_PAD_TIM,SERVO_PAD_CH);
     Servo_Set(&Servo_Paw,&SERVO_PAW_TIM,SERVO_PAW_CH);
     Servo_Set(&Servo_Rot,&SERVO_ROT_TIM,SERVO_ROT_CH);
@@ -345,14 +403,31 @@ void ActionTest()
     HAL_Delay(1200);
     do
 	{
-		QRCode=Scan_GetCode();
+		QRCode=Scan_GetCodeDMA();
         HAL_UART_Transmit(&DEBUG_UART,QRCode,(uint16_t)Scan_Data_Length,1000);
 	}
     while(!strcmp(QRCode,"TO"));
 	OLED_ShowString(1,1,QRCode,164);
+         Motor_Lift_GoPos(MOTOR_LIFT_VSJD,80);
+      OpenMVGN_AdjPacked(&OpenMV1);
     RM_Action(1);
     while(1);
 }
+
+void fullInit()
+{
+    OLED_Init();
+    OLED_ShowString(1,1,"INIT...",16);
+    OPS.OPS_Init();
+    imuDMAStart();
+    Delay_Init();
+    __HAL_UART_ENABLE_IT(&SCANER_UARTX,UART_IT_IDLE);    
+  _OpenMV_tt_Init(&OpenMV1,&OPENMV1_UART);
+  OLED_Clear();
+    OLED_ShowString(1,1,"PRESS SW1",16);
+    while(!Key_Scan(&KEY1));
+}
+
 
 extern bool IMU_Rec_Flag;
 extern IMUData_Packet_t IMUData_Packet;
@@ -372,10 +447,11 @@ void YawKeep_Test()
 {
     while (1)
     {
-        YawKeepStart(0,'A');
-        Motortot_Left(6400, 2000);
+        YawKeepStart(0,'W');
+        Motortot_Forward(6400, 200);
         HAL_Delay(1500);
-        Motortot_Right(6400, 2000);
+        YawKeepStart(0,'S');
+        Motortot_Backward(6400, 200);
         HAL_Delay(1500);
         YawKeepStop();
     }
@@ -386,32 +462,35 @@ void Test_Mod()
     // Motor_LiftRes_Test();
     //Servo_Test();
     // HAL_Delay(2000);
-    // ActionTest();
+    fullInit();
+    ActionTest();
     //Scan_OLED();
     //ServoCon_Test();
-    //HAL_Delay(2000);
+    // HAL_Delay(2000);
     //lobotRunActionGroup(10,1000);
     //while(1);
     // ServoAction_Test();
-    //Vision_Test();
+    // Vision_Test();
+    // Vision_Adj();
     // Motortot_Test();
     //OLED_Test();
     //PC_Uart_Test();
     // Servo_Adj();
     // Motor_Lift_Adj();
+    // OPS_Rec_Test();
+    // Servo_AdjFree();
     // MotorLT_Test();
     // Servo_Test();
-    //HAL_TIM_PWM_Start(&htim12,TIM_CHANNEL_1);
-    //__HAL_TIM_SET_COMPARE(&htim12,TIM_CHANNEL_1,1500);
+    HAL_Delay(1500);
     printf("nihao\r\n");
-    HAL_UART_Transmit(&huart1,(uint8_t *)"init",4,1000);
+    HAL_UART_Transmit(&huart3,(uint8_t *)"init",4,1000);
     // Imu_Test();
     // Servo_Adj();
     OLED_Init();
     Motortot_Init();
     Motortot_SetEn_On();
-    Vision_Adj();
-
+    // Vision_Adj();
+    // MotorGoDis_Test();
     Delay_Init();
     Motortot_SetEn_Off();
     OLED_ShowString(1,1,"INIT...",16);
@@ -420,10 +499,12 @@ void Test_Mod()
     OLED_ShowString(1,1,"PRESS SW1",16);
     while(!Key_Scan(&KEY1));
     OLED_Clear();
-    OLED_ShowString(1,1,"yaw:",16);
+    OLED_ShowString(4,1,"yaw:",16);
     HAL_TIM_Base_Start_IT(&htim13);
     Motortot_SetEn_On();
-    YawKeep_Test();
+    imuDMAStart();
+    //OPS_Rec_Test();
+    // YawKeep_Test();
     // RotPID_Test();
     // RotLog_Test();
     // Scan_OLED();

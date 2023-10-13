@@ -132,5 +132,20 @@ void Motor_LiftEn_Off();
 void Motor_Lift_Reset(uint16_t delay_us);
 void Motor_Lift_GoPos(uint16_t tarpos,uint16_t delayus);
 
+//------ops
+void Motortot_GoX(float targetx,uint16_t delay_us);
+void Motortot_GoY(float targety,uint16_t delay_us);
+void Motortot_GoXdis(float disx,uint16_t delay_us);
+void Motortot_GoYdis(float disy,uint16_t delay_us);
+void move_motor_control(void);
+void velocity_analysis(float x,float y,float yaw);
+void X_fast_move(float mm);
+void Y_fast_move(float mm);
+void position_control(void);
+float actual_rotation_angle(float now_angle,float tag_angle);
+void speed_control(void);
+void rotatePIDrealize(int sud);	
+void car_go(uint8_t mode, double fDistance_x, double fDistance_y, float target_z);
+
 #endif // !_MOTOR_H_
 #define _MOTOR_H_

@@ -8,11 +8,17 @@ Data preflex:DA(44 41)
 #define _SCAN_H_
 #include"GeneralDef.h"
 
-#define SCAN_RES_BUF_LENGTH 16
+#define SCAN_RES_BUF_LENGTH 64
+#define SCAN_DMA_MAX_LENGTH 128
+extern uint8_t scan_dmabuf[SCAN_DMA_MAX_LENGTH];
+extern uint8_t c_count;
 
 
 //SCANER IO CONNECTION
 #define SCANER_UARTX huart4
+#define SCANER_UARTDMA hdma_uart4_rx
+
+#define SCANRESRET(i) scan_dmabuf[c_count+1+i]
 
 typedef struct
 {
@@ -22,6 +28,12 @@ typedef struct
 
 
 uint8_t*  Scan_GetCode();
+void Scan_DMA_RecProcess();
+uint8_t* Scan_GetCodeDMA();
+char Scan_ResRet(int i);
+void Scan_IDInit();
+char* Scan_ResRetA(uint8_t i);
+
 
 extern Scan_t Scan;
 extern uint8_t Scan_Data_Length;

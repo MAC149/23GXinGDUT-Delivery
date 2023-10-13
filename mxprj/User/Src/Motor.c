@@ -368,10 +368,10 @@ void Motortot_RotTo(float target_yaw,uint16_t delay_us)
         switch(temp)
         {
             case 1:Motortot_SetDir_RotLeft();
-                Motortot_StpRun(8,delay_us);
+                Motortot_StpRun(4,delay_us);
                 break;
             case 2: Motortot_SetDir_RotRight();
-                Motortot_StpRun(8,delay_us);
+                Motortot_StpRun(4,delay_us);
                 break;
             case 0:return;break;
             default:break;
@@ -557,7 +557,7 @@ void Rotate_PID(float target_z)
     }
 }
 
-static bool YawKeepFlag=0;
+bool YawKeepFlag=0;
 static float YawKeepTar=0;
 static char YawRawDir=0;
 void YawKeepStart(float yawTarget,char dir)
@@ -588,11 +588,12 @@ void RawDirRev()
 
 void YawKeep()
 {
-    if(YawKeepFlag)
-    {
-        Rotate_PID(YawKeepTar);
+    // if(YawKeepFlag)
+    // {
+        // Rotate_PID(YawKeepTar);
+        Motortot_RotTo(YawKeepTar,100);
         RawDirRev();
-    }
+    // }
 }
 
 
@@ -606,3 +607,314 @@ void Motor_Lift_Reset(uint16_t delay_us)
     Motor_Lift_Pos=0;
 }
 
+//--------------------ops
+void Motortot_GoXdis(float disx,uint16_t delay_us)
+{
+    long desx=OPS.pos_x+disx;
+    if(disx<0)
+    {
+        Motortot_SetDir_Left();
+        while(!(OPS.pos_x<desx+5 && OPS.pos_x>desx-5))
+        {
+            Motortot_StpRun(2*PUL_DIS_1MM,delay_us);
+        }
+    }
+    else
+    {
+        Motortot_SetDir_Right();
+        while(!(OPS.pos_x<desx+5 && OPS.pos_x>desx-5))
+        {
+            Motortot_StpRun(2*PUL_DIS_1MM,delay_us);
+        }
+    }
+}
+
+void Motortot_GoYdis(float disy,uint16_t delay_us)
+{
+    long desy=OPS.pos_y+disy;
+    if(disy<0.0)
+    {
+        Motortot_SetDir_Backward();
+        while(!(OPS.pos_y<desy+5.0 && OPS.pos_y>desy-5.0))
+        {
+            Motortot_StpRun(2*PUL_DIS_1MM,delay_us);
+        }
+    }
+    else
+    {
+        Motortot_SetDir_Forward();
+        while(!(OPS.pos_y<desy+5.0 && OPS.pos_y>desy-5.0))
+        {
+            Motortot_StpRun(2*PUL_DIS_1MM,delay_us);
+        }
+    }
+}
+
+void Motortot_GoX(float targetx,uint16_t delay_us)
+{
+    if(targetx<OPS.pos_x)
+    {
+        Motortot_SetDir_Left();
+        while(!(OPS.pos_x<targetx+5 && OPS.pos_x>targetx-5))
+        {
+            Motortot_StpRun(2*PUL_DIS_1MM,delay_us);
+        }
+    }
+    else
+    {
+        Motortot_SetDir_Right();
+        while(!(OPS.pos_x<targetx+5 && OPS.pos_x>targetx-5))
+        {
+            Motortot_StpRun(2*PUL_DIS_1MM,delay_us);
+        }
+    }
+}
+
+void Motortot_GoY(float targety,uint16_t delay_us)
+{
+    if(targety<OPS.pos_y)
+    {
+        Motortot_SetDir_Backward();
+        while(!(OPS.pos_y<targety+5.0 && OPS.pos_y>targety-5.0))
+        {
+            Motortot_StpRun(2*PUL_DIS_1MM,delay_us);
+        }
+    }
+    else
+    {
+        Motortot_SetDir_Forward();
+        while(!(OPS.pos_y<targety+5.0 && OPS.pos_y>targety-5.0))
+        {
+            Motortot_StpRun(2*PUL_DIS_1MM,delay_us);
+        }
+    }
+}
+
+//-------coopPID
+float delay_FL;
+float delay_FR;
+float delay_BL;
+float delay_BR;
+
+float target_y = 0;
+float target_x = 0;
+float target_yaw = 0;
+
+int car_speed_max_now = 1;
+float pi_control_out;
+
+u8 speed_gx_bit = 0;
+u8 move_mode = 0;
+
+u16 car_speed_max = 100;
+u16 car_speed_yaw_max = 50;
+
+u8 Car_Loc_Flag = 0; // 0--start 1--approach 2--arrive
+
+union
+{
+    float yaw;
+    u8 usart_data[4];
+} my_yaw;
+
+void speed_control() // 每10ms执行一次
+{
+    if (pi_control_out > car_speed_max_now)
+    {
+        if (car_speed_max_now < car_speed_max)
+        {
+                car_speed_max_now++;
+        }
+    }
+    else if (pi_control_out < car_speed_max_now)
+    {
+        car_speed_max_now = pi_control_out;
+    }
+}
+
+void move_motor_control()			//每5us运行一次
+{
+	static u16 Aa=0;
+	static u16 Bb=0;
+	static u16 Cc=0;
+	static u16 Dd=0;
+	
+	if(delay_FL!=0){if(++Aa>=(u16)delay_FL){MOTORFL_PLU_TOG;Aa=0;}}else {Aa=0;}		//x50 delay_fl=18
+	if(delay_FR!=0){if(++Bb>=(u16)delay_FR){MOTORFR_PLU_TOG;Bb=0;}}else {Bb=0;}
+	if(delay_BL!=0){if(++Cc>=(u16)delay_BL){MOTORBL_PLU_TOG;Cc=0;}}else {Cc=0;}
+	if(delay_BR!=0){if(++Dd>=(u16)delay_BR){MOTORBR_PLU_TOG;Dd=0;}}else {Dd=0;}
+}//切换引脚状态产生脉冲
+
+void velocity_analysis(float x,float y,float yaw)  //逆运动学模型  x方向右正左负  y方向前为正 后为负  yaw 逆时针为正
+{
+	float RF_sudu,LF_sudu,LB_sudu,RB_sudu;
+		
+	if(yaw > 30) yaw = 30;
+	else if(yaw < -30) yaw = -30;
+		
+	RF_sudu=y-x+yaw;
+	LF_sudu=y+x-yaw;
+	LB_sudu=y-x-yaw;
+	RB_sudu=y+x+yaw;
+
+	if(LF_sudu<0){LF_sudu=-LF_sudu;MOTORFL_DIR(CW);}else MOTORFL_DIR(CCW);
+	if(RF_sudu<0){RF_sudu=-RF_sudu;MOTORFR_DIR(CCW);}else MOTORFR_DIR(CW);
+	if(LB_sudu<0){LB_sudu=-LB_sudu;MOTORBL_DIR(CW);}else MOTORBL_DIR(CCW);
+	if(RB_sudu<0){RB_sudu=-RB_sudu;MOTORBR_DIR(CCW);}else MOTORBR_DIR(CW);
+	
+	if(RF_sudu!=0)delay_FR=100000/((RF_sudu*6400)/60.0);else delay_FR=0;			//输出的是半个脉冲的时间
+	if(LF_sudu!=0)delay_FL=100000/((LF_sudu*6400)/60.0);else delay_FL=0;
+	if(LB_sudu!=0)delay_BL=100000/((LB_sudu*6400)/60.0);else delay_BL=0;
+	if(RB_sudu!=0)delay_BR=100000/((RB_sudu*6400)/60.0);else delay_BR=0;
+
+}//得到速度和方向
+
+float actual_rotation_angle(float now_angle,float tag_angle)
+{
+	float dis1,dis2;
+	dis1 = tag_angle - now_angle;
+	if (now_angle > 0)
+	{
+			dis2 = 180 - now_angle + tag_angle + 180;		//逆时针转
+	}
+	else
+	{
+			dis2 = -180 - now_angle + tag_angle - 180;		//顺时针转
+	}
+	if (abs_ff(dis1) < abs_ff(dis2))return dis1;
+	else return dis2;
+}
+
+// 位置PID控制参数
+#define POSITION_KP 0.6
+#define POSITION_KI 0.02
+#define POSITION_MAX_INTEGRAL 70
+
+// 位置PID控制函数
+void position_control()
+{
+    static float x_integral = 0;
+    static float y_integral = 0;
+    static u8 last_mode = 1;
+
+    float x_err = target_x - OPS.pos_x;
+    float y_err = target_y - OPS.pos_y;
+
+    // 判断是否已经接近目标
+    if (x_err < 200 && y_err < 200)
+    {
+        Car_Loc_Flag = 1;
+    }
+
+    if (move_mode == 1)
+    {
+        // 积分项分离
+        if (x_err < 5 && x_err > -5)
+        {
+                x_integral += x_err * POSITION_KI;
+        }
+        else
+        {
+                x_integral = 0;
+        }
+
+        if (y_err < 5 && y_err > -5)
+        {
+                y_integral += y_err * POSITION_KI;
+        }
+        else
+        {
+                y_integral = 0;
+        }
+
+        // 位置式PI
+        float pi_x_out = x_err * POSITION_KP + x_integral;
+        float pi_y_out = y_err * POSITION_KP + y_integral;
+
+        // 限制积分项
+        if (pi_x_out > POSITION_MAX_INTEGRAL)
+        {
+                pi_x_out = POSITION_MAX_INTEGRAL;
+        }
+        else if (pi_x_out < -POSITION_MAX_INTEGRAL)
+        {
+                pi_x_out = -POSITION_MAX_INTEGRAL;
+        }
+
+        if (pi_y_out > POSITION_MAX_INTEGRAL)
+        {
+                pi_y_out = POSITION_MAX_INTEGRAL;
+        }
+        else if (pi_y_out < -POSITION_MAX_INTEGRAL)
+        {
+                pi_y_out = -POSITION_MAX_INTEGRAL;
+        }
+
+        // 控制输出限制
+        pi_control_out = abs_ff(pi_x_out) + abs_ff(pi_y_out);
+        if (pi_control_out > car_speed_max_now)
+        {
+                // 限制控制输出
+                float factor = car_speed_max_now / pi_control_out;
+                pi_x_out *= factor;
+                pi_y_out *= factor;
+        }
+
+        // 转换为全局坐标系
+        float pi_x_out1 = pi_x_out * cosf(OPS.zangle * 0.0174528f) + pi_y_out * sinf(OPS.zangle * 0.0174528f);
+        float pi_y_out1 = pi_y_out * cosf(OPS.zangle * 0.0174528f) - pi_x_out * sinf(OPS.zangle * 0.0174528f);
+
+        // 速度分析
+        velocity_analysis(pi_x_out1, pi_y_out1, actual_rotation_angle(OPS.zangle, target_yaw) * 3);
+
+        // 判断是否到达目标
+        if (OPS.pos_y > target_y - 2 && OPS.pos_y < target_y + 2 &&
+            OPS.pos_x > target_x - 2 && OPS.pos_x < target_x + 2 &&
+            target_yaw < OPS.zangle + 1 && target_yaw > OPS.zangle - 1)
+        {
+                Car_Loc_Flag = 2;
+                last_mode = 0;
+        }
+    }
+    else
+    {
+        x_integral = 0;
+        y_integral = 0;
+        if (last_mode == 0)
+        {
+                last_mode = 1;
+                velocity_analysis(0, 0, 0);
+        }
+    }
+}
+
+
+void car_go(uint8_t mode, double fDistance_x, double fDistance_y, float target_z)
+{
+    const float tolerance = 2.0;   // 定义每个轴的容差范围
+    target_x = fDistance_x;
+    target_y = fDistance_y;
+    target_yaw = target_z;
+    move_mode = 1;
+    Delay_Init();
+    if (mode)
+    {
+        while (1)
+        {
+            float x_err = target_x - OPS.pos_x;
+            float y_err = target_y - OPS.pos_y;
+            float yaw_err = actual_rotation_angle(OPS.zangle, target_yaw);
+
+            if (abs_(x_err) <= tolerance && abs_(y_err) <= tolerance && abs_(yaw_err) <= 1)
+            {
+//                velocity_analysis(0, 0, 0);
+                mode = 0;
+                HAL_Delay(500);
+                PIDT_Stop(); // Rotate_PID(target_yaw,80); // 将移动模式设置回0（停止）
+                break;
+            }
+            //                position_control(); //得数值，给方向
+            //                move_motor_control(); //给脉冲
+        }
+    }
+}

@@ -14,6 +14,10 @@ int rs_ahrstype =0;
 extern int Time_count;
 u8 Usart_Receive;
 bool IMU_Rec_Flag=0;
+uint8_t FD_DMAbuf[FD_DMABUF_MAXLEN];
+uint8_t FD_DMAbuflen=0;
+
+
 
 void imuRecStart()
 {
@@ -22,6 +26,11 @@ void imuRecStart()
 	HAL_UART_Receive_IT(&IMU_UART, &Usart_Receive, 1);
 }
 
+void imuDMAStart()
+{
+	__HAL_UART_ENABLE_IT(&IMU_UART,UART_IT_IDLE);                         //使能空闲中断
+	HAL_UART_Receive_DMA(&IMU_UART,FD_DMAbuf,FD_DMABUF_MAXLEN);
+}
 
 static u8 Count = 0;
 static u8 rs_count = 0;
@@ -31,7 +40,6 @@ static u8 rsacc_flag = 0;
 void imuRec(void)
 {
 	{
-
 		// RS485_RX_RE=0;
 		// RS485_RX_DE=0;
 		
@@ -76,6 +84,68 @@ void imuRec(void)
 		}	
 	}
 }
+
+void imuDMAProc()
+{
+	//HAL_UART_DMAStop(&IMU_UART);
+	for (uint8_t i = 0; i <= FD_DMAbuflen; i++)
+	{
+		Fd_data[Count] = FD_DMAbuf[i];
+		if (((FD_DMAbuf[i - 1] == FRAME_END) && (FD_DMAbuf[i] == FRAME_HEAD)) || Count > 0)
+		{
+			rs_count = 1;
+			Count++;
+			if ((Fd_data[1] == TYPE_IMU) && (Fd_data[2] == IMU_LEN))
+				rsimu_flag = 1;
+			if ((Fd_data[1] == TYPE_AHRS) && (Fd_data[2] == AHRS_LEN))
+				rsacc_flag = 1;
+		}
+		else
+		{
+			Count = 0;
+		}
+		if (rsimu_flag == 1 && Count == IMU_RS) // 将本帧数据保存至Fd_rsimu数组中
+		{
+			Count = 0;
+			rsimu_flag = 0;
+			rs_imutype = 1;
+			if (Fd_data[IMU_RS - 1] == FRAME_END) // 帧尾校验
+				{memcpy(Fd_rsimu, Fd_data, sizeof(Fd_data));break;}
+		}
+		if (rsacc_flag == 1 && Count == AHRS_RS) //
+		{
+			Count = 0;
+			rsacc_flag = 0;
+			rs_ahrstype = 1;
+			if (Fd_data[AHRS_RS - 1] == FRAME_END)
+			{
+				memcpy(Fd_rsahrs, Fd_data, sizeof(Fd_data));
+			}
+			// for (int i = 0; i < sizeof(Fd_data); i++)
+			// {
+			// 	Fd_data[i] = 0;
+			// }
+			IMU_Rec_Flag = 1;
+			break;
+		}
+	}
+	// HAL_UART_Receive_DMA(&IMU_UART,FD_DMAbuf,FD_DMABUF_MAXLEN);
+}
+
+double imu_yawTrans()
+{
+	if (rs_ahrstype == 1)
+   {
+		if (Fd_rsahrs[1] == TYPE_AHRS && Fd_rsahrs[2] == AHRS_LEN)
+		{
+		AHRSData_Packet.Heading = DATA_Trans(Fd_rsahrs[27], Fd_rsahrs[28], Fd_rsahrs[29], Fd_rsahrs[30]);  // 偏航角
+		AHRSData_Packet.Timestamp = timestamp(Fd_rsahrs[47], Fd_rsahrs[48], Fd_rsahrs[49], Fd_rsahrs[50]); // 时间戳
+		// AHRSData2PC();
+		}
+		rs_ahrstype = 0;
+   }
+   return AHRSData_Packet.Heading*180.0f/pai;
+} 
 
 
 /*******************************
@@ -220,6 +290,6 @@ double IMU_yawDataUpdate()
 
 void OLED_ShowYaw()
 {
-	// IMU_yawDataUpdate();
-	OLED_ShowFNum(1,5,IMU_yawData,7,16);
+	IMU_yawDataUpdate();
+	OLED_ShowFNum(4,5,IMU_yawData,6,16);
 }

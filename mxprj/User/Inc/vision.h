@@ -2,7 +2,7 @@
 #define _OPENMV_H_
 #include "GeneralDef.h"
 
-#define OPENMV_REC_BUF_LEN 64
+#define OPENMV_REC_BUF_LEN 128
 
 #define OPENMV1_UART huart6
 
@@ -32,6 +32,7 @@ void OpenMVGN_Data_Process(uint8_t *str);
 void OpenMVGN_StUpd(OpenMV_tt *that);
 void OpenMVGN_Adj(OpenMV_tt *OpenMV);
 bool OpenMVGN_Cor(OpenMV_tt *OpenMV,uint8_t Tar_cor);
+void OpenMVGN_AdjPacked(OpenMV_tt *OpenMV);
 
 extern OpenMV_tt OpenMV1;
 

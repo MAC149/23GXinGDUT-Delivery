@@ -5,6 +5,10 @@
 #include "GeneralDef.h"
 
 #define IMU_UART huart5
+#define FD_DMABUF_MAXLEN 128
+#define IMU_UARTDMA hdma_uart5_rx
+extern uint8_t FD_DMAbuf[FD_DMABUF_MAXLEN];
+extern uint8_t FD_DMAbuflen;
 
 #define FRAME_HEADER      0X7B //Frame_header 
 #define FRAME_TAIL        0X7D //Frame_tail 
@@ -70,12 +74,14 @@ void AHRSData2PC(void);
 void IMUData2PC(void);
 
 void imuRec(void);
+void imuDMAProc();
 
 u8 TTL_Hex2Dec(void);  
 float DATA_Trans(u8 Data_1,u8 Data_2,u8 Data_3,u8 Data_4);
 void imuRecStart();
 double IMU_yawExclusive();
 double IMU_yawDataUpdate();
+void imuDMAStart();
 
 void OLED_ShowYaw();
 

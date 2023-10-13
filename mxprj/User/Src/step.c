@@ -5,8 +5,38 @@
 Servo_t Servo_Pad;
 Servo_t Servo_Paw;
 Servo_t Servo_Rot;
+static uint8_t GPhase=0;
+
+const double Pos_Target[10][3]=
+{
+-170,530,0,                           //扫码
+-70,1470,0,                        //转盘
+-930,1916,90,                        //粗加工
+-1680,1120,180,                     //半成品
+-1580,1850,180,                      //左上路口
+-100,1800,0,                        //右上路口
+-1689,80,180,                         //左下路口
+-120,0,0,                               //右下路口
+-930,1800,90,                        //粗加工过渡
+-1580,1120,180,                    //半成品过渡
+};
 
 
+void car_goA(uint8_t place)
+{
+  car_go(1,Pos_Target[place][0],Pos_Target[place][1],Pos_Target[place][2]);
+}
+
+void car_goYAW(uint8_t place,double yawtar)
+{
+  car_go(1,Pos_Target[place][0],Pos_Target[place][1],yawtar);
+}
+
+void VisionAdjPack()
+{
+  Motor_Lift_GoPos(MOTOR_LIFT_VSJD,MOTOR_LIFT_DELAYUS);
+  OpenMVGN_AdjPacked(&OpenMV1);
+}
 
 void Step_Init()
 {
@@ -18,29 +48,29 @@ void Step_Init()
     Servo_Init(&Servo_Pad);
     Servo_Init(&Servo_Paw);
     Servo_Init(&Servo_Rot);
-    // Delay_Init();
+    Delay_Init();
     HAL_TIM_Base_Start_IT(&htim13);
-    Motortot_SetEn_Off();
     OLED_ShowString(1,1,"INIT...",16);
-    HAL_Delay(3000);
+    // OPS.OPS_Init();
+    // imuDMAStart();
+    Motortot_SetEn_Off();
     OLED_Clear();
     OLED_ShowString(1,1,"PRESS SW1",16);
     while(!Key_Scan(&KEY1));
     OLED_Clear();
 	Motortot_SetEn_On();
+  __HAL_UART_ENABLE_IT(&SCANER_UARTX,UART_IT_IDLE);    
   _OpenMV_tt_Init(&OpenMV1,&OPENMV1_UART);
 	HAL_Delay(500);//----------------DELETE WHEN ON STAGE
 }
 
 uint8_t *QRCode;
-uint8_t Act_Order1[3]={0};
-uint8_t Act_Order2[3]={0};
 
 void Code_Scan()
 {
   do
 	{
-		QRCode=Scan_GetCode();
+		QRCode=Scan_GetCodeDMA();
     //HAL_UART_Transmit(&DEBUG_UART,QRCode,(uint16_t)Scan_Data_Length,1000);
   }
   while(!strcmp(QRCode,"TO"));
@@ -49,10 +79,27 @@ void Code_Scan()
 	OLED_ShowString(1,1,QRCode,164);
 	// for (uint8_t i = 0; i < 3; i++)
 	// {
-	// 	Act_Order1[i]=QRCode[i];
+	// 	Act_Order1[i]=Scan_ResRet(i);
 	// 	Act_Order2[i]=QRCode[i+4];
 	// }
 	
+}
+
+void StartAction()
+{
+  PAW_CLOSE;
+  Motor_LiftUp(2200,MOTOR_LIFT_DELAYUS);
+  ROT_GND;
+  HAL_Delay(600);
+  Motor_Lift_Reset(MOTOR_LIFT_DELAYUS);
+}
+
+void EndAction()
+{
+  PAW_CLOSE;
+  Motor_Lift_GoPos(MOTOR_LIFT_VSJD,MOTOR_LIFT_DELAYUS);
+  Servo_SetDeg(&Servo_Rot,SERVO_ROT_REST);
+  HAL_Delay(600);
 }
 
 void PreAction()
@@ -72,7 +119,7 @@ void Pad_Put()
   ROT_PAD;
   HAL_Delay(600);
   Motor_Lift_GoPos(MOTOR_LIFT_PAD,MOTOR_LIFT_DELAYUS);
-  PAW_OPEN;
+  PAW_OPENX;
   HAL_Delay(600);
   Motor_Lift_GoPos(MOTOR_LIFT_UPPAD,MOTOR_LIFT_DELAYUS);
   ROT_GND;
@@ -81,7 +128,7 @@ void Pad_Put()
 
 void Pad_Pick()
 {
-  PAW_OPEN;
+  PAW_OPENX;
   Motor_Lift_GoPos(MOTOR_LIFT_UPPAD,MOTOR_LIFT_DELAYUS);
   ROT_PAD;
   HAL_Delay(600);
@@ -98,7 +145,7 @@ void Pick_Action()
   Motor_Lift_GoPos(MOTOR_LIFT_2XGND,MOTOR_LIFT_DELAYUS);
   PAW_OPEN;
   ROT_GND;
-  HAL_Delay(500);
+  HAL_Delay(200);
   Motor_Lift_GoPos(MOTOR_LIFT_UPGROUD,MOTOR_LIFT_DELAYUS);
   Motor_Lift_Reset(MOTOR_LIFT_DELAYUS);
   PAW_CLOSE;
@@ -106,17 +153,17 @@ void Pick_Action()
   Motor_Lift_GoPos(MOTOR_LIFT_2XGND,MOTOR_LIFT_DELAYUS);
 }
 
-void Put_Action(uint8_t phase)
+void Put_Action()
 {
   Motor_Lift_GoPos(MOTOR_LIFT_NRTOP,MOTOR_LIFT_DELAYUS);
   PAW_CLOSE;
   ROT_GND;
   HAL_Delay(200);
-  if(phase==1)
+  if(GPhase==1)
   {
     Motor_Lift_Reset(MOTOR_LIFT_DELAYUS);
   }
-  else if(phase==2)
+  else if(GPhase==2)
   {
     Motor_Lift_GoPos(MOTOR_LIFT_2XGND,MOTOR_LIFT_DELAYUS);
   }
@@ -129,9 +176,9 @@ void Pad_Switch(char target)
 {
   switch(target)
   {
-    case '1':Servo_SetDeg(&Servo_Pad,SERVO_PAD_RED);break;
-    case '2':Servo_SetDeg(&Servo_Pad,SERVO_PAD_GREEN);break;
-    case '3':Servo_SetDeg(&Servo_Pad,SERVO_PAD_BLUE);break;
+    case '1':PAD_R;break;
+    case '2':PAD_G;break;
+    case '3':PAD_B;break;
   }
 }
 
@@ -139,92 +186,194 @@ void Pad_SwitchInt(int target)
 {
   switch(target)
   {
-    case 0:Servo_SetDeg(&Servo_Pad,SERVO_PAD_RED);break;
-    case 1:Servo_SetDeg(&Servo_Pad,SERVO_PAD_GREEN);break;
-    case 2:Servo_SetDeg(&Servo_Pad,SERVO_PAD_BLUE);break;
-    case 4:Servo_SetDeg(&Servo_Pad,SERVO_PAD_RED);break;
-    case 5:Servo_SetDeg(&Servo_Pad,SERVO_PAD_GREEN);break;
-    case 6:Servo_SetDeg(&Servo_Pad,SERVO_PAD_BLUE);break;
+    case 0:
+    case 4:PAD_SR;break;
+    case 1:
+    case 5:PAD_SG;break;
+    case 2:
+    case 6:PAD_SB;break;
   }
 }
 
-void OG_Action(int Phase)
+void ActionPos_Go(char pos)
+{
+  switch(pos)
+  {
+    case '3':Motortot_Forward(MOTOR_POS_DISTANCE,200);break;
+    case '2':break;
+    case '1':Motortot_Backward(MOTOR_POS_DISTANCE,200);break;
+  }
+}
+
+void ActionPos_Return(char pos)
+{
+  switch(pos)
+  {
+    case '3':Motortot_Backward(MOTOR_POS_DISTANCE,200);break;
+    case '2':break;
+    case '1':Motortot_Forward(MOTOR_POS_DISTANCE,200);break;
+  }
+}
+
+void OG_Action()
 {
     PAW_OPEN;
+    printf("a,%s\r\n",QRCode);
    Motor_Lift_GoPos(MOTOR_LIFT_UPOG,MOTOR_LIFT_DELAYUS);
-    for(int i=(Phase-1)*4;i<((Phase-1)*4)+3;i++)
+    for(int i=(GPhase-1)*4;i<((GPhase-1)*4)+3;i++)
     {
       PAW_OPEN;
       HAL_Delay(250);
       Pad_SwitchInt(i);
-      switch(QRCode[i])
+      switch(Scan_ResRet(i))
       {
-        case '1'://Pad_Switch(QRCode[i]);
+        case '1':printf("r\r\n");//Pad_Switch(Scan_ResRet(i));
         while(!OpenMVGN_Cor(&OpenMV1,1));		//识别红色
 		    break;
-        case '2'://Pad_Switch(QRCode[i]);
+        case '2':printf("g\r\n");//Pad_Switch(Scan_ResRet(i));
 		    while(!OpenMVGN_Cor(&OpenMV1,2));//识别绿色
 		    break;
-        case '3'://Pad_Switch(QRCode[i]);
+        case '3':printf("b\r\n");//Pad_Switch(Scan_ResRet(i));
 		    while(!OpenMVGN_Cor(&OpenMV1,3));//识别蓝色
 		    break;
-        default:break;
+        default:printf("err\r\n");break;
       }
       Motor_Lift_GoPos(MOTOR_LIFT_OG,MOTOR_LIFT_DELAYUS);
       PAW_CLOSE;
-      HAL_Delay(250);
+      HAL_Delay(600);
       Motor_Lift_GoPos(MOTOR_LIFT_UPOG,MOTOR_LIFT_DELAYUS);
       Pad_Put();
       Motor_Lift_GoPos(MOTOR_LIFT_UPOG,MOTOR_LIFT_DELAYUS);
     }
 }
 
-void RM_Action(int Phase)
+void RM_Action()
 {
-    for(int i=(Phase-1)*4;i<((Phase-1)*4)+3;i++)
+  int abb=(GPhase - 1) * 4;
+    for (; abb < ((GPhase - 1) * 4) + 3; abb++)
     {
-      Pad_SwitchInt(i);
-      // Pad_Switch(QRCode[i]);
-      HAL_Delay(600);
+      Pad_SwitchInt(abb);
+      // ActionPos_Go(Scan_ResRet(i));
+      switch (SCANRESRET(abb))
+      {
+      case '3':
+        Motortot_Forward(MOTOR_POS_DISTANCE, 200);
+        break;
+      case '2':
+        break;
+      case '1':
+        Motortot_Backward(MOTOR_POS_DISTANCE, 200);
+        break;
+      }
+      // Pad_Switch(Scan_ResRet(i));
+      // HAL_Delay(600);
+      Motor_Lift_GoPos(MOTOR_LIFT_VSJD,MOTOR_LIFT_DELAYUS);
+      OpenMVGN_AdjPacked(&OpenMV1);
       Pad_Pick();
       Put_Action(1);
+      // ActionPos_Return(Scan_ResRet(i));
+      switch (SCANRESRET(abb))
+      {
+      case '3':
+        Motortot_Backward(MOTOR_POS_DISTANCE, 200);
+        break;
+      case '2':
+        break;
+      case '1':
+        Motortot_Forward(MOTOR_POS_DISTANCE, 200);
+        break;
+      }
     }
-    for(int i=(Phase-1)*4;i<((Phase-1)*4)+3;i++)
+
+   for (; abb < ((GPhase - 1) * 4) + 3; abb++)
     {
-      Pad_SwitchInt(i);
-      // Pad_Switch(QRCode[i]);
+      // ActionPos_Go(Scan_ResRet(i));
+      switch (SCANRESRET(abb))
+      {
+      case '3':
+        Motortot_Forward(MOTOR_POS_DISTANCE, 200);
+        break;
+      case '2':
+        break;
+      case '1':
+        Motortot_Backward(MOTOR_POS_DISTANCE, 200);
+        break;
+      }
+      Pad_SwitchInt(abb);
+      HAL_Delay(800);
+      // Pad_Switch(Scan_ResRet(i));
       Pick_Action();
       Pad_Put();
+      // ActionPos_Return(Scan_ResRet(i));
+      switch (SCANRESRET(abb))
+      {
+      case '3':
+        Motortot_Backward(MOTOR_POS_DISTANCE, 200);
+        break;
+      case '2':
+        break;
+      case '1':
+        Motortot_Forward(MOTOR_POS_DISTANCE, 200);
+        break;
+      }
     }
 }
 
-void SM_Action(uint8_t Phase)
+void SM_Action()
 {
-    for(int i=(Phase-1)*4;i<((Phase-1)*4)+3;i++)
+    for (int i = (GPhase - 1) * 4; i < ((GPhase - 1) * 4) + 3; i++)
     {
+      // ActionPos_Go(Scan_ResRet(i));
+      switch (Scan_ResRet(i))
+      {
+      case '3':
+        Motortot_Forward(MOTOR_POS_DISTANCE, 200);
+        break;
+      case '2':
+        break;
+      case '1':
+        Motortot_Backward(MOTOR_POS_DISTANCE, 200);
+        break;
+      }
       Pad_SwitchInt(i);
-      // Pad_Switch(QRCode[i]);
-      HAL_Delay(600);
+      // Pad_Switch(Scan_ResRet(i));
+      HAL_Delay(800);
+      Motor_Lift_GoPos(MOTOR_LIFT_VSJD, MOTOR_LIFT_DELAYUS);
+      OpenMVGN_AdjPacked(&OpenMV1);
       Pad_Pick();
-      Put_Action(Phase);
+      Put_Action(GPhase);
+      // ActionPos_Return(Scan_ResRet(i));
+      switch (Scan_ResRet(i))
+      {
+      case '3':
+        Motortot_Backward(MOTOR_POS_DISTANCE, 200);
+        break;
+      case '2':
+        break;
+      case '1':
+        Motortot_Forward(MOTOR_POS_DISTANCE, 200);
+        break;
+      }
     }
 }
 
 void Rout1op(uint8_t round)
 {
-    Motortot_Left(2000, 200);
-    Motortot_Forward(9400, 200);
+    Motortot_Left(2200, 200);
+    YawKeepStart(0,'W');
+    Motortot_Forward(7500, 200);
+    YawKeepStop();
     // 扫码
     if (round == 1)
     {
       Code_Scan();
     }
-    lobotRunActionGroup(0, 1000);
+    PreAction();
     // 去转盘
-    Motortot_Forward(8600, 200);
+    Motortot_Forward(10700, 200);
     if (round == 1)
     {
-      Motortot_Right(1000, 200);
+      Motortot_Right(1600, 200);
     }
     else
     {
@@ -232,7 +381,8 @@ void Rout1op(uint8_t round)
     }
     // HAL_Delay(2000);
     // 识别任务
-    OG_Action(round);
+    OG_Action();
+    
     // 舵机动作组
     // 路口
     Motortot_Left(1400, 200);
@@ -253,7 +403,8 @@ void Rout1op(uint8_t round)
     // OpenMVGN_Adj(&OpenMV1);//矫正
     // OPENMV
     // 舵机动作组
-    RM_Action(round);
+    RM_Action();
+    while(1);
     // 路口
     //  HAL_Delay(2000);
     // 半成品
@@ -285,18 +436,105 @@ void Rout1op(uint8_t round)
     //   }
 }
 
+void Rout1()
+{
+  // car_goA(5);
+  // car_goA(2);
+  // car_goA(6);
+  // car_goA(3);
+      // Motor_Lift_GoPos(MOTOR_LIFT_VSJD,MOTOR_LIFT_DELAYUS);
+      // OpenMVGN_Adj(&OpenMV1);
+      
+      // // SM_Action(round);
+      // Motor_Lift_GoPos(MOTOR_LIFT_NRTOP,MOTOR_LIFT_DELAYUS);
+    
+    // 扫码
+    if (GPhase == 1)
+    {
+      //car_goA(0);
+      Code_Scan();
+      HAL_UART_DMAStop(&SCANER_UARTX);
+      PreAction();
+    }
+    // 去转盘
+    //car_goA(1);
+    // HAL_Delay(2000);
+    // 识别任务
+    OG_Action(GPhase);
+    // 舵机动作组
+    // 路口
+  //car_goA(5);
+
+    //car_goA(8);
+    
+    // Motortot_Right(800,200);
+    // HAL_Delay(2000);
+    // 粗加工
+      //car_goA(2);
+    //  HAL_Delay(2000);
+    // OpenMVGN_Adj(&OpenMV1);//矫正
+    // OPENMV
+      Motor_Lift_GoPos(MOTOR_LIFT_VSJD,MOTOR_LIFT_DELAYUS);
+      OpenMVGN_AdjPacked(&OpenMV1);
+    // 舵机动作组
+    RM_Action(GPhase);
+		while(1);
+    // 路口
+      //car_goA(4);
+    //  HAL_Delay(2000);
+    car_goA(10);
+    // 半成品
+    car_goA(3);
+    if(GPhase==1)
+    {
+      Motor_Lift_GoPos(MOTOR_LIFT_VSJD,MOTOR_LIFT_DELAYUS);
+      OpenMVGN_AdjPacked(&OpenMV1);
+    }
+    SM_Action(GPhase);
+
+    // HAL_Delay(2000);
+    // 矫正
+    // OPENMV
+    // 舵机动作组
+
+    
+    if (GPhase == 1)
+    {
+      car_goA(4);
+      car_goA(5);
+      car_goA(1);
+    }
+  else
+  {
+    car_goA(6);
+    // car_goA(4);
+  }
+    // 回路口
+    //  OPSIT_Start();
+    // while(1);
+    // 	HAL_Delay(2000);
+    //   if(round==1)
+    //   {
+    // 	  HAL_Delay(2000);
+    //   }
+}
+
+
 void Full_Step()
 {
   // while(1);
 	Step_Init();
 	//去扫码区
-
+StartAction();
+GPhase=1;
 	//---------------------------------r1
 	Rout1op(1);
   while(1);
+  // Rout1();
 	//---------------------------------r2
-	Rout1op(2);
-  while(1);
+  GPhase=2;
+	Rout1();
+  car_go(1,0,0,180);
 	//结束
 	HAL_Delay(2000);
 	while(1);
