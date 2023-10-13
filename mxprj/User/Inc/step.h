@@ -22,16 +22,16 @@
 #define SERVO_ROT_TIM htim4
 #define SERVO_ROT_CH TIM_CHANNEL_3 //PD14
 
-#define SERVO_PAW_CLOSE 82
-#define SERVO_PAW_OPEN 120
-#define SERVO_PAW_OPENX 102
+#define SERVO_PAW_CLOSE 70
+#define SERVO_PAW_OPEN 110
+#define SERVO_PAW_OPENX 92
 #define SERVO_PAD_RED 27
 #define SERVO_PAD_GREEN 130
 #define SERVO_PAD_BLUE 237
 
 #define SERVO_ROT_GND 160
 #define SERVO_ROT_PAD 25
-#define SERVO_ROT_REST 60
+#define SERVO_ROT_REST 160
 
 #define MOTOR_LIFT_UPGROUD 800
 #define MOTOR_LIFT_PAD 4200
@@ -64,7 +64,7 @@ void Full_Step();
 void Pad_Put();
 void Pad_Pick();
 void Pick_Action();
-void Put_Action();
+void Put_Action(int phase);
 void Pad_Switch(char target);
 void OG_Action();
 void RM_Action();

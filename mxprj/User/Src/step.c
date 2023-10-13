@@ -1,7 +1,7 @@
 #include "step.h"
 
-#define MOTOR_LIFT_DELAYUS 80
-
+#define MOTOR_LIFT_DELAYUS 70
+ 
 Servo_t Servo_Pad;
 Servo_t Servo_Paw;
 Servo_t Servo_Rot;
@@ -9,17 +9,22 @@ static uint8_t GPhase=0;
 
 const double Pos_Target[10][3]=
 {
--170,530,0,                           //扫码
--70,1470,0,                        //转盘
--930,1916,90,                        //粗加工
--1680,1120,180,                     //半成品
--1580,1850,180,                      //左上路口
--100,1800,0,                        //右上路口
--1689,80,180,                         //左下路口
--120,0,0,                               //右下路口
--930,1800,90,                        //粗加工过渡
--1580,1120,180,                    //半成品过渡
+-190,530,0,                           //扫码
+-95,1465,0,                        //转盘
+-956,1910,90,                        //粗加工
+-1695,1100,180,                     //半成品
+-1580,1870,180,                      //左上路口
+-130,1870,0,                        //右上路口
+-1550,105,180,                         //左下路口
+-120,105,0,                               //右下路口
+-956,1870,90,                        //粗加工过渡
+-1580,1100,180,                    //半成品过渡
 };
+
+
+#define POSX(i) Pos_Target[i][0]
+#define POSY(i) Pos_Target[i][1]
+#define POSYaw(i) Pos_Target[i][2]
 
 
 void car_goA(uint8_t place)
@@ -31,6 +36,8 @@ void car_goYAW(uint8_t place,double yawtar)
 {
   car_go(1,Pos_Target[place][0],Pos_Target[place][1],yawtar);
 }
+
+
 
 void VisionAdjPack()
 {
@@ -49,9 +56,9 @@ void Step_Init()
     Servo_Init(&Servo_Paw);
     Servo_Init(&Servo_Rot);
     Delay_Init();
-    HAL_TIM_Base_Start_IT(&htim13);
+    // HAL_TIM_Base_Start_IT(&htim13);
     OLED_ShowString(1,1,"INIT...",16);
-    // OPS.OPS_Init();
+    OPS.OPS_Init();
     // imuDMAStart();
     Motortot_SetEn_Off();
     OLED_Clear();
@@ -88,7 +95,7 @@ void Code_Scan()
 void StartAction()
 {
   PAW_CLOSE;
-  Motor_LiftUp(2200,MOTOR_LIFT_DELAYUS);
+  Motor_LiftUp(1800,MOTOR_LIFT_DELAYUS);
   ROT_GND;
   HAL_Delay(600);
   Motor_Lift_Reset(MOTOR_LIFT_DELAYUS);
@@ -97,8 +104,8 @@ void StartAction()
 void EndAction()
 {
   PAW_CLOSE;
-  Motor_Lift_GoPos(MOTOR_LIFT_VSJD,MOTOR_LIFT_DELAYUS);
-  Servo_SetDeg(&Servo_Rot,SERVO_ROT_REST);
+  Motor_Lift_GoPos(MOTOR_LIFT_UPPAD,MOTOR_LIFT_DELAYUS);
+  Servo_SetDeg(&Servo_Rot,160);
   HAL_Delay(600);
 }
 
@@ -153,17 +160,17 @@ void Pick_Action()
   Motor_Lift_GoPos(MOTOR_LIFT_2XGND,MOTOR_LIFT_DELAYUS);
 }
 
-void Put_Action()
+void Put_Action(int phase)
 {
   Motor_Lift_GoPos(MOTOR_LIFT_NRTOP,MOTOR_LIFT_DELAYUS);
   PAW_CLOSE;
   ROT_GND;
   HAL_Delay(200);
-  if(GPhase==1)
+  if(phase==1)
   {
     Motor_Lift_Reset(MOTOR_LIFT_DELAYUS);
   }
-  else if(GPhase==2)
+  else if(phase==2)
   {
     Motor_Lift_GoPos(MOTOR_LIFT_2XGND,MOTOR_LIFT_DELAYUS);
   }
@@ -195,7 +202,8 @@ void Pad_SwitchInt(int target)
   }
 }
 
-void ActionPos_Go(char pos)
+void ActionPos_Go(char pos);
+__inline void ActionPos_Go(char pos)
 {
   switch(pos)
   {
@@ -205,7 +213,8 @@ void ActionPos_Go(char pos)
   }
 }
 
-void ActionPos_Return(char pos)
+ void ActionPos_Return(char pos);
+__inline void ActionPos_Return(char pos)
 {
   switch(pos)
   {
@@ -247,14 +256,14 @@ void OG_Action()
     }
 }
 
-void RM_Action()
+__inline void RM_Action()
 {
-  int abb=(GPhase - 1) * 4;
-    for (; abb < ((GPhase - 1) * 4) + 3; abb++)
+  int temp=(GPhase - 1) * 4;
+    for (temp=(GPhase - 1) * 4; temp < ((GPhase - 1) * 4) + 3; temp++)
     {
-      Pad_SwitchInt(abb);
+      Pad_SwitchInt(temp);
       // ActionPos_Go(Scan_ResRet(i));
-      switch (SCANRESRET(abb))
+      switch (SCANRESRET(temp))
       {
       case '3':
         Motortot_Forward(MOTOR_POS_DISTANCE, 200);
@@ -269,26 +278,28 @@ void RM_Action()
       // HAL_Delay(600);
       Motor_Lift_GoPos(MOTOR_LIFT_VSJD,MOTOR_LIFT_DELAYUS);
       OpenMVGN_AdjPacked(&OpenMV1);
+      HAL_Delay(200);
+      // OpenMVGN_AdjPacked(&OpenMV1);
       Pad_Pick();
       Put_Action(1);
       // ActionPos_Return(Scan_ResRet(i));
-      switch (SCANRESRET(abb))
+      switch (SCANRESRET(temp))
       {
       case '3':
         Motortot_Backward(MOTOR_POS_DISTANCE, 200);
         break;
-      case '2':
+      case '2':OPS.Update_X(POSX(2));OPS.Update_Y(POSY(2));
         break;
       case '1':
         Motortot_Forward(MOTOR_POS_DISTANCE, 200);
         break;
       }
     }
-
-   for (; abb < ((GPhase - 1) * 4) + 3; abb++)
+    Rotate_PIDOPS(POSYaw(2));
+   for (temp=(GPhase - 1) * 4;temp < ((GPhase - 1) * 4) + 3; temp++)
     {
       // ActionPos_Go(Scan_ResRet(i));
-      switch (SCANRESRET(abb))
+      switch (SCANRESRET(temp))
       {
       case '3':
         Motortot_Forward(MOTOR_POS_DISTANCE, 200);
@@ -299,13 +310,14 @@ void RM_Action()
         Motortot_Backward(MOTOR_POS_DISTANCE, 200);
         break;
       }
-      Pad_SwitchInt(abb);
+      Pad_SwitchInt(temp);
       HAL_Delay(800);
       // Pad_Switch(Scan_ResRet(i));
+      // Motortot_RotToOPS(POSYaw(2),300);
       Pick_Action();
       Pad_Put();
       // ActionPos_Return(Scan_ResRet(i));
-      switch (SCANRESRET(abb))
+      switch (SCANRESRET(temp))
       {
       case '3':
         Motortot_Backward(MOTOR_POS_DISTANCE, 200);
@@ -319,12 +331,13 @@ void RM_Action()
     }
 }
 
-void SM_Action()
+__inline void SM_Action()
 {
-    for (int i = (GPhase - 1) * 4; i < ((GPhase - 1) * 4) + 3; i++)
+  int temp;
+    for (temp =(GPhase - 1) * 4; temp < ((GPhase - 1) * 4) + 3; temp++)
     {
-      // ActionPos_Go(Scan_ResRet(i));
-      switch (Scan_ResRet(i))
+      // ActionPos_Go(SCANRESRET(i));
+      switch (SCANRESRET(temp))
       {
       case '3':
         Motortot_Forward(MOTOR_POS_DISTANCE, 200);
@@ -335,26 +348,82 @@ void SM_Action()
         Motortot_Backward(MOTOR_POS_DISTANCE, 200);
         break;
       }
-      Pad_SwitchInt(i);
+      Pad_SwitchInt(temp);
       // Pad_Switch(Scan_ResRet(i));
       HAL_Delay(800);
       Motor_Lift_GoPos(MOTOR_LIFT_VSJD, MOTOR_LIFT_DELAYUS);
       OpenMVGN_AdjPacked(&OpenMV1);
+      // Motortot_RotToOPS(POSYaw(3),300);
+      // OpenMVGN_AdjPacked(&OpenMV1);
       Pad_Pick();
       Put_Action(GPhase);
-      // ActionPos_Return(Scan_ResRet(i));
-      switch (Scan_ResRet(i))
+      // ActionPos_Return(SCANRESRET(i));
+      switch (SCANRESRET(temp))
       {
       case '3':
         Motortot_Backward(MOTOR_POS_DISTANCE, 200);
         break;
-      case '2':
+      case '2':OPS.Update_X(POSX(3));OPS.Update_Y(POSY(3));
         break;
       case '1':
         Motortot_Forward(MOTOR_POS_DISTANCE, 200);
         break;
       }
     }
+}
+
+void PosTest()
+{
+    PreAction();
+    car_goA(0);
+    Code_Scan();
+    // 去转盘
+    car_goA(1);
+    HAL_Delay(3000);
+    car_goA(5);
+    HAL_Delay(3000);
+    car_goA(8);
+    HAL_Delay(3000);
+    // 粗加工
+    car_goA(2);
+    HAL_Delay(3000);
+    // 路口
+    car_goA(4);
+    HAL_Delay(3000);
+    car_goA(9);
+    HAL_Delay(3000);
+    // 半成品
+    car_goA(3);
+    HAL_Delay(3000);
+    car_goA(4);
+    HAL_Delay(3000);
+    car_goA(5);
+    HAL_Delay(3000);
+    //转盘
+    car_goA(1);
+    HAL_Delay(3000);
+    car_goA(5);
+    HAL_Delay(3000);
+    car_goA(8);
+    HAL_Delay(3000);
+    // 粗加工
+    car_goA(2);
+    HAL_Delay(3000);
+    // 路口
+    car_goA(4);
+    HAL_Delay(3000);
+    car_goA(9);
+    HAL_Delay(3000);
+    car_goA(3);
+    HAL_Delay(3000);
+    car_goA(6);
+    HAL_Delay(3000);
+    car_goYAW(7, 180);
+    HAL_Delay(700);
+    car_go(1, 0, 0, 180);
+    EndAction();
+    while (1)
+      ;
 }
 
 void Rout1op(uint8_t round)
@@ -438,59 +507,48 @@ void Rout1op(uint8_t round)
 
 void Rout1()
 {
-  // car_goA(5);
-  // car_goA(2);
-  // car_goA(6);
-  // car_goA(3);
-      // Motor_Lift_GoPos(MOTOR_LIFT_VSJD,MOTOR_LIFT_DELAYUS);
-      // OpenMVGN_Adj(&OpenMV1);
-      
-      // // SM_Action(round);
-      // Motor_Lift_GoPos(MOTOR_LIFT_NRTOP,MOTOR_LIFT_DELAYUS);
-    
     // 扫码
     if (GPhase == 1)
     {
-      //car_goA(0);
+      car_goA(0);
       Code_Scan();
       HAL_UART_DMAStop(&SCANER_UARTX);
       PreAction();
     }
     // 去转盘
-    //car_goA(1);
+    car_goA(1);
     // HAL_Delay(2000);
     // 识别任务
-    OG_Action(GPhase);
+    OG_Action();
     // 舵机动作组
     // 路口
-  //car_goA(5);
+  car_goA(5);
 
-    //car_goA(8);
+    car_goA(8);
     
     // Motortot_Right(800,200);
     // HAL_Delay(2000);
     // 粗加工
-      //car_goA(2);
+      car_goA(2);
     //  HAL_Delay(2000);
     // OpenMVGN_Adj(&OpenMV1);//矫正
     // OPENMV
-      Motor_Lift_GoPos(MOTOR_LIFT_VSJD,MOTOR_LIFT_DELAYUS);
-      OpenMVGN_AdjPacked(&OpenMV1);
+      // Motor_Lift_GoPos(MOTOR_LIFT_VSJD,MOTOR_LIFT_DELAYUS);
+      // OpenMVGN_AdjPacked(&OpenMV1);
     // 舵机动作组
-    RM_Action(GPhase);
-		while(1);
+    RM_Action();
     // 路口
-      //car_goA(4);
+      car_goA(4);
     //  HAL_Delay(2000);
-    car_goA(10);
+    car_goA(9);
     // 半成品
     car_goA(3);
-    if(GPhase==1)
-    {
-      Motor_Lift_GoPos(MOTOR_LIFT_VSJD,MOTOR_LIFT_DELAYUS);
-      OpenMVGN_AdjPacked(&OpenMV1);
-    }
-    SM_Action(GPhase);
+    // if(GPhase==1)
+    // {
+    //   Motor_Lift_GoPos(MOTOR_LIFT_VSJD,MOTOR_LIFT_DELAYUS);
+    //   OpenMVGN_AdjPacked(&OpenMV1);
+    // }
+    SM_Action();
 
     // HAL_Delay(2000);
     // 矫正
@@ -507,7 +565,7 @@ void Rout1()
   else
   {
     car_goA(6);
-    // car_goA(4);
+    car_goYAW(7,180);
   }
     // 回路口
     //  OPSIT_Start();
@@ -520,21 +578,25 @@ void Rout1()
 }
 
 
-void Full_Step()
+__inline void Full_Step()
 {
   // while(1);
 	Step_Init();
 	//去扫码区
 StartAction();
+// PosTest();
 GPhase=1;
 	//---------------------------------r1
-	Rout1op(1);
-  while(1);
-  // Rout1();
+	// Rout1op(1);
+  Rout1();
 	//---------------------------------r2
   GPhase=2;
 	Rout1();
-  car_go(1,0,0,180);
+  car_go(1,60,5,180);
+  // EndAction();
+  PAW_CLOSE;
+  Motor_Lift_GoPos(MOTOR_LIFT_UPPAD,MOTOR_LIFT_DELAYUS);
+  Servo_SetDeg(&Servo_Rot,170);
 	//结束
 	HAL_Delay(2000);
 	while(1);

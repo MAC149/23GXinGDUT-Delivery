@@ -68,7 +68,7 @@ while True:
                 #img.median(1) # 使用半径为1的中值滤波
                 #img.gaussian(1) # 使用半径为1的高斯滤波
                 img.find_edges(image.EDGE_CANNY, threshold = (40, 80))
-                for c in img.find_circles(x_stride=2, y_stride=1 ,threshold = 6000, x_margin = 40, y_margin = 40, r_margin = 32,
+                for c in img.find_circles(x_stride=2, y_stride=1 ,threshold = 6400, x_margin = 40, y_margin = 40, r_margin = 32,
                 r_min = 38, r_max = 90, r_step = 2):
                     if c.r()>35 and c.r()<100:
                         #img.draw_circle(c.x(), c.y(), c.r(), color = (255,255, 255))

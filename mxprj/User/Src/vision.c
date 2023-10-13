@@ -136,8 +136,8 @@ void OpenMVGN_Data_Process(uint8_t *str)
 
 #define OPENMV_RESX 320
 #define OPENMV_RESY 240
-const static int16_t OPENMVGN_XOFFSET = 0;
-const static int16_t OPENMVGN_YOFFSET =  25;
+const static int16_t OPENMVGN_XOFFSET = 5;
+const static int16_t OPENMVGN_YOFFSET =  21;
 
 uint8_t OpenMVGN_Xst=0;
 uint8_t OpenMVGN_Yst=0;
@@ -208,7 +208,7 @@ void OpenMVGN_Adj(OpenMV_tt *OpenMV)
 #define OPENMV_RESXU (OPENMV_RESX / 2) + OPENMVGN_XOFFSET
 #define OPENMV_RESYU (OPENMV_RESY / 2) + OPENMVGN_YOFFSET
 
-inline void OpenMVGN_AdjPacked(OpenMV_tt *OpenMV)
+__inline void OpenMVGN_AdjPacked(OpenMV_tt *OpenMV)
 {
     OpenMV_Send(OpenMV, "PV", 3);
     bool tempx = 0;

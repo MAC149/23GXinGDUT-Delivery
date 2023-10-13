@@ -119,8 +119,11 @@ void Motortot_ForLeft(uint16_t time,uint16_t delay_us);
 void Motortot_ForRight(uint16_t time,uint16_t delay_us);
 
 void Motortot_RotTo(float target_yaw,uint16_t delay_us);
+void RotYaw_ParamUpdateOPS(float target_yaw,float *RotYaw_Param);
+void Motortot_RotToOPS(float target_yaw,uint16_t delay_us);
 
 void Rotate_PID(float target_z);
+void Rotate_PIDOPS(float target_z);
 void YawKeep();
 void YawKeepStart(float yawTarget,char dir);
 void YawKeepStop();

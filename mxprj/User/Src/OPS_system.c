@@ -208,8 +208,8 @@ static void Protocol_Analysis(void)
 
 void OPS_OLED_Status_Update()
 {
-	OLED_ShowFNum(1,6,OPS.pos_x,7,16);
-    OLED_ShowFNum(2,6,OPS.pos_y,7,16);
+	OLED_ShowFNum(1,6,OPS.pos_x,9,16);
+    OLED_ShowFNum(2,6,OPS.pos_y,9,16);
     OLED_ShowFNum(3,8,OPS.zangle,7,16);
 }
 

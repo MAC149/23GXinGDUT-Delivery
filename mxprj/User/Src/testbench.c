@@ -127,8 +127,8 @@ void Servo_Adj()
     Servo_Init(&Servo1);
     Servo_Init(&Servo2);
     Servo_Init(&Servo3);
-    Servo_SetDeg(&Servo1,96);
-    // Servo_SetDeg(&Servo2,25);
+    Servo_SetDeg(&Servo1,90);
+    Servo_SetDeg(&Servo2,25);
     // Servo_SetDeg270(&Servo3,20);
     while(1);
 }
@@ -457,13 +457,33 @@ void YawKeep_Test()
     }
 }
 
+void OPS_Rec_Test()
+{
+    OLED_Init();
+    OLED_ShowString(1,1,"INIT...",16);
+    OPS.OPS_Init();
+    OLED_Clear();
+    OLED_ShowString(1,1,"PRESS SW1",16);
+    while(!Key_Scan(&KEY1));
+    OLED_ShowString(1,1,"OPSx:",16);
+    OLED_ShowString(2,1,"OPSy:",16);
+    OLED_ShowString(3,1,"OPSyaw:",16);
+    while(1)
+    {
+        OLED_ShowFNum(1,6,OPS.pos_x,7,16);
+        OLED_ShowFNum(2,6,OPS.pos_y,7,16);
+        OLED_ShowFNum(3,8,OPS.zangle,7,16);
+        HAL_Delay(400);
+    }
+}
+
 void Test_Mod()
 {
     // Motor_LiftRes_Test();
     //Servo_Test();
     // HAL_Delay(2000);
-    fullInit();
-    ActionTest();
+    // fullInit();
+    // ActionTest();
     //Scan_OLED();
     //ServoCon_Test();
     // HAL_Delay(2000);
@@ -475,7 +495,7 @@ void Test_Mod()
     // Motortot_Test();
     //OLED_Test();
     //PC_Uart_Test();
-    // Servo_Adj();
+    Servo_Adj();
     // Motor_Lift_Adj();
     // OPS_Rec_Test();
     // Servo_AdjFree();

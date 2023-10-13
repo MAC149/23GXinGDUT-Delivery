@@ -84,7 +84,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 			j1=0;
 			if(YawKeepFlag)
 			{
-				YawKeep();
+				// YawKeep();
 			}
 		}
 		// OLED_ShowYaw();
