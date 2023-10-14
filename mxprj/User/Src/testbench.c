@@ -3,7 +3,10 @@
 
 
 
-extern const double Pos_Target[8][2];
+extern const double Pos_Target[10][2];
+extern Servo_t Servo_Pad;
+extern Servo_t Servo_Paw;
+extern Servo_t Servo_Rot;
 
 void Motortot_Test()
 {
@@ -128,7 +131,7 @@ void Servo_Adj()
     Servo_Init(&Servo2);
     Servo_Init(&Servo3);
     Servo_SetDeg(&Servo1,90);
-    Servo_SetDeg(&Servo2,25);
+    Servo_SetDeg(&Servo2,25);                                       
     // Servo_SetDeg270(&Servo3,20);
     while(1);
 }
@@ -169,12 +172,12 @@ void Motor_Lift_Adj()
     Servo_Init(&Servo1);
     Servo_Init(&Servo2);
     Servo_SetDeg(&Servo1,130);
-    Servo_SetDeg(&Servo2,158);
+    Servo_SetDeg(&Servo2,160);
     HAL_Delay(600);
     Motor_Lift_Reset(100);
-    Motor_Lift_GoPos(5400,100);
-    Motor_Lift_GoPos(3600,100);
-    Motor_Lift_Reset(100);
+    Motor_Lift_GoPos(2770,100);
+    // Motor_Lift_GoPos(3600,100);
+    // Motor_Lift_Reset(100);
     // Servo_SetDeg(&Servo2,25);
     // HAL_Delay(600);
     // Motor_LiftDown(550,100);
@@ -495,8 +498,8 @@ void Test_Mod()
     // Motortot_Test();
     //OLED_Test();
     //PC_Uart_Test();
-    Servo_Adj();
-    // Motor_Lift_Adj();
+    // Servo_Adj();
+    Motor_Lift_Adj();
     // OPS_Rec_Test();
     // Servo_AdjFree();
     // MotorLT_Test();
