@@ -317,6 +317,10 @@ void Motor_Lift_GoPos(uint16_t tarpos,uint16_t delayus)
     {
         tarpos = MOTOR_LIFT_TOP;
     }
+    else if(tarpos==0)
+    {
+        Motor_Lift_Reset(delayus);
+    }
     else if(tarpos>Motor_Lift_Pos)
     {
         Motor_LiftUp(tarpos-Motor_Lift_Pos,delayus);

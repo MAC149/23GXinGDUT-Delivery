@@ -260,7 +260,7 @@ bool OpenMVGN_Cor(OpenMV_tt *OpenMV,uint8_t Tar_cor)
     {
         OpenMVGN_Data_Process(OpenMV->OpenMV_Receive(OpenMV));
         temp=OpenMVGN_Data[0];
-        HAL_Delay(550);
+        HAL_Delay(500);
         OpenMVGN_Data_Process(OpenMV->OpenMV_Receive(OpenMV));
         temp1=OpenMVGN_Data[0];
         if(temp1==temp)

@@ -1,12 +1,98 @@
 #include "testbench.h"
 #define MOTOR_DELAYUS 300
-
+#define MOTOR_LIFT_DELAYUST 70
 
 
 extern const double Pos_Target[10][2];
 extern Servo_t Servo_Pad;
 extern Servo_t Servo_Paw;
 extern Servo_t Servo_Rot;
+
+void final_put()
+{
+    PAD_SB;
+      PAW_OPENX;
+  Motor_Lift_GoPos(MOTOR_LIFT_UPPAD,MOTOR_LIFT_DELAYUST);
+  ROT_PAD;
+  HAL_Delay(600);
+  Motor_Lift_GoPos(MOTOR_LIFT_PAD,MOTOR_LIFT_DELAYUST);
+  PAW_CLOSE;
+  HAL_Delay(600);
+  Motor_Lift_GoPos(MOTOR_LIFT_UPPAD,MOTOR_LIFT_DELAYUST);
+  ROT_GND;
+  HAL_Delay(600);
+  PAW_CLOSE;
+  ROT_GND;
+    Motor_Lift_Reset(MOTOR_LIFT_DELAYUST);
+  PAW_OPEN;
+  HAL_Delay(800);
+  Motor_Lift_GoPos(MOTOR_LIFT_NRTOP,MOTOR_LIFT_DELAYUST);
+}
+
+void final_pick()
+{
+    Motor_Lift_GoPos(MOTOR_LIFT_2XGND,MOTOR_LIFT_DELAYUST);
+  PAW_OPEN;
+  ROT_GND;
+  HAL_Delay(200);
+  Motor_Lift_GoPos(MOTOR_LIFT_UPGROUD,MOTOR_LIFT_DELAYUST);
+  Motor_Lift_GoPos(MOTOR_LIFT_GND,MOTOR_LIFT_DELAYUST);
+  PAW_CLOSE;
+  HAL_Delay(500);
+  Motor_Lift_GoPos(MOTOR_LIFT_2XGND,MOTOR_LIFT_DELAYUST);
+    PAW_CLOSE;
+  Motor_Lift_GoPos(MOTOR_LIFT_UPPAD,MOTOR_LIFT_DELAYUST);
+  ROT_PAD;
+  HAL_Delay(1000);
+  Motor_Lift_GoPos(MOTOR_LIFT_PAD,MOTOR_LIFT_DELAYUST);
+  PAW_OPENX;
+  HAL_Delay(500);
+  Motor_Lift_GoPos(MOTOR_LIFT_UPPAD,MOTOR_LIFT_DELAYUST);
+  ROT_GND;
+  HAL_Delay(600);
+}
+
+void FINAL_Test()
+{
+    Servo_Set(&Servo_Pad,&SERVO_PAD_TIM,SERVO_PAD_CH);
+    Servo_Set(&Servo_Paw,&SERVO_PAW_TIM,SERVO_PAW_CH);
+    Servo_Set(&Servo_Rot,&SERVO_ROT_TIM,SERVO_ROT_CH);
+    Servo_Init(&Servo_Pad);
+    Servo_Init(&Servo_Paw);
+    Servo_Init(&Servo_Rot);
+    Motor_LiftUp(1000,MOTOR_LIFT_DELAYUST);
+    PAD_SR;
+    ROT_GND;
+    PAW_OPEN;
+    HAL_Delay(600);
+   Motor_Lift_Reset(MOTOR_LIFT_DELAYUST);
+   Motor_LiftUp(1000,MOTOR_LIFT_DELAYUST);
+   Motor_Lift_GoPos(MOTOR_LIFT_GND,MOTOR_LIFT_DELAYUST);
+    
+    PAW_CLOSE;
+    HAL_Delay(800);
+    Motor_Lift_GoPos(MOTOR_LIFT_NRTOP,MOTOR_LIFT_DELAYUST);
+    ROT_PAD;
+    HAL_Delay(600);
+    Motor_Lift_GoPos(MOTOR_LIFT_PAD,MOTOR_LIFT_DELAYUST);
+    PAW_OPENX;
+    HAL_Delay(600);
+    Motor_Lift_GoPos(MOTOR_LIFT_NRTOP,MOTOR_LIFT_DELAYUST);
+    PAW_OPEN;
+    
+    // PAD_SR;
+    // PAD_SG;
+    // PAD_SB;
+    // PAW_OPEN;
+    // PAW_OPENX;
+    // PAW_CLOSE;
+    while(1);
+    Motor_Lift_GoPos(MOTOR_LIFT_VSJD,MOTOR_LIFT_DELAYUST);//mv调整位置
+    Motor_Lift_GoPos(MOTOR_LIFT_PAD,MOTOR_LIFT_DELAYUST);//物料盘
+    Motor_Lift_GoPos(MOTOR_LIFT_OG,MOTOR_LIFT_DELAYUST);//转盘
+    Motor_Lift_GoPos(MOTOR_LIFT_2XGND,MOTOR_LIFT_DELAYUST);//码垛
+    Motor_Lift_GoPos(MOTOR_LIFT_GND,MOTOR_LIFT_DELAYUST);//抓取
+}
 
 void Motortot_Test()
 {
@@ -63,27 +149,6 @@ void Scan_OLED()
         HAL_Delay(5000);
     }
 }
-
-//void OPS_Rec_Test()
-//{
-//    OLED_Init();
-//        OLED_ShowString(1,1,"INIT...",16);
-//    OPS.OPS_Init();
-//    OLED_Clear();
-//    OLED_ShowString(1,1,"PRESS SW1",16);
-//    while(!Key_Scan(&KEY1));
-//    OLED_ShowString(1,1,"OPSx:",16);
-//    OLED_ShowString(2,1,"OPSy:",16);
-//    OLED_ShowString(3,1,"OPSyaw:",16);
-//    while(1)
-//    {
-//        OLED_ShowFNum(1,6,OPS.pos_x,7,16);
-//        OLED_ShowFNum(2,6,OPS.pos_y,7,16);
-//        OLED_ShowFNum(3,8,OPS.zangle,7,16);
-//        HAL_Delay(400);
-//    }
-//}
-
 
 Servo_t Servo1;
 Servo_t Servo2;
@@ -162,7 +227,6 @@ void MotorGoDis_Test()
     Motortot_Forward(1940,200);
     while(1);
 }
-
 
 void Motor_Lift_Adj()
 {
@@ -482,6 +546,7 @@ void OPS_Rec_Test()
 
 void Test_Mod()
 {
+    FINAL_Test();
     // Motor_LiftRes_Test();
     //Servo_Test();
     // HAL_Delay(2000);

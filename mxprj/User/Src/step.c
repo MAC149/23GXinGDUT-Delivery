@@ -10,6 +10,20 @@ static uint8_t GPhase=0;
 const double Pos_Target[10][3]=
 {
 -190,530,0,                           //扫码
+-85,1455,0,                        //转盘
+-956,1920,90,                        //粗加工
+-1705,1100,180,                     //半成品
+-1580,1870,180,                      //左上路口
+-130,1870,0,                        //右上路口
+-1550,85,180,                         //左下路口
+-120,85,0,                               //右下路口
+-956,1870,90,                        //粗加工过渡
+-1580,1100,180,                    //半成品过渡
+};
+
+const double Pos_Targetog[10][3]=
+{
+-190,530,0,                           //扫码
 -95,1455,0,                        //转盘
 -956,1910,90,                        //粗加工
 -1695,1100,180,                     //半成品
@@ -20,7 +34,6 @@ const double Pos_Target[10][3]=
 -956,1870,90,                        //粗加工过渡
 -1580,1100,180,                    //半成品过渡
 };
-
 
 #define POSX(i) Pos_Target[i][0]
 #define POSY(i) Pos_Target[i][1]
@@ -122,42 +135,50 @@ void PreAction()
 void Pad_Put()
 {
   PAW_CLOSE;
-  Motor_Lift_GoPos(MOTOR_LIFT_UPPAD,MOTOR_LIFT_DELAYUS);
+  Motor_Lift_GoPos(MOTOR_LIFT_NRTOP,MOTOR_LIFT_DELAYUS);
   ROT_PAD;
   HAL_Delay(1000);
+  Motor_Lift_GoPos(MOTOR_LIFT_UPPAD,MOTOR_LIFT_DELAYUS);
+  HAL_Delay(500);
   Motor_Lift_GoPos(MOTOR_LIFT_PAD,MOTOR_LIFT_DELAYUS);
   PAW_OPENX;
-  HAL_Delay(800);
-  Motor_Lift_GoPos(MOTOR_LIFT_UPPAD,MOTOR_LIFT_DELAYUS);
+  HAL_Delay(500);
+  //Motor_Lift_GoPos(MOTOR_LIFT_UPPAD,MOTOR_LIFT_DELAYUS);
+  Motor_Lift_GoPos(MOTOR_LIFT_NRTOP,MOTOR_LIFT_DELAYUS);
+  PAW_OPEN;
   ROT_GND;
   HAL_Delay(600);
 }
 
 void Pad_Pick()
 {
-  PAW_OPENX;
-  Motor_Lift_GoPos(MOTOR_LIFT_UPPAD,MOTOR_LIFT_DELAYUS);
+  PAW_OPEN;
+  Motor_Lift_GoPos(MOTOR_LIFT_NRTOP,MOTOR_LIFT_DELAYUS);
   ROT_PAD;
   HAL_Delay(600);
+  PAW_OPENX;
+  HAL_Delay(500);
+  Motor_Lift_GoPos(MOTOR_LIFT_UPPAD,MOTOR_LIFT_DELAYUS);
+  HAL_Delay(500);
   Motor_Lift_GoPos(MOTOR_LIFT_PAD,MOTOR_LIFT_DELAYUS);
   PAW_CLOSE;
   HAL_Delay(600);
-  Motor_Lift_GoPos(MOTOR_LIFT_UPPAD,MOTOR_LIFT_DELAYUS);
+  Motor_Lift_GoPos(MOTOR_LIFT_NRTOP,MOTOR_LIFT_DELAYUS);
   ROT_GND;
   HAL_Delay(600);
 }
 
 void Pick_Action()
 {
-  Motor_Lift_GoPos(MOTOR_LIFT_2XGND,MOTOR_LIFT_DELAYUS);
+  Motor_Lift_GoPos(MOTOR_LIFT_NRTOP,MOTOR_LIFT_DELAYUS);
   PAW_OPEN;
   ROT_GND;
   HAL_Delay(200);
   Motor_Lift_GoPos(MOTOR_LIFT_UPGROUD,MOTOR_LIFT_DELAYUS);
-  Motor_Lift_Reset(MOTOR_LIFT_DELAYUS);
+  Motor_Lift_GoPos(MOTOR_LIFT_GND,MOTOR_LIFT_DELAYUS);
   PAW_CLOSE;
-  HAL_Delay(500);
-  Motor_Lift_GoPos(MOTOR_LIFT_2XGND,MOTOR_LIFT_DELAYUS);
+  HAL_Delay(800);
+  Motor_Lift_GoPos(MOTOR_LIFT_NRTOP,MOTOR_LIFT_DELAYUS);
 }
 
 void Put_Action(int phase)
@@ -168,14 +189,15 @@ void Put_Action(int phase)
   HAL_Delay(200);
   if(phase==1)
   {
-    Motor_Lift_Reset(MOTOR_LIFT_DELAYUS);
+    Motor_Lift_GoPos(MOTOR_LIFT_GND,MOTOR_LIFT_DELAYUS);
   }
   else if(phase==2)
   {
     Motor_Lift_GoPos(MOTOR_LIFT_2XGND,MOTOR_LIFT_DELAYUS);
   }
+  HAL_Delay(500);
   PAW_OPEN;
-  HAL_Delay(800);
+  HAL_Delay(500);
   Motor_Lift_GoPos(MOTOR_LIFT_NRTOP,MOTOR_LIFT_DELAYUS);
 }
 
@@ -276,6 +298,7 @@ __inline void RM_Action()
       }
       // Pad_Switch(Scan_ResRet(i));
       // HAL_Delay(600);
+      PAW_OPEN;
       Motor_Lift_GoPos(MOTOR_LIFT_VSJD,MOTOR_LIFT_DELAYUS);
       OpenMVGN_AdjPacked(&OpenMV1);
       HAL_Delay(200);
