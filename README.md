@@ -24,6 +24,7 @@ PCB design in the project contains solutions to:
 **You need to add CMSIS & HAL driver to Drivers folder manually to build the project.**  
 Check .ioc file for project's specific MCU & firmware package version.  
 For Keil5 users: Make sure files in *"./User*" & "*./System*" are added to the project, and paths "*./User/Inc*" & "*./System/Inc*" are added to the Include Path.  
+
 **Builder Options:**
 |AC6(ARM C Compiler Version 6)|C/C++ Compiler Options|
 |:-:|:-:|
@@ -43,16 +44,16 @@ L4
 
 |Module|Model/Provider|
 |:-:|:-:|
-|IMU|N100 by wheeltec|
-|Rader|N10 by wheeltec|
+|*IMU**|N100 by wheeltec|
+|*Rader**|N10 by wheeltec|
 |Scaner|GM65 by GROW|
-|ServoController|LSC-16 by Hiwonder|
+|*ServoController**|LSC-16 by Hiwonder|
 |MotorController|Emm42_V4.2 by ZHANGDATOU|
 |OPS|OPS-9 by Action|
 |OLED & Controller|1.3'/0.9' IIC SSD1306|
 |Vision Solotion|OpenMV4 H7|
 
-**Not all modules were in use in the actual program meaning unused modules' functional were not guaranteed*
+**Not all modules were in use in the actual program, meaning unused modules' functional were not guaranteed. Modules with * were those not in actual use during the contest, but their drivers remained in the project*
 
 ### Electronic Side Module List
 
@@ -63,9 +64,19 @@ L4
 |12V to 7.4V DCDC|TPS54560Module by Mindesigner|
 |TTL to RS232|SP3232 from touglesy|
 
-**STM32L4 was not mounted in the actual situation meaning the system with L4 was not guaranteed or validated*
+**STM32L4 was not mounted in the actual situation, meaning the system with L4 was not guaranteed or validated*
 
-**As the contest ended, I was no longer working on the project. I do only support the project very limited meaning no more updates are expected. But I do recommend you could do more than this as there are so many windows for further development.**
+### PCB Layout Files Description
+
+The files were originally exported from lceda **STD** version, and the files for Altium Designer were not validated. 
+
+|Version|Description|
+|:-:|:-:|
+|1.0| Original board(with fatal error, please do not use) |
+|1.8| The final version for 4 motors |
+|2.1| The version used in the contest with support for 5 motors |  
+
+**As the contest ended, I was no longer working on the project. I do only support the project very limitedly, as no more updates are expected. But I do recommend you build more with this basement. I found there were so many thoughts that I was not able to realize, but they may not be hard to implement.**
 
 //////////////////////////////////////////////////////////  
 ## 2023年广东省大学生工程实践与创新能力大赛 暨2023年中国大学生工程实践与创新能力大赛选拔赛 
@@ -76,7 +87,8 @@ L4
 电控源码+OpenMV视觉+PCB
 
 PCB:  
-导入至立创EDA标准版  
+导入至立创EDA**标准版**  
+另有Altium Designer版本文件,由于这些文件由立创EDA标准版导出,AD版本文件未经过实际测试.
 
 |版本|说明|
 |:-:|:-:|
